@@ -1,9 +1,16 @@
 import React from 'react'
+import DefaultLayout from '@/components/Layout/DefaultLayout'
 
 const Backlog = () => {
-  return (
-    <div>Backlog</div>
-  )
+	return (
+		<DefaultLayout
+			title='Backlog'
+		>
+			<div>
+				Backlog
+			</div>
+		</DefaultLayout>
+	)
 }
 
 export default Backlog

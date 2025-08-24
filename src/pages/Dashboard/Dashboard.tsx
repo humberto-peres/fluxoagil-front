@@ -1,16 +1,16 @@
 import React from 'react'
 import DefaultLayout from '@/components/Layout/DefaultLayout'
 
-const TypeTask = () => {
+const Dashboard = () => {
 	return (
 		<DefaultLayout
-			title='Tipo de tarefa'
+			title='Dashboard'
 		>
 			<div>
-				Tipo de tarefa
+				Dashboard
 			</div>
 		</DefaultLayout>
 	)
 }
 
-export default TypeTask
+export default Dashboard

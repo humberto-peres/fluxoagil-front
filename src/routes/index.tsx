@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import { Protected } from "./Protected";
 
-const Home = lazy(() => import("@/pages/Home/Home"));
+const Dashboard = lazy(() => import("@/pages/Dashboard/Dashboard"));
 const Board = lazy(() => import("@/pages/Board/Board"));
 const Backlog = lazy(() => import("@/pages/Backlog/Backlog"));
 const Workspace = lazy(() => import("@/pages/Workspace/Workspace"));
@@ -24,7 +24,7 @@ function withSuspense(el: React.ReactNode) {
 }
 
 const routes: RouteObject[] = [
-    { path: "/", element: withSuspense(<Home />) },
+    { path: "/", element: withSuspense(<Dashboard />) },
     { path: "/board", element: withSuspense(<Protected><Board /></Protected>) },
     { path: "/backlog", element: withSuspense(<Protected><Backlog /></Protected>) },
     { path: "/workspace", element: withSuspense(<Protected><Workspace /></Protected>) },
