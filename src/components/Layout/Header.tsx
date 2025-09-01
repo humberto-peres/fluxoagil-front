@@ -1,8 +1,6 @@
-import React, { Dispatch, SetStateAction } from 'react';
-import { Avatar, Button, Layout, Input, Flex } from 'antd';
-import { CgMenuGridO } from "react-icons/cg";
+import React from 'react';
+import { Avatar, Layout, Input, Flex } from 'antd';
 import { IoSearch, IoLogOutOutline  } from "react-icons/io5";
-import { FiUser } from "react-icons/fi";
 
 const { Header } = Layout;
 
