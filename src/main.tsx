@@ -8,13 +8,13 @@ import { AppRouter } from "@/routes";
 import { AuthProvider } from "@/context/AuthContext";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <AuthProvider>
-      <ConfigurationProvider>
-        <AntApp>
-          <AppRouter />
-        </AntApp>
-      </ConfigurationProvider>
-    </AuthProvider>
-  </StrictMode>
+	<StrictMode>
+		<AuthProvider>
+			<ConfigurationProvider>
+				<AntApp>
+					<AppRouter />
+				</AntApp>
+			</ConfigurationProvider>
+		</AuthProvider>
+	</StrictMode>
 );
