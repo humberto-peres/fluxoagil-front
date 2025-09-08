@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Table, Form, message, Popover, Modal } from "antd";
+import { Table, Form, Popover, Modal, App } from "antd";
 import DefaultLayout from "@/components/Layout/DefaultLayout";
 import FormUser from "./FormUser";
 import { deleteUsers } from "@/services/user.services";
-import type { NoticeType } from "antd/es/message/interface";
 import type { TableColumnsType } from "antd";
 
 type AddressType = {
@@ -67,20 +66,13 @@ const columns: TableColumnsType<UserType> = [
 ];
 
 const User: React.FC = () => {
+	const { message } = App.useApp();
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [addressFieldsDisabled, setAddressFieldsDisabled] = useState(true);
 	const [form] = Form.useForm();
 	const [data, setData] = useState<UserType[]>([]);
 	const [editingUserId, setEditingUserId] = useState<number | null>(null);
-	const [messageApi, contextHolder] = message.useMessage();
-
-	const messageAction = (type: NoticeType, msg: string) => {
-		messageApi.open({
-			type: type,
-			content: msg,
-		});
-	};
 
 	const fetchUsers = async () => {
 		const response = await fetch("http://localhost:3000/users");
@@ -126,7 +118,7 @@ const User: React.FC = () => {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(payload),
 				});
-				messageAction("success", "Usuário atualizado com sucesso!");
+				message.success("Usuário atualizado com sucesso!");
 			} else {
 				payload.address = {
 					create: payload.address.update,
@@ -138,13 +130,13 @@ const User: React.FC = () => {
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(payload),
 				});
-				messageAction("success", "Usuário criado com sucesso!");
+				message.success("Usuário criado com sucesso!");
 			}
 
 			closeModal();
 			fetchUsers();
 		} catch (error) {
-			messageAction("error", "Erro ao salvar o usuário");
+			message.error("Erro ao salvar o usuário");
 		}
 	};
 
@@ -155,10 +147,10 @@ const User: React.FC = () => {
 			.then(() => {
 				setSelectedRowKeys([]);
 				fetchUsers();
-				messageAction("success", "Usuário(s) excluído(s) com sucesso!");
+				message.success("Usuário(s) excluído(s) com sucesso!");
 			})
 			.catch(() => {
-				messageAction("error", "Erro ao excluir usuário(s)");
+				message.error("Erro ao excluir usuário(s)");
 			});
 	};
 
@@ -193,18 +185,14 @@ const User: React.FC = () => {
 			textButton="Criar Usuário"
 			onAddClick={openModal}
 		>
-			{contextHolder}
-			<Table
-				rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
-				columns={columns}
-				dataSource={data}
-				rowKey="id"
-			/>
+			<Table columns={columns} dataSource={data} rowKey="id" />
 
 			<Modal
 				open={isModalOpen}
 				title={editingUserId ? "Editar Usuário" : "Criar Usuário"}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 				onCancel={closeModal}
 				width={832}
 			>

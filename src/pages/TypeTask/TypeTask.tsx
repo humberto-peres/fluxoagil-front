@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Form, message, Modal, Tooltip, Popconfirm, Button } from 'antd';
+import { Table, Form, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import FormTaskType from './FormTaskType';
@@ -17,6 +17,7 @@ type TaskTypeData = {
 };
 
 const TaskType: React.FC = () => {
+	const { message } = App.useApp();
 	const [taskTypes, setTaskTypes] = useState<TaskTypeData[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
@@ -129,6 +130,8 @@ const TaskType: React.FC = () => {
 				open={isModalOpen}
 				title={editingId ? 'Editar Tipo de Atividade' : 'Criar Tipo de Atividade'}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 				onCancel={closeModal}
 			>
 				<FormTaskType form={form} onFinish={handleFormSubmit} />

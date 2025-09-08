@@ -44,7 +44,9 @@ const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({ children 
 					colorText: customTheme.colors.white,
 					colorTextPlaceholder: customTheme.colors.white,
 					colorTextDescription: customTheme.colors.white,
-					opacityImage: 2
+					opacityImage: 2,
+					colorIcon: customTheme.colors.white,
+					colorBgElevated: customTheme.colors.backgroundDark
 				},
 				components: {
 					Input: {
@@ -56,14 +58,14 @@ const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({ children 
 						colorTextPlaceholder: customTheme.colors.gray
 					},
 					Menu: {
-						colorItemBg: customTheme.colors.backgroundDark,
-						colorItemBgHover: customTheme.colors.backgroundLight,
-						colorItemBgSelected: customTheme.colors.backgroundSoft,
+						itemBg: customTheme.colors.backgroundDark,
+						itemHoverBg: customTheme.colors.backgroundLight,
+						itemSelectedBg: customTheme.colors.backgroundSoft,
 						iconSize: 20,
 						fontSize: 15,
 						groupTitleColor: customTheme.colors.gray,
-						colorItemTextHover: customTheme.colors.black,
-						colorItemTextSelected: customTheme.colors.white,
+						itemHoverColor: customTheme.colors.black,
+						itemSelectedColor: customTheme.colors.white,
 					},
 					Layout: {
 						headerBg: customTheme.colors.backgroundDark,
@@ -74,23 +76,36 @@ const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({ children 
 						primaryShadow: "none",
 						colorBorder: customTheme.colors.gray,
 						dangerShadow: "none",
+						colorBgContainerDisabled: customTheme.colors.disabled,
+						colorTextDisabled: customTheme.colors.gray
 					},
 					Select: {
 						colorBgContainer: customTheme.colors.field,
 						colorBorder: customTheme.colors.gray,
-						colorTextPlaceholder: customTheme.colors.gray
+						colorTextPlaceholder: customTheme.colors.gray,
+						colorTextDisabled: customTheme.colors.white,
+						colorTextQuaternary: customTheme.colors.gray
 					},
 					Pagination: {
 						colorBgContainer: "transparent",
-						colorPrimary: customTheme.colors.white
+						colorPrimary: customTheme.colors.white,
+						colorIcon: "#8A2BE2",
+						colorTextDisabled: customTheme.colors.gray,
 					},
 					DatePicker: {
 						colorBgContainer: customTheme.colors.field,
 						colorBorder: customTheme.colors.gray,
-						colorTextPlaceholder: customTheme.colors.gray
+						colorTextPlaceholder: customTheme.colors.gray,
+						colorTextDisabled: customTheme.colors.white
 					},
 					Collapse: {
 						colorBgContainer: customTheme.colors.backgroundDark
+					},
+					Divider: {
+						colorSplit: customTheme.colors.white
+					},
+					List: {
+						colorTextDisabled: customTheme.colors.gray
 					}
 				},
 			}}

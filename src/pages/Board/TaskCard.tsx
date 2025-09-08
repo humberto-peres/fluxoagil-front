@@ -27,7 +27,6 @@ export function TaskCard({ task, onEdit }: TaskCardProps) {
 
 	const actions: React.ReactNode[] = [
 		<EditOutlined key="edit" onPointerDown={stop} onClick={() => onEdit?.(task.id)} className='!mr-[10px] !hover:cursor-pointer' />,
-		<EllipsisOutlined key="ellipsis" onPointerDown={stop} onClick={() => onEdit?.(task.id)} className='!hover:cursor-pointer' />,
 	];
 
 	const user = "U";

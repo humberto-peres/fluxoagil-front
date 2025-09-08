@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Result, message, FloatButton, Form, Modal } from 'antd';
+import { Result, FloatButton, Form, Modal, App } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
@@ -15,13 +15,16 @@ import { getTaskById } from '@/services/task.services';
 import { getSprints, type SprintDTO } from '@/services/sprint.services';
 import type { DragEndEvent } from '@dnd-kit/core';
 
+import QuickAddTask from '@/components/Task/QuickAddTask';
+
 export type Task = { id: string; status: string; title: string; description: string };
 export type ColumnType = { id: string; title: string };
-type Workspace = { id: number; name: string; methodology: string; steps: { stepId: number; name: string }[] };
+type Workspace = { id: number; name: string; methodology: string; key: string; steps: { stepId: number; name: string }[] };
 
 const COOKIE_KEY = 'board.selectedWorkspaceId';
 
 const Board: React.FC = () => {
+	const { message } = App.useApp();
 	const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
 	const [columns, setColumns] = useState<ColumnType[]>([]);
@@ -89,7 +92,7 @@ const Board: React.FC = () => {
 
 	const tasksByColumn = useMemo<Record<string, Task[]>>(() => {
 		const by: Record<string, Task[]> = {};
-		for (const t of tasks) (by[t.status] ||= []).push(t);
+		for (const t of tasks) (by[t.status] ||= []).push(t as any);
 		return by;
 	}, [tasks]);
 
@@ -104,6 +107,7 @@ const Board: React.FC = () => {
 
 	const openModal = () => {
 		if (activeSprint) form.setFieldsValue({ sprint: activeSprint.id });
+		if (selectedWorkspaceId) form.setFieldsValue({ workspaceId: selectedWorkspaceId });
 		setIsModalOpen(true);
 	};
 
@@ -133,7 +137,8 @@ const Board: React.FC = () => {
 				reporterId: values.report ? Number(values.report) : null,
 				assigneeId: values.responsible ? Number(values.responsible) : null,
 				userId: Number(values.report ?? values.responsible),
-				workspaceId: selectedWorkspaceId ?? null,
+				workspaceId: Number(values.workspaceId ?? selectedWorkspaceId),
+				epicId: values.epicId ?? null,
 				stepId: editingId ? undefined : stepIdDefault,
 				status: editingId ? undefined : String(stepIdDefault),
 			};
@@ -164,10 +169,12 @@ const Board: React.FC = () => {
 			const data = await getTaskById(Number(id));
 			setEditingId(Number(id));
 			form.setFieldsValue({
+				workspaceId: data.workspaceId,
 				title: data.title,
 				'type-task': data.typeTaskId,
 				priority: data.priorityId,
 				sprint: data.sprintId ?? undefined,
+				epicId: data.epic?.id ?? undefined,
 				estimate: data.estimate ?? undefined,
 				'start-date': data.startDate ? dayjs(data.startDate) : undefined,
 				deadline: data.deadline ? dayjs(data.deadline) : undefined,
@@ -179,6 +186,20 @@ const Board: React.FC = () => {
 		} catch {
 			message.error('Erro ao carregar atividade');
 		}
+	};
+
+	const handleQuickCreate = async (partial: any) => {
+		const stepIdDefault = columns[0] ? Number(columns[0].id) : undefined;
+		if (!stepIdDefault) throw new Error('Nenhuma etapa encontrada neste Workspace');
+
+		const payload = {
+			...partial,
+			workspaceId: selectedWorkspaceId,
+			stepId: stepIdDefault,
+			status: String(stepIdDefault),
+		};
+
+		await create(payload);
 	};
 
 	return (
@@ -196,10 +217,11 @@ const Board: React.FC = () => {
 				type="primary"
 			/>
 
+			<QuickAddTask onCreate={handleQuickCreate} selectedWorkspaceId={selectedWorkspaceId} />
+
 			<BoardFilterDrawer
 				open={filterOpen}
 				onClose={() => setFilterOpen(false)}
-				workspaces={workspaces}
 				initialWorkspaceId={selectedWorkspaceId}
 				onApply={({ workspaceId }) => {
 					setSelectedWorkspaceId(workspaceId ?? null);
@@ -217,6 +239,8 @@ const Board: React.FC = () => {
 				open={isModalOpen}
 				title={editingId ? 'Editar Atividade' : 'Criar Atividade'}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 				onCancel={closeModal}
 			>
 				<FormTask form={form} onFinish={handleFormSubmit} selectedWorkspaceId={selectedWorkspaceId ?? undefined} />

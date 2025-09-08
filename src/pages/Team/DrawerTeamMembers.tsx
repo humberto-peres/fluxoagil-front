@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Drawer, List, Button, Select, message } from 'antd';
+import { Drawer, List, Button, Select, App } from 'antd';
 import {
 	getTeamMembers,
 	addTeamMembers,
@@ -22,6 +22,7 @@ type User = {
 };
 
 const DrawerTeamMembers: React.FC<Props> = ({ teamId, isOpen, onClose, onMembersChange }) => {
+	const { message } = App.useApp();
 	const [availableUsers, setAvailableUsers] = useState<User[]>([]);
 	const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
 	const [members, setMembers] = useState<User[]>([]);

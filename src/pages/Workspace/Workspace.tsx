@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Form, message, Popover, Tag, Modal, Tooltip, Popconfirm, Button } from 'antd';
+import { Table, Form, Popover, Tag, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout'
 import FormWorkspace from './FormWorkspace';
@@ -14,7 +14,7 @@ import type { TableColumnsType } from 'antd';
 type WorkspaceType = {
 	id: number;
 	name: string;
-	prefix: string;
+	key: string;
 	methodology: string;
 	teamName: string;
 	teamId: number;
@@ -23,6 +23,7 @@ type WorkspaceType = {
 }
 
 const Workspace: React.FC = () => {
+	const { message } = App.useApp();
 	const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [form] = Form.useForm();
@@ -51,7 +52,7 @@ const Workspace: React.FC = () => {
 		try {
 			const payload = {
 				name: values.name,
-				prefix: values.prefix,
+				key: values.key,
 				methodology: values.methodology,
 				teamId: values.teamId,
 				steps: values.steps.map((step: any, index: number) => ({
@@ -78,7 +79,7 @@ const Workspace: React.FC = () => {
 	const handleEditRecord = (record: WorkspaceType) => {
 		form.setFieldsValue({
 			name: record.name,
-			prefix: record.prefix,
+			key: record.key,
 			methodology: record.methodology,
 			steps: (record.steps ?? []).map(s => ({ stepId: s.stepId, name: s.name })),
 			teamId: record.teamId,
@@ -99,7 +100,7 @@ const Workspace: React.FC = () => {
 
 	const columns: TableColumnsType<WorkspaceType> = [
 		{ title: 'Nome', dataIndex: 'name', width: '32%' },
-		{ title: 'Código', dataIndex: 'prefix', width: '12%' },
+		{ title: 'Código', dataIndex: 'key', width: '12%' },
 		{ title: 'Metodologia', dataIndex: 'methodology', width: '20%' },
 		{
 			title: 'Equipe',
@@ -180,6 +181,8 @@ const Workspace: React.FC = () => {
 				open={isModalOpen}
 				title={editingId ? 'Editar Workspace' : 'Criar Workspace'}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 				onCancel={closeModal}
 				width={700}
 			>

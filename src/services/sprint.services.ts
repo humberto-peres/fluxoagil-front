@@ -39,13 +39,13 @@ export const updateSprint = async (id: number, data: any) => {
 };
 
 export const activateSprint = async (id: number) => {
-	const res = await fetch(`${BASE_URL}/sprints/${id}/activate`, { method: 'PATCH' });
+	const res = await fetch(`${BASE_URL}/sprints/${id}/activate`, { method: 'POST' });
 	if (!res.ok) throw new Error('Erro ao ativar sprint');
 	return res.json();
 };
 
 export const closeSprint = async (id: number) => {
-	const res = await fetch(`${BASE_URL}/sprints/${id}/close`, { method: 'PATCH' });
+	const res = await fetch(`${BASE_URL}/sprints/${id}/close`, { method: 'POST' });
 	if (!res.ok) throw new Error('Erro ao encerrar sprint');
 	return res.json();
 };
