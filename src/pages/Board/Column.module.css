@@ -1,0 +1,31 @@
+.column {
+    width: 340px;
+    min-height: calc(100vh - 387px);
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.dropZone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.dropZone.isOver {
+    background-color: rgba(128, 0, 128, 0.2);
+    box-shadow: 0 0 0 2px purple, 0 0 8px rgba(128, 0, 128, 0.5);
+}
+
+.title {
+    font-weight: 600;
+}
+
+.subTitle {
+    font-size: 11px;
+    color: var(--text);
+}
