@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Form, message, Button, Tooltip, Popover, Modal, Popconfirm } from 'antd';
+import { Table, Form, Button, Tooltip, Popover, Modal, Popconfirm, App } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
@@ -18,17 +18,13 @@ type User = { id: number; name: string; };
 type TeamType = { id: number; name: string; members: { user: User }[]; };
 
 const Team: React.FC = () => {
+	const { message } = App.useApp();
 	const [teams, setTeams] = useState<TeamType[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const [editingTeamId, setEditingTeamId] = useState<number | null>(null);
 	const [form] = Form.useForm();
 	const [currentTeamId, setCurrentTeamId] = useState<number | null>(null);
-	const [messageApi, contextHolder] = message.useMessage();
-
-	const messageAction = (type: 'success' | 'error', msg: string) => {
-		messageApi.open({ type, content: msg });
-	};
 
 	const loadTeams = async () => {
 		try {
@@ -57,15 +53,15 @@ const Team: React.FC = () => {
 		try {
 			if (editingTeamId) {
 				await updateTeam(editingTeamId, values);
-				messageAction('success', 'Equipe atualizada com sucesso!');
+				message.success('Equipe atualizada com sucesso!');
 			} else {
 				await createTeam(values);
-				messageAction('success', 'Equipe criada com sucesso!');
+				message.success('Equipe criada com sucesso!');
 			}
 			closeModal();
 			loadTeams();
 		} catch {
-			messageAction('error', 'Erro ao salvar equipe');
+			message.error('Erro ao salvar equipe');
 		}
 	};
 
@@ -83,17 +79,17 @@ const Team: React.FC = () => {
 			setEditingTeamId(id);
 			setIsModalOpen(true);
 		} catch {
-			messageAction('error', 'Erro ao carregar equipe');
+			message.error('Erro ao carregar equipe');
 		}
 	};
 
 	const handleDeleteRecord = async (id: number) => {
 		try {
 			await deleteTeams([id]);
-			messageAction('success', 'Equipe excluída com sucesso!');
+			message.success('Equipe excluida com sucesso!');
 			loadTeams();
 		} catch {
-			messageAction('error', 'Erro ao excluir equipe');
+			message.error('Erro ao excluir equipe');
 		}
 	};
 
@@ -168,13 +164,14 @@ const Team: React.FC = () => {
 			textButton="Criar Equipe"
 			onAddClick={openModal}
 		>
-			{contextHolder}
 			<Table columns={columns} dataSource={teams} rowKey="id" />
 
 			<Modal
 				open={isModalOpen}
 				title={editingTeamId ? 'Editar Equipe' : 'Criar Equipe'}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 				onCancel={closeModal}
 			>
 				<FormTeam form={form} onFinish={handleFormSubmit} />

@@ -1,7 +1,10 @@
 import React from 'react';
-import { Collapse, Button, Space, Tag } from 'antd';
+import { Collapse, Button, Space, Tag, Tooltip } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import type { CollapseProps } from 'antd';
+import { FiEdit2 } from 'react-icons/fi';
+import { FaRegCircleStop, FaCirclePlay } from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
 
 export type SprintItem = {
     id: number;
@@ -35,27 +38,27 @@ const SprintList: React.FC<Props> = ({
             key: `sprint-${s.id}`,
             label: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ opacity: s.isActive ? 1 : 0.7 }}>{s.name}</span>
+                    <span>{s.name}</span>
                     {s.isActive ? <Tag color="success">Ativa</Tag> : <Tag>Inativa</Tag>}
-                    <span style={{ marginLeft: 'auto' }}>
-                        <Space size="small">
+                    <span style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                        <Space size="middle">
                             {!s.isActive && s.startDate && s.endDate && (
-                                <Button size="small" onClick={(e) => { e.stopPropagation(); onActivate(s); }}>
-                                    Ativar
-                                </Button>
+                                <Tooltip title="Ativar sprint">
+                                    <FaCirclePlay size={17} onClick={(e) => { e.stopPropagation(); onActivate(s); }}/>
+                                </Tooltip>
                             )}
                             {s.isActive && (
-                                <Button size="small" danger onClick={(e) => { e.stopPropagation(); onClose(s); }}>
-                                    Encerrar
-                                </Button>
+                                <Tooltip title="Encerrar sprint">
+                                    <FaRegCircleStop size={17} onClick={(e) => { e.stopPropagation(); onClose(s); }}/>
+                                </Tooltip>
                             )}
-                            <Button size="small" onClick={(e) => { e.stopPropagation(); onEdit(s); }}>
-                                Editar
-                            </Button>
+                            <Tooltip title="Editar">
+                                <FiEdit2 size={17} onClick={(e) => { e.stopPropagation(); onEdit(s); }}/>
+                            </Tooltip>
                             {onDelete && (
-                                <Button size="small" danger onClick={(e) => { e.stopPropagation(); onDelete(s); }}>
-                                    Excluir
-                                </Button>
+                                <Tooltip title="Deletar">
+                                    <MdDelete size={17} onClick={(e) => { e.stopPropagation(); onDelete(s); }}/>
+                                </Tooltip>
                             )}
                         </Space>
                     </span>
@@ -63,10 +66,10 @@ const SprintList: React.FC<Props> = ({
             ),
             style: {
                 marginBottom: 16,
-                background: s.isActive ? '#383838' : '#2b2b2b',
-                opacity: s.isActive ? 1 : 0.85,
+                background: '#383838',
+                opacity: 1,
                 borderRadius: 8,
-                border: 'none',
+                border: 'none'
             },
             children: (
                 <div>
@@ -93,7 +96,7 @@ const SprintList: React.FC<Props> = ({
     return (
         <Collapse
             bordered={false}
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
             items={items}
         />
     );

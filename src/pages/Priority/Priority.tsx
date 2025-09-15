@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Form, message, Modal, Tooltip, Popconfirm, Button } from 'antd';
+import { Table, Tag, Form, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import FormPriority from './FormPriority';
@@ -13,6 +13,7 @@ type PriorityType = {
 };
 
 const Priority: React.FC = () => {
+	const { message } = App.useApp();
 	const [priorities, setPriorities] = useState<PriorityType[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [form] = Form.useForm();
@@ -140,6 +141,8 @@ const Priority: React.FC = () => {
 				open={isModalOpen}
 				title={editingId ? 'Editar Prioridade' : 'Criar Prioridade'}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 				onCancel={closeModal}
 			>
 				<FormPriority form={form} onFinish={handleFormSubmit} />

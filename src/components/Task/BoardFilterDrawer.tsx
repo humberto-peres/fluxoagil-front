@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react';
-import { Drawer, Form, Button, Select } from 'antd';
-
-type Workspace = { id: number; name: string };
+import React, { useEffect, useMemo, useState } from 'react';
+import { Drawer, Form, Button, Select, App } from 'antd';
+import { getMyWorkspaces } from '@/services/workspace.services';
 
 type Props = {
 	open: boolean;
 	onClose: () => void;
 	onApply: (values: { workspaceId?: number }) => void;
 	onClear: () => void;
-	workspaces: Workspace[];
 	initialWorkspaceId?: number | null;
 };
 
@@ -17,18 +15,48 @@ const BoardFilterDrawer: React.FC<Props> = ({
 	onClose,
 	onApply,
 	onClear,
-	workspaces,
 	initialWorkspaceId,
 }) => {
+	const { message } = App.useApp();
 	const [form] = Form.useForm();
+	const [loading, setLoading] = useState(false);
+	const [workspaces, setWorkspaces] = useState<Array<{ id: number; name: string }>>([]);
 
 	useEffect(() => {
-		if (open) {
-			form.setFieldsValue({
-				workspaceId: initialWorkspaceId ?? undefined,
-			});
-		}
-	}, [open, initialWorkspaceId, form]);
+		let alive = true;
+		(async () => {
+			setLoading(true);
+			try {
+				const list = await getMyWorkspaces();
+				if (!alive) return;
+				setWorkspaces(list.map(w => ({ id: w.id, name: w.name })));
+
+				if (initialWorkspaceId && !list.some(w => w.id === initialWorkspaceId)) {
+					onClear();
+					message.info('Você não faz parte da equipe desse workspace. Filtro limpo.');
+				}
+			} catch {
+				if (initialWorkspaceId != null) onClear();
+			} finally {
+				if (alive) setLoading(false);
+			}
+		})();
+		return () => { alive = false; };
+	}, [initialWorkspaceId, onClear, message]);
+
+	useEffect(() => {
+		if (!open) return;
+		form.setFieldsValue({
+			workspaceId: workspaces.some(w => w.id === initialWorkspaceId!)
+				? initialWorkspaceId
+				: undefined,
+		});
+	}, [open, initialWorkspaceId, workspaces, form]);
+
+	const options = useMemo(
+		() => workspaces.map(ws => ({ label: ws.name, value: ws.id })),
+		[workspaces]
+	);
 
 	const handleApply = async () => {
 		const values = await form.validateFields();
@@ -45,13 +73,13 @@ const BoardFilterDrawer: React.FC<Props> = ({
 			title="Filtros do Board"
 			open={open}
 			onClose={onClose}
-			destroyOnHidden
+			destroyOnClose
 			footer={
 				<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 					<Button onClick={handleClear}>Limpar</Button>
 					<div style={{ display: 'flex', gap: 8 }}>
 						<Button onClick={onClose}>Cancelar</Button>
-						<Button type="primary" onClick={handleApply}>
+						<Button type="primary" onClick={handleApply} loading={loading}>
 							Aplicar
 						</Button>
 					</div>
@@ -64,9 +92,10 @@ const BoardFilterDrawer: React.FC<Props> = ({
 						size="large"
 						placeholder="Selecione um Workspace"
 						allowClear
-						options={workspaces.map((ws) => ({ label: ws.name, value: ws.id }))}
+						options={options}
 						showSearch
 						optionFilterProp="label"
+						loading={loading}
 					/>
 				</Form.Item>
 			</Form>

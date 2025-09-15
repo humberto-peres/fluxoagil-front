@@ -1,47 +1,58 @@
-import { createContext, useContext, useState } from "react";
-import type { ReactNode } from "react";
-
-type User = {
-	id: number;
-	name: string;
-	role: "admin" | "manager" | "user";
-};
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { login as apiLogin, me as apiMe, logout as apiLogout, type SessionUser } from '@/services/auth.services';
 
 type AuthContextType = {
-	user: User | null;
-	login: (user: User, token: string) => void;
-	logout: () => void;
+	user: (SessionUser & { role: 'admin' | 'user' }) | null;
+	loading: boolean;
+	signIn: (args: { username: string; password: string }) => Promise<void>;
+	signOut: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+	user: null,
+	loading: true,
+	signIn: async () => { },
+	signOut: async () => { },
+});
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>({
-		id: 1,
-		name: "Usuário de Teste",
-		role: "admin"
-	});
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+	const [user, setUser] = useState<SessionUser | null>(null);
+	const [loading, setLoading] = useState(true);
 
-	const login = (newUser: User, token: string) => {
-		setUser(newUser);
-		console.log("token", token);
-		console.log("newUser", JSON.stringify(newUser));
+	async function bootstrap() {
+		try {
+			const u = await apiMe();
+			setUser(u);
+		} catch {
+			setUser(null);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	useEffect(() => {
+		bootstrap();
+	}, []);
+
+	const signIn = async ({ username, password }: { username: string; password: string }) => {
+		try {
+			const u = await apiLogin(username, password);
+			setUser(u);
+		} catch (e: any) {
+			setUser(null);
+			throw e;
+		}
 	};
 
-	const logout = () => {
+	const signOut = async () => {
+		await apiLogout();
 		setUser(null);
-		console.log("Logout");
 	};
 
-	return (
-		<AuthContext.Provider value={{ user, login, logout }}>
-			{children}
-		</AuthContext.Provider>
-	);
-}
+	const value = useMemo(() => ({ user, loading, signIn, signOut }), [user, loading]);
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
 export function useAuth() {
-	const context = useContext(AuthContext);
-	if (!context) throw new Error("useAuth deve ser usado dentro do AuthProvider");
-	return context;
+	return useContext(AuthContext);
 }

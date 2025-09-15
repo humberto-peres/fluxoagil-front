@@ -48,7 +48,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 
             <Form.Item
                 label="Identificador"
-                name="prefix"
+                name="key"
                 tooltip="Apenas letras, até 5 (ex.: WOR). Será usado como prefixo: WOR-1, WOR-2..."
                 rules={[
                     { required: true, message: 'Informe o código do workspace' },
@@ -66,7 +66,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
                     placeholder="Ex.: WOR"
                     onChange={(e) => {
                         const onlyLetters = e.target.value.replace(/[^A-Za-z]/g, '');
-                        form.setFieldsValue({ prefix: onlyLetters.toUpperCase() });
+                        form.setFieldsValue({ key: onlyLetters.toUpperCase() });
                     }}
                 />
             </Form.Item>

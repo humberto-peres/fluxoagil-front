@@ -21,7 +21,7 @@ const FormSprint: React.FC<Props> = ({ form, onFinish, disabled }) => {
   const handleFinish = (values: any) => onFinish(values);
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleFinish} requiredMark="optional" colon={false}>
+    <Form form={form} layout="vertical" onFinish={handleFinish} colon={false}>
       <Form.Item
         label="Nome da sprint"
         name="name"
@@ -31,12 +31,12 @@ const FormSprint: React.FC<Props> = ({ form, onFinish, disabled }) => {
       </Form.Item>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <Form.Item label="Início" name="startDate" tooltip="Opcional">
-          <DatePicker size="large" style={{ width: '100%' }} format="DD/MM/YYYY" disabled={disabled} />
+        <Form.Item label="Início" name="startDate" rules={[{ required: true, message: 'Informe a data de início.' }]} >
+          <DatePicker size="large" style={{ width: '100%' }} format="DD/MM/YYYY" disabled={disabled} placeholder='DD/MM/YYYY' />
         </Form.Item>
 
-        <Form.Item label="Término" name="endDate" rules={[{ validator: validateEndAfterStart }]} tooltip="Opcional">
-          <DatePicker size="large" style={{ width: '100%' }} format="DD/MM/YYYY" disabled={disabled} />
+        <Form.Item label="Término" name="endDate" rules={[{ validator: validateEndAfterStart, required: true, message: 'Informe a data de término.' }]} >
+          <DatePicker size="large" style={{ width: '100%' }} format="DD/MM/YYYY" disabled={disabled} placeholder='DD/MM/YYYY' />
         </Form.Item>
       </div>
     </Form>

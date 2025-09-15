@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout } from "antd";
-import Sider from "@/components/Layout/Sider";
+import Sidebar from "@/components/Layout/Sidebar";
 import Header from "@/components/Layout/Header";
 import SubHeader from "@/components/UI/SubHeader";
 
@@ -14,10 +14,10 @@ interface DefaultLayoutProps {
     onAddClick?: () => void;
 }
 
-const DefaultLayout: React.FC<DefaultLayoutProps> = ({ title, children, addButton, textButton, onAddClick }) => {
+const DefaultLayout: React.FC<DefaultLayoutProps> = ({ title, children, addButton = false, textButton, onAddClick }) => {
     return (
         <Layout className="!min-h-screen">
-            <Sider />
+            <Sidebar />
 
             <Layout className="!ml-[240px]" style={{ borderLeft: "1px solid rgba(159, 159, 159, 0.3)"}}>
                 <Header />

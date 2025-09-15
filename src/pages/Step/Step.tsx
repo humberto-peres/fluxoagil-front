@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Form, message, Modal, Tooltip, Popconfirm, Button } from 'antd';
+import { Table, Form, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import FormStep from './FormStep';
@@ -19,6 +19,7 @@ type StepType = {
 };
 
 const Step: React.FC = () => {
+	const { message } = App.useApp();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
@@ -135,6 +136,8 @@ const Step: React.FC = () => {
 				title={editingId ? 'Editar Etapa' : 'Criar Etapa'}
 				onCancel={closeModal}
 				onOk={() => form.submit()}
+				okText="Salvar"
+				cancelText="Cancelar"
 			>
 				<FormStep form={form} onFinish={handleSubmit} />
 			</Modal>

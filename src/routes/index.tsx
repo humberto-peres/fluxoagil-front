@@ -5,6 +5,7 @@ import {
     type RouteObject,
 } from "react-router-dom";
 import { Protected } from "./Protected";
+import Epic from "@/pages/Epic/Epic";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard/Dashboard"));
 const Board = lazy(() => import("@/pages/Board/Board"));
@@ -24,15 +25,16 @@ function withSuspense(el: React.ReactNode) {
 }
 
 const routes: RouteObject[] = [
-    { path: "/", element: withSuspense(<Dashboard />) },
+    { path: "/", element: withSuspense(<Protected><Dashboard /></Protected>) },
     { path: "/board", element: withSuspense(<Protected><Board /></Protected>) },
     { path: "/backlog", element: withSuspense(<Protected><Backlog /></Protected>) },
+    { path: "/epic", element: withSuspense(<Protected><Epic /></Protected>) },
     { path: "/workspace", element: withSuspense(<Protected><Workspace /></Protected>) },
-    { path: "/priority", element: withSuspense(<Protected roles={["admin"]}><Priority /></Protected>) },
+    { path: "/priority", element: withSuspense(<Protected><Priority /></Protected>) },
     { path: "/step", element: withSuspense(<Protected><Step /></Protected>) },
     { path: "/type-task", element: withSuspense(<Protected><TypeTask /></Protected>) },
     { path: "/team", element: withSuspense(<Protected><Team /></Protected>) },
-    { path: "/user", element: withSuspense(<Protected><User /></Protected>) },
+    { path: "/user", element: withSuspense(<Protected roles={["admin"]}><User /></Protected>) },
     { path: "/login", element: withSuspense(<Login />) },
     { path: "/forgot-password", element: withSuspense(<ForgotPassword />) },
     { path: "/configuration", element: withSuspense(<Protected><Configuration /></Protected>) },
