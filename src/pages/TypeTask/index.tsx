@@ -19,16 +19,20 @@ type TaskTypeData = {
 const TaskType: React.FC = () => {
 	const { message } = App.useApp();
 	const [taskTypes, setTaskTypes] = useState<TaskTypeData[]>([]);
+	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
 
 	const fetchTaskTypes = async () => {
 		try {
+			setLoading(true);
 			const data = await getTaskTypes();
 			setTaskTypes(data);
 		} catch {
 			message.error('Erro ao carregar tipos de atividade');
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -36,9 +40,7 @@ const TaskType: React.FC = () => {
 		fetchTaskTypes();
 	}, []);
 
-	const openModal = () => {
-		setIsModalOpen(true);
-	};
+	const openModal = () => setIsModalOpen(true);
 
 	const closeModal = () => {
 		form.resetFields();
@@ -79,11 +81,12 @@ const TaskType: React.FC = () => {
 	};
 
 	const columns: TableColumnsType<TaskTypeData> = [
-		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
+		{ title: 'Nome', dataIndex: 'name', width: 420, ellipsis: true },
 		{
 			title: 'Ações',
 			key: 'actions',
 			width: 110,
+			fixed: 'right',
 			align: 'center',
 			render: (_: unknown, record: TaskTypeData) => (
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -124,7 +127,16 @@ const TaskType: React.FC = () => {
 			textButton="Criar Tipo"
 			onAddClick={openModal}
 		>
-			<Table columns={columns} dataSource={taskTypes} rowKey="id" />
+			<Table
+				columns={columns}
+				dataSource={taskTypes}
+				rowKey="id"
+				loading={loading}
+				size="middle"
+				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				scroll={{ x: 640 }}
+				tableLayout="auto"
+			/>
 
 			<Modal
 				open={isModalOpen}
@@ -133,6 +145,9 @@ const TaskType: React.FC = () => {
 				okText="Salvar"
 				cancelText="Cancelar"
 				onCancel={closeModal}
+				destroyOnHidden
+				rootClassName="responsive-modal"
+				width={560}
 			>
 				<FormTaskType form={form} onFinish={handleFormSubmit} />
 			</Modal>

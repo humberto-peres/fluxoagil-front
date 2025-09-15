@@ -14,208 +14,193 @@ const { Option } = Select;
 type OptionType = { label: string; value: string | number };
 
 type Props = {
-  form: FormInstance;
-  onFinish: (values: any) => void;
-  selectedWorkspaceId?: number;
+	form: FormInstance;
+	onFinish: (values: any) => void;
+	selectedWorkspaceId?: number;
 };
 
 const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
-  const [types, setTypes] = useState<OptionType[]>([]);
-  const [priorities, setPriorities] = useState<OptionType[]>([]);
-  const [users, setUsers] = useState<OptionType[]>([]);
-  const [sprints, setSprints] = useState<OptionType[]>([]);
-  const [workspaces, setWorkspaces] = useState<OptionType[]>([]);
-  const [epics, setEpics] = useState<OptionType[]>([]);
+	const [types, setTypes] = useState<OptionType[]>([]);
+	const [priorities, setPriorities] = useState<OptionType[]>([]);
+	const [users, setUsers] = useState<OptionType[]>([]);
+	const [sprints, setSprints] = useState<OptionType[]>([]);
+	const [workspaces, setWorkspaces] = useState<OptionType[]>([]);
+	const [epics, setEpics] = useState<OptionType[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [typesRes, prioritiesRes, usersRes] = await Promise.all([
-          getTaskTypes(),
-          getPriorities(),
-          getUsers(),
-        ]);
-        setTypes((typesRes || []).map((t: any) => ({ label: t.name, value: t.id })));
-        setPriorities((prioritiesRes || []).map((p: any) => ({ label: p.name, value: p.id })));
-        setUsers((usersRes || []).map((u: any) => ({ label: u.name, value: u.id })));
-      } catch {}
-    })();
-  }, []);
+	useEffect(() => {
+		(async () => {
+			try {
+				const [typesRes, prioritiesRes, usersRes] = await Promise.all([getTaskTypes(), getPriorities(), getUsers()]);
+				setTypes((typesRes || []).map((t: any) => ({ label: t.name, value: t.id })));
+				setPriorities((prioritiesRes || []).map((p: any) => ({ label: p.name, value: p.id })));
+				setUsers((usersRes || []).map((u: any) => ({ label: u.name, value: u.id })));
+			} catch { }
+		})();
+	}, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const ws = await getWorkspaces();
-        setWorkspaces(ws.map((w: any) => ({ label: `${w.name} (${w.key})`, value: w.id })));
-        if (selectedWorkspaceId) {
-          form.setFieldsValue({ workspaceId: selectedWorkspaceId });
-        }
-      } catch {}
-    })();
-  }, [selectedWorkspaceId, form]);
+	useEffect(() => {
+		(async () => {
+			try {
+				const ws = await getWorkspaces();
+				setWorkspaces(ws.map((w: any) => ({ label: `${w.name} (${w.key})`, value: w.id })));
+				if (selectedWorkspaceId) {
+					form.setFieldsValue({ workspaceId: selectedWorkspaceId });
+				}
+			} catch { }
+		})();
+	}, [selectedWorkspaceId, form]);
 
-  useEffect(() => {
-    (async () => {
-      const wsId = form.getFieldValue('workspaceId') || selectedWorkspaceId;
-      if (!wsId) {
-        setSprints([]); setEpics([]);
-        return;
-      }
-      try {
-        const [sps, eps] = await Promise.all([
-          getSprints({ workspaceId: Number(wsId) }),
-          getEpics({ workspaceId: Number(wsId) }),
-        ]);
-        setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
-        setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));
-      } catch {
-        setSprints([]);
-        setEpics([]);
-      }
-    })();
-  }, [selectedWorkspaceId, form]);
+	useEffect(() => {
+		(async () => {
+			const wsId = form.getFieldValue('workspaceId') || selectedWorkspaceId;
+			if (!wsId) {
+				setSprints([]); setEpics([]);
+				return;
+			}
+			try {
+				const [sps, eps] = await Promise.all([getSprints({ workspaceId: Number(wsId) }), getEpics({ workspaceId: Number(wsId) })]);
+				setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
+				setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));
+			} catch {
+				setSprints([]);
+				setEpics([]);
+			}
+		})();
+	}, [selectedWorkspaceId, form]);
 
-  const onWorkspaceChange = async (wid: number) => {
-    form.setFieldsValue({ sprint: undefined, epicId: undefined });
-    try {
-      const [sps, eps] = await Promise.all([
-        getSprints({ workspaceId: wid }),
-        getEpics({ workspaceId: wid }),
-      ]);
-      setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
-      setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));
-    } catch {
-      setSprints([]);
-      setEpics([]);
-    }
-  };
+	const onWorkspaceChange = async (wid: number) => {
+		form.setFieldsValue({ sprint: undefined, epicId: undefined });
+		try {
+			const [sps, eps] = await Promise.all([getSprints({ workspaceId: wid }), getEpics({ workspaceId: wid })]);
+			setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
+			setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));
+		} catch {
+			setSprints([]);
+			setEpics([]);
+		}
+	};
 
-  return (
-    <Form form={form} layout="vertical" onFinish={onFinish} style={{ padding: 20 }}>
-      <Form.Item
-        label="Workspace"
-        name="workspaceId"
-        rules={[{ required: true, message: 'Informe o workspace' }]}
-      >
-        <Select
-          size="large"
-          placeholder="Selecione um workspace"
-          allowClear
-          disabled={!!selectedWorkspaceId}
-          onChange={(val) => onWorkspaceChange(Number(val))}
-          options={workspaces}
-          showSearch
-          optionFilterProp="label"
-        />
-      </Form.Item>
+	return (
+		<Form form={form} layout="vertical" onFinish={onFinish}>
+			<Form.Item
+				label="Workspace"
+				name="workspaceId"
+				rules={[{ required: true, message: 'Informe o workspace' }]}
+			>
+				<Select
+					size="large"
+					placeholder="Selecione um workspace"
+					allowClear
+					disabled={!!selectedWorkspaceId}
+					onChange={(val) => onWorkspaceChange(Number(val))}
+					options={workspaces}
+					showSearch
+					optionFilterProp="label"
+				/>
+			</Form.Item>
 
-      <Form.Item
-        label="Título"
-        name="title"
-        rules={[{ required: true, message: 'Informe um título' }]}
-      >
-        <Input size="large" placeholder="Digite o título" />
-      </Form.Item>
+			<Form.Item label="Título" name="title" rules={[{ required: true, message: 'Informe um título' }]}>
+				<Input size="large" placeholder="Digite o título" />
+			</Form.Item>
 
-      <Form.Item
-        label="Tipo de Atividade"
-        name="type-task"
-        rules={[{ required: true, message: 'Selecione o tipo' }]}
-      >
-        <Select size="large" placeholder="Selecione o tipo" allowClear>
-          {types.map((o) => (
-            <Option key={o.value} value={o.value}>{o.label}</Option>
-          ))}
-        </Select>
-      </Form.Item>
+			<Row gutter={[16, 0]}>
+				<Col xs={24} md={12}>
+					<Form.Item label="Tipo de Atividade" name="type-task" rules={[{ required: true, message: 'Selecione o tipo' }]}>
+						<Select size="large" placeholder="Selecione o tipo" allowClear>
+							{types.map((o) => (
+								<Option key={o.value} value={o.value}>{o.label}</Option>
+							))}
+						</Select>
+					</Form.Item>
+				</Col>
+				<Col xs={24} md={12}>
+					<Form.Item label="Prioridade" name="priority" rules={[{ required: true, message: 'Selecione a prioridade' }]}>
+						<Select size="large" placeholder="Selecione a prioridade" allowClear>
+							{priorities.map((o) => (
+								<Option key={o.value} value={o.value}>{o.label}</Option>
+							))}
+						</Select>
+					</Form.Item>
+				</Col>
+			</Row>
 
-      <Form.Item
-        label="Prioridade"
-        name="priority"
-        rules={[{ required: true, message: 'Selecione a prioridade' }]}
-      >
-        <Select size="large" placeholder="Selecione a prioridade" allowClear>
-          {priorities.map((o) => (
-            <Option key={o.value} value={o.value}>{o.label}</Option>
-          ))}
-        </Select>
-      </Form.Item>
+			<Row gutter={[16, 0]}>
+				<Col xs={24} md={12}>
+					<Form.Item label="Sprint" name="sprint">
+						<Select size="large" placeholder="Selecione a sprint" allowClear options={sprints} />
+					</Form.Item>
+				</Col>
+				<Col xs={24} md={12}>
+					<Form.Item label="Épico" name="epicId">
+						<Select size="large" placeholder="Vincular a um épico" allowClear options={epics} showSearch optionFilterProp="label" />
+					</Form.Item>
+				</Col>
+			</Row>
 
-      <Form.Item label="Sprint" name="sprint">
-        <Select size="large" placeholder="Selecione a sprint da atividade" allowClear
-          options={sprints} />
-      </Form.Item>
+			<Row gutter={[16, 0]}>
+				<Col xs={24} md={12}>
+					<Form.Item label="Estimativa" name="estimate" tooltip="Em horas (ex.: 2 ou 2.5)">
+						<Input size="large" placeholder="Digite a estimativa" />
+					</Form.Item>
+				</Col>
+				<Col xs={24} md={12} />
+			</Row>
 
-      <Form.Item label="Épico" name="epicId">
-        <Select size="large" placeholder="Vincular a um épico" allowClear
-          options={epics} showSearch optionFilterProp="label" />
-      </Form.Item>
+			<Row gutter={[16, 0]}>
+				<Col xs={24} md={12}>
+					<Form.Item label="Data de início" name="start-date">
+						<DatePicker size="large" style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Selecione a data" />
+					</Form.Item>
+				</Col>
+				<Col xs={24} md={12}>
+					<Form.Item
+						label="Prazo"
+						name="deadline"
+						dependencies={['start-date']}
+						rules={[
+							({ getFieldValue }) => ({
+								validator(_, value) {
+									const start = getFieldValue('start-date');
+									if (!start || !value) return Promise.resolve();
+									if (value.isSame(start, 'day') || value.isAfter(start, 'day')) return Promise.resolve();
+									return Promise.reject(new Error('Prazo deve ser igual ou posterior à data de início'));
+								},
+							}),
+						]}
+					>
+						<DatePicker size="large" style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Selecione o prazo" />
+					</Form.Item>
+				</Col>
+			</Row>
 
-      <Row gutter={24}>
-        <Col span={12}>
-          <Form.Item label="Estimativa" name="estimate" tooltip="Em horas (ex.: 2 ou 2.5)">
-            <Input size="large" placeholder="Digite a estimativa" />
-          </Form.Item>
-        </Col>
-        <Col span={12} />
-      </Row>
+			<Row gutter={[16, 0]}>
+				<Col xs={24} md={12}>
+					<Form.Item label="Relator" name="report" rules={[{ required: true, message: 'Informe um relator' }]}>
+						<Select size="large" placeholder="Selecione o relator" allowClear>
+							{users.map((o) => (
+								<Option key={o.value} value={o.value}>{o.label}</Option>
+							))}
+						</Select>
+					</Form.Item>
+				</Col>
+				<Col xs={24} md={12}>
+					<Form.Item label="Responsável" name="responsible">
+						<Select size="large" placeholder="Selecione o responsável" allowClear>
+							{users.map((o) => (
+								<Option key={o.value} value={o.value}>{o.label}</Option>
+							))}
+						</Select>
+					</Form.Item>
+				</Col>
+			</Row>
 
-      <Row gutter={24}>
-        <Col span={12}>
-          <Form.Item label="Data de início" name="start-date">
-            <DatePicker size="large" style={{ width: '100%' }} placeholder="Selecione a data" />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            label="Prazo"
-            name="deadline"
-            dependencies={['start-date']}
-            rules={[
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  const start = getFieldValue('start-date');
-                  if (!start || !value) return Promise.resolve();
-                  if (value.isSame(start, 'day') || value.isAfter(start, 'day')) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error('Prazo deve ser igual ou posterior à data de início'));
-                },
-              }),
-            ]}
-          >
-            <DatePicker size="large" style={{ width: '100%' }} placeholder="Selecione o prazo" />
-          </Form.Item>
-        </Col>
-      </Row>
+			<Form.Item label="Descrição" name="description">
+				<TextArea rows={4} placeholder="Descreva a atividade" />
+			</Form.Item>
 
-      <Form.Item
-        label="Relator"
-        name="report"
-        rules={[{ required: true, message: 'Informe um relator' }]}
-      >
-        <Select size="large" placeholder="Selecione o relator" allowClear>
-          {users.map((o) => (
-            <Option key={o.value} value={o.value}>{o.label}</Option>
-          ))}
-        </Select>
-      </Form.Item>
-
-      <Form.Item label="Responsável" name="responsible">
-        <Select size="large" placeholder="Selecione o responsável" allowClear>
-          {users.map((o) => (
-            <Option key={o.value} value={o.value}>{o.label}</Option>
-          ))}
-        </Select>
-      </Form.Item>
-
-      <Form.Item label="Descrição" name="description">
-        <TextArea rows={4} placeholder="Descreva a atividade" />
-      </Form.Item>
-
-      <button type="submit" style={{ display: 'none' }} />
-    </Form>
-  );
+			<button type="submit" style={{ display: 'none' }} />
+		</Form>
+	);
 };
 
 export default FormTask;

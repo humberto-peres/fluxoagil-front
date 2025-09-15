@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Form, Popover, Modal, App } from "antd";
+import { Table, Form, Popover, Modal, App, Grid, Button, Space } from "antd";
 import DefaultLayout from "@/components/Layout/DefaultLayout";
 import FormUser from "./FormUser";
 import { deleteUsers } from "@/services/user.services";
@@ -23,42 +23,32 @@ type UserType = {
 	address?: AddressType;
 };
 
+const { useBreakpoint } = Grid;
+
 const columns: TableColumnsType<UserType> = [
-	{ title: "Nome", dataIndex: "name", width: "20%" },
-	{ title: "Username", dataIndex: "username", width: "20%" },
-	{ title: "Email", dataIndex: "email", width: "40%" },
+	{ title: "Nome", dataIndex: "name", ellipsis: true },
+	{ title: "Username", dataIndex: "username", responsive: ['sm'], ellipsis: true },
+	{ title: "Email", dataIndex: "email", ellipsis: true },
 	{
 		title: "Endereço",
 		dataIndex: "address",
-		width: "20%",
+		responsive: ['md'],
 		render: (_, record) => {
 			if (!record.address) return "-";
 			const resume = `${record.address.street}, ${record.address.number} – ${record.address.neighborhood}`;
 			const details = (
-				<div>
-					<div>
-						<strong>Rua:</strong> {record.address.street}
-					</div>
-					<div>
-						<strong>Número:</strong> {record.address.number}
-					</div>
-					<div>
-						<strong>Bairro:</strong> {record.address.neighborhood}
-					</div>
-					<div>
-						<strong>Cidade:</strong> {record.address.city}
-					</div>
-					<div>
-						<strong>Estado:</strong> {record.address.state}
-					</div>
-					<div>
-						<strong>CEP:</strong> {record.address.zipCode}
-					</div>
+				<div className="space-y-1">
+					<div><strong>Rua:</strong> {record.address.street}</div>
+					<div><strong>Número:</strong> {record.address.number}</div>
+					<div><strong>Bairro:</strong> {record.address.neighborhood}</div>
+					<div><strong>Cidade:</strong> {record.address.city}</div>
+					<div><strong>Estado:</strong> {record.address.state}</div>
+					<div><strong>CEP:</strong> {record.address.zipCode}</div>
 				</div>
 			);
 			return (
 				<Popover content={details} title="Endereço completo" placement="top">
-					<a style={{ cursor: "pointer" }}>{resume}</a>
+					<a className="cursor-pointer">{resume}</a>
 				</Popover>
 			);
 		},
@@ -67,6 +57,9 @@ const columns: TableColumnsType<UserType> = [
 
 const User: React.FC = () => {
 	const { message } = App.useApp();
+	const screens = useBreakpoint();
+	const isCompact = !screens.lg;
+
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [addressFieldsDisabled, setAddressFieldsDisabled] = useState(true);
@@ -77,7 +70,6 @@ const User: React.FC = () => {
 	const fetchUsers = async () => {
 		const response = await fetch("http://localhost:3000/users");
 		const json = await response.json();
-		console.log("json", json);
 		setData(json);
 	};
 
@@ -120,9 +112,7 @@ const User: React.FC = () => {
 				});
 				message.success("Usuário atualizado com sucesso!");
 			} else {
-				payload.address = {
-					create: payload.address.update,
-				};
+				payload.address = { create: payload.address.update };
 				delete payload.address.update;
 
 				await fetch("http://localhost:3000/users", {
@@ -135,14 +125,13 @@ const User: React.FC = () => {
 
 			closeModal();
 			fetchUsers();
-		} catch (error) {
+		} catch {
 			message.error("Erro ao salvar o usuário");
 		}
 	};
 
 	const onDeleteClick = () => {
 		if (selectedRowKeys.length === 0) return;
-
 		deleteUsers(selectedRowKeys as number[])
 			.then(() => {
 				setSelectedRowKeys([]);
@@ -156,7 +145,6 @@ const User: React.FC = () => {
 
 	const onEditClick = () => {
 		if (selectedRowKeys.length !== 1) return;
-
 		const userToEdit = data.find((u) => u.id === selectedRowKeys[0]);
 		if (!userToEdit) return;
 
@@ -185,7 +173,25 @@ const User: React.FC = () => {
 			textButton="Criar Usuário"
 			onAddClick={openModal}
 		>
-			<Table columns={columns} dataSource={data} rowKey="id" />
+			<div className="mb-3 flex flex-wrap items-center gap-2">
+				<Space>
+					<Button onClick={onEditClick} disabled={selectedRowKeys.length !== 1}>
+						Editar selecionado
+					</Button>
+					<Button danger onClick={onDeleteClick} disabled={selectedRowKeys.length === 0}>
+						Excluir selecionados
+					</Button>
+				</Space>
+			</div>
+
+			<Table
+				columns={columns}
+				dataSource={data}
+				rowKey="id"
+				rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
+				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				scroll={isCompact ? { x: 'max-content' } : undefined}
+			/>
 
 			<Modal
 				open={isModalOpen}
@@ -194,7 +200,9 @@ const User: React.FC = () => {
 				okText="Salvar"
 				cancelText="Cancelar"
 				onCancel={closeModal}
-				width={832}
+				destroyOnHidden
+				rootClassName="responsive-modal"
+				width={720}
 			>
 				<FormUser
 					form={form}

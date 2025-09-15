@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Drawer, List, Button, Space, Typography, Divider, Select, Popconfirm, Flex, App } from 'antd';
+import { Drawer, List, Button, Space, Typography, Divider, Select, Popconfirm, Flex, App, Grid } from 'antd';
 import { getEpicById, type EpicWithTasksDTO } from '@/services/epic.services';
 import { getTasks, updateTask } from '@/services/task.services';
 import { IoIosLink } from "react-icons/io";
@@ -11,8 +11,13 @@ type Props = {
     onClose: () => void;
 };
 
+const { useBreakpoint } = Grid;
+
 const EpicTaskDrawer: React.FC<Props> = ({ open, epicId, workspaceId, onClose }) => {
     const { message } = App.useApp();
+    const screens = useBreakpoint();
+    const isMobile = !screens.md;
+
     const [loading, setLoading] = useState(false);
     const [epic, setEpic] = useState<EpicWithTasksDTO | null>(null);
     const [allTasks, setAllTasks] = useState<any[]>([]);
@@ -84,7 +89,9 @@ const EpicTaskDrawer: React.FC<Props> = ({ open, epicId, workspaceId, onClose })
         <Drawer
             open={open}
             onClose={onClose}
-            width={520}
+            placement={isMobile ? 'bottom' : 'right'}
+            height={isMobile ? '85vh' : undefined}
+            width={isMobile ? '100%' : 520}
             title={
                 epic ? (
                     <Space>
@@ -94,23 +101,31 @@ const EpicTaskDrawer: React.FC<Props> = ({ open, epicId, workspaceId, onClose })
                     'Épico'
                 )
             }
+            destroyOnHidden
+            styles={{
+                body: { padding: 16 },
+                header: { padding: 16 },
+            }}
         >
             <Space direction="vertical" style={{ width: '100%' }} size="large">
                 <div>
                     <Typography.Text strong>Associar atividades</Typography.Text>
                     <Space direction="vertical" style={{ width: '100%', marginTop: 8 }}>
-                        <Flex>
+                        <Flex gap={8} align="center">
                             <Select
                                 mode="multiple"
                                 size='large'
                                 value={selecting}
                                 onChange={setSelecting as any}
-                                style={{ width: '100%', marginRight: 8 }}
+                                style={{ width: '100%' }}
                                 placeholder="Selecione atividades sem épico"
                                 options={tasksAvailable.map((t) => ({
                                     label: t.idTask + ' - ' + t.title,
                                     value: t.id,
                                 }))}
+                                maxTagCount="responsive"
+                                showSearch
+                                optionFilterProp="label"
                             />
                             <Button size='large' type="primary" onClick={associateSelected} loading={saving} disabled={!selecting.length}>
                                 <IoIosLink />
@@ -139,11 +154,7 @@ const EpicTaskDrawer: React.FC<Props> = ({ open, epicId, workspaceId, onClose })
                                         cancelText="Cancelar"
                                         onConfirm={() => unassign(item.id)}
                                     >
-                                        <Button
-                                            type="link"
-                                            danger
-                                            loading={removingId === item.id}
-                                        >
+                                        <Button type="link" danger loading={removingId === item.id}>
                                             Remover
                                         </Button>
                                     </Popconfirm>,
@@ -163,7 +174,6 @@ const EpicTaskDrawer: React.FC<Props> = ({ open, epicId, workspaceId, onClose })
                         )}
                     />
                 </div>
-                
             </Space>
         </Drawer>
     );

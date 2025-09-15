@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Form, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
+import { Table, Form, Modal, Tooltip, Popconfirm, Button, App, Grid } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import FormStep from './FormStep';
@@ -15,19 +15,32 @@ import type { TableColumnsType } from 'antd';
 type StepType = {
 	id: number;
 	name: string;
-	description: string;
+	description?: string;
 };
+
+const { useBreakpoint } = Grid;
 
 const Step: React.FC = () => {
 	const { message } = App.useApp();
+	const screens = useBreakpoint();
+	const isCompact = !screens.lg;
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
 	const [data, setData] = useState<StepType[]>([]);
+	const [loading, setLoading] = useState(false);
 
 	const fetchSteps = async () => {
-		const response = await getSteps();
-		setData(response);
+		try {
+			setLoading(true);
+			const response = await getSteps();
+			setData(response);
+		} catch {
+			message.error('Erro ao carregar etapas');
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {
@@ -86,6 +99,13 @@ const Step: React.FC = () => {
 	const columns: TableColumnsType<StepType> = [
 		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
 		{
+			title: 'Descrição',
+			dataIndex: 'description',
+			ellipsis: true,
+			responsive: ['md'],
+			render: (text?: string) => text || '-',
+		},
+		{
 			title: 'Ações',
 			key: 'actions',
 			width: 110,
@@ -129,7 +149,16 @@ const Step: React.FC = () => {
 			textButton="Criar Etapa"
 			onAddClick={openModal}
 		>
-			<Table columns={columns} dataSource={data} rowKey="id" />
+			<Table
+				columns={columns}
+				dataSource={data}
+				rowKey="id"
+				loading={loading}
+				size="middle"
+				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				scroll={isCompact ? { x: 'max-content' } : undefined}
+				tableLayout="auto"
+			/>
 
 			<Modal
 				open={isModalOpen}
@@ -138,6 +167,9 @@ const Step: React.FC = () => {
 				onOk={() => form.submit()}
 				okText="Salvar"
 				cancelText="Cancelar"
+				destroyOnHidden
+				rootClassName="responsive-modal"
+				width={560}
 			>
 				<FormStep form={form} onFinish={handleSubmit} />
 			</Modal>

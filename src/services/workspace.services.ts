@@ -24,6 +24,12 @@ export const getMyWorkspaces = async () => {
 	return response.json() as Promise<Array<{ id: number; name: string; methodology: string; key: string }>>;
 };
 
+export const canAccessWorkspace = async (id: number) => {
+	const res = await fetch(`${BASE_URL}/workspaces/${id}/can-access`, { credentials: 'include' });
+	if (!res.ok) throw new Error('Erro ao checar acesso ao workspace');
+	return res.json() as Promise<{ allowed: boolean }>;
+};
+
 export const createWorkspace = async (data: any) => {
 	const response = await fetch(`${BASE_URL}/workspaces/`, {
 		method: 'POST',

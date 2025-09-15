@@ -3,29 +3,41 @@ import {
     createBrowserRouter,
     RouterProvider,
     type RouteObject,
+    Navigate
 } from "react-router-dom";
 import { Protected } from "./Protected";
-import Epic from "@/pages/Epic/Epic";
+import PageLoader from "@/components/UI/PageLoader";
 
-const Dashboard = lazy(() => import("@/pages/Dashboard/Dashboard"));
-const Board = lazy(() => import("@/pages/Board/Board"));
-const Backlog = lazy(() => import("@/pages/Backlog/Backlog"));
-const Workspace = lazy(() => import("@/pages/Workspace/Workspace"));
-const Priority = lazy(() => import("@/pages/Priority/Priority"));
-const Step = lazy(() => import("@/pages/Step/Step"));
-const TypeTask = lazy(() => import("@/pages/TypeTask/TypeTask"));
-const Team = lazy(() => import("@/pages/Team/Team"));
-const User = lazy(() => import("@/pages/Auth/User/User"));
-const Login = lazy(() => import("@/pages/Auth/Login/Login"));
-const ForgotPassword = lazy(() => import("@/pages/Auth/ForgotPassword/ForgotPassword"));
-const Configuration = lazy(() => import("@/pages/Configuration/Configuration"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Board = lazy(() => import("@/pages/Board"));
+const Backlog = lazy(() => import("@/pages/Backlog"));
+const Workspace = lazy(() => import("@/pages/Workspace"));
+const Priority = lazy(() => import("@/pages/Priority"));
+const Step = lazy(() => import("@/pages/Step"));
+const TypeTask = lazy(() => import("@/pages/TypeTask"));
+const Team = lazy(() => import("@/pages/Team"));
+const User = lazy(() => import("@/pages/Auth/User"));
+const Login = lazy(() => import("@/pages/Auth/Login"));
+const ForgotPassword = lazy(() => import("@/pages/Auth/ForgotPassword"));
+const Configuration = lazy(() => import("@/pages/Configuration"));
+const Epic = lazy(() => import("@/pages/Epic"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const About = lazy(() => import("@/pages/About"));
+const SignUp = lazy(() => import("@/pages/Auth/SignUp"));
 
-function withSuspense(el: React.ReactNode) {
-    return <Suspense fallback={<div style={{ padding: 24 }}>Carregando…</div>}>{el}</Suspense>;
+function withSuspense(el: React.ReactNode, text?: string) {
+    return (
+        <Suspense fallback={<PageLoader text={text ?? 'Carregando a página…'} />}>
+            {el}
+        </Suspense>
+    );
 }
 
 const routes: RouteObject[] = [
-    { path: "/", element: withSuspense(<Protected><Dashboard /></Protected>) },
+    { path: "/", element: withSuspense(<Protected><Navigate to="/dashboard" replace /></Protected>) },
+
+    { path: "/about", element: withSuspense(<About />) },
+    { path: "/dashboard", element: withSuspense(<Protected><Dashboard /></Protected>) },
     { path: "/board", element: withSuspense(<Protected><Board /></Protected>) },
     { path: "/backlog", element: withSuspense(<Protected><Backlog /></Protected>) },
     { path: "/epic", element: withSuspense(<Protected><Epic /></Protected>) },
@@ -36,9 +48,10 @@ const routes: RouteObject[] = [
     { path: "/team", element: withSuspense(<Protected><Team /></Protected>) },
     { path: "/user", element: withSuspense(<Protected roles={["admin"]}><User /></Protected>) },
     { path: "/login", element: withSuspense(<Login />) },
+    { path: "/signup", element: withSuspense(<SignUp />) },
     { path: "/forgot-password", element: withSuspense(<ForgotPassword />) },
     { path: "/configuration", element: withSuspense(<Protected><Configuration /></Protected>) },
-    { path: "*", element: <div style={{ padding: 24 }}>Página não encontrada</div> }
+    { path: "*", element: withSuspense(<NotFound />) },
 ];
 
 const router = createBrowserRouter(routes);

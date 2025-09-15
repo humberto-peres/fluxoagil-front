@@ -11,7 +11,7 @@ const FormTeam: React.FC<Props> = ({ form, onFinish }) => {
 	return (
 		<Form form={form} layout="vertical" onFinish={onFinish}>
 			<Form.Item name="name" label="Nome da Equipe" rules={[{ required: true }]}>
-				<Input size="large" />
+				<Input size="large" placeholder="Ex.: Backend, Mobile, Produto..." />
 			</Form.Item>
 		</Form>
 	);

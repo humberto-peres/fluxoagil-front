@@ -35,3 +35,18 @@ export async function logout() {
     if (!res.ok) throw new Error('Falha ao sair');
     return res.json();
 }
+
+export const registerUser = async (data: any) => {
+    const res = await fetch(`${BASE_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "omit",
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || "Erro ao registrar");
+    }
+    return res.json();
+};

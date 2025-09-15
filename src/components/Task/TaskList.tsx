@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Tag, Typography, Tooltip, Popconfirm, Space, Flex } from 'antd';
+import { List, Tag, Typography, Tooltip, Popconfirm } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 
 type User = { id: number; name: string };
@@ -31,33 +31,28 @@ type Props = {
 const TaskList: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
     return (
         <List
-            size="large"
             dataSource={tasks}
             locale={{ emptyText: 'Sem tarefas' }}
             renderItem={(t) => {
                 const canDelete = !t.epic;
-                const {
-                    step,
-                    typeTask,
-                    priority,
-                    deadline,
-                    assignee,
-                    epic
-                } = t;
 
                 return (
-                    <List.Item
-                        className="relative group px-2 py-2 p-[50px]"
-                        actions={[
-                            <Space size={'middle'}>
+                    <List.Item className="px-2 md:px-3">
+                        <div className="group relative w-full rounded-xl border border-white/10 bg-white/5 p-4 md:p-5 transition-colors hover:border-white/20">
+                            <div className="absolute right-3 top-3 flex items-center gap-2 opacity-70 transition-opacity group-hover:opacity-100">
                                 {onEdit && (
                                     <Tooltip title="Editar">
-                                        <FiEdit2 size={17} onClick={() => onEdit?.(t.id)} style={{ cursor: 'pointer' }} />
+                                        <button
+                                            aria-label="Editar atividade"
+                                            onClick={() => onEdit?.(t.id)}
+                                            className="cursor-pointer"
+                                        >
+                                            <FiEdit2 size={18} />
+                                        </button>
                                     </Tooltip>
                                 )}
                                 {onDelete && (
-
-                                    <Tooltip title={'Excluir'}>
+                                    <Tooltip title="Excluir">
                                         <Popconfirm
                                             title="Excluir atividade?"
                                             description={
@@ -70,51 +65,54 @@ const TaskList: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
                                             cancelText="Cancelar"
                                             onConfirm={() => onDelete?.(t.id)}
                                         >
-                                            <FiTrash2 size={20} style={{ cursor: 'pointer' }} />
+                                            <button aria-label="Excluir atividade" className="cursor-pointer">
+                                                <FiTrash2 size={19} />
+                                            </button>
                                         </Popconfirm>
                                     </Tooltip>
                                 )}
-                            </Space>
-                        ]}
-                    >
-                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        
-                        <div className="w-full pl-2 pr-14">
-                            <Flex>
-                                <Tooltip title={`${t.idTask} - ${t.title}`}>
-                                    <Typography.Text className="font-semibold line-clamp-2">
-                                        {t.idTask} - {t.title}
-                                    </Typography.Text>
-                                </Tooltip>
-                            </Flex>
+                            </div>
 
-                            <Space size={35} className='!mt-[5px]'>
-                                <Flex vertical>
-                                    <p className='!text-xs !text-gray-300'>Etapa atual:</p>
-                                    <Typography.Text>{step?.name}</Typography.Text>
-                                </Flex>
-                                <Flex vertical>
-                                    <p className='!text-xs !text-gray-300'>Tipo da tarefa:</p>
-                                    <Typography.Text>{typeTask?.name}</Typography.Text>
-                                </Flex>
-                                <Flex vertical>
-                                    <p className='!text-xs !text-gray-300'>Prioridade:</p>
-                                    <Typography.Text>{priority?.name}</Typography.Text>
-                                </Flex>
-                                <Flex vertical>
-                                    <p className='!text-xs !text-gray-300'>Prazo:</p>
-                                    <Typography.Text>{deadline ?? "Não preenchido"}</Typography.Text>
-                                </Flex>
-                                <Flex vertical>
-                                    <p className='!text-xs !text-gray-300'>Responsável:</p>
-                                    <Typography.Text>{assignee?.name ?? "Não preenchido"}</Typography.Text>
-                                </Flex>
-                                <Flex vertical>
-                                    <p className='!text-xs !text-gray-300'>Épico associado:</p>
-                                    {t.epic?.key ? <Tag color="geekblue">{`${epic?.key} - ${epic?.title}`}</Tag> : "Sem associações"}
+                            <div className="mb-2 flex flex-wrap items-center gap-2 pr-12">
+                                {t.priority?.name && <Tag color={t.priority.label}>{t.priority.name}</Tag>}
+                                <Tag color="purple">{t.idTask}</Tag>
+                                {t.typeTask?.name && <Tag color="magenta">{t.typeTask.name}</Tag>}
+                            </div>
 
-                                </Flex>
-                            </Space>
+                            <Typography.Text
+                                strong
+                                className="block text-base md:text-lg leading-snug line-clamp-2"
+                                title={`${t.idTask} - ${t.title}`}
+                            >
+                                {t.idTask} - {t.title}
+                            </Typography.Text>
+
+                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-1 text-sm">
+                                <div>
+                                    <span className="text-gray-400">Etapa atual: </span>
+                                    <span>{t.step?.name ?? '—'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-400">Prazo: </span>
+                                    <span>{t.deadline ?? 'Não preenchido'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-400">Tipo da tarefa: </span>
+                                    <span>{t.typeTask?.name ?? '—'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-400">Responsável: </span>
+                                    <span>{t.assignee?.name ?? 'Não preenchido'}</span>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <span className="text-gray-400">Épico associado: </span>
+                                    {t.epic?.key ? (
+                                        <Tag color="geekblue" className="ml-1">{`${t.epic.key} - ${t.epic.title}`}</Tag>
+                                    ) : (
+                                        <span className="ml-1">Sem associações</span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </List.Item>
                 );

@@ -19,7 +19,7 @@ const FormStep: React.FC<FormStepProps> = ({ form, onFinish }) => (
             name="name"
             rules={[{ required: true, message: 'Nome não preenchido!' }]}
         >
-            <Input size='large' />
+            <Input size="large" placeholder="Ex.: Backlog, Em Andamento, Concluído..." autoFocus />
         </Form.Item>
     </Form>
 );

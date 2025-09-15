@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapse, Button, Space, Tag, Tooltip } from 'antd';
+import { Collapse, Space, Tag, Tooltip } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import type { CollapseProps } from 'antd';
 import { FiEdit2 } from 'react-icons/fi';
@@ -12,6 +12,8 @@ export type SprintItem = {
     startDate: string | null;
     endDate: string | null;
     isActive: boolean;
+    activatedAt: string | null;
+    closedAt: string | null;
 };
 
 type Props = {
@@ -22,6 +24,7 @@ type Props = {
     onDelete?: (sprint: SprintItem) => void;
     contentBySprintId?: Record<number, React.ReactNode>;
     backlogContent?: React.ReactNode;
+    autoOpenSprintId?: number | null;
 };
 
 const SprintList: React.FC<Props> = ({
@@ -32,72 +35,89 @@ const SprintList: React.FC<Props> = ({
     onDelete,
     contentBySprintId,
     backlogContent,
+    autoOpenSprintId,
 }) => {
     const items: CollapseProps['items'] = [
-        ...sprints.map((s) => ({
-            key: `sprint-${s.id}`,
-            label: (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>{s.name}</span>
-                    {s.isActive ? <Tag color="success">Ativa</Tag> : <Tag>Inativa</Tag>}
-                    <span style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                        <Space size="middle">
-                            {!s.isActive && s.startDate && s.endDate && (
-                                <Tooltip title="Ativar sprint">
-                                    <FaCirclePlay size={17} onClick={(e) => { e.stopPropagation(); onActivate(s); }}/>
+        ...sprints.map((s) => {
+            const tag = s.isActive
+                ? <Tag color="success">Ativa</Tag>
+                : (s.closedAt ? <Tag>Encerrada</Tag> : null);
+
+            return {
+                key: `sprint-${s.id}`,
+                label: (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>{s.name}</span>
+                        {tag}
+                        <span style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                            <Space size="middle">
+                                {!s.isActive && !s.closedAt && (
+                                    <Tooltip title="Ativar sprint">
+                                        <FaCirclePlay
+                                            size={17}
+                                            onClick={(e) => { e.stopPropagation(); onActivate(s); }}
+                                        />
+                                    </Tooltip>
+                                )}
+                                {s.isActive && (
+                                    <Tooltip title="Encerrar sprint">
+                                        <FaRegCircleStop
+                                            size={17}
+                                            onClick={(e) => { e.stopPropagation(); onClose(s); }}
+                                        />
+                                    </Tooltip>
+                                )}
+                                <Tooltip title="Editar">
+                                    <FiEdit2
+                                        size={17}
+                                        onClick={(e) => { e.stopPropagation(); onEdit(s); }}
+                                    />
                                 </Tooltip>
-                            )}
-                            {s.isActive && (
-                                <Tooltip title="Encerrar sprint">
-                                    <FaRegCircleStop size={17} onClick={(e) => { e.stopPropagation(); onClose(s); }}/>
-                                </Tooltip>
-                            )}
-                            <Tooltip title="Editar">
-                                <FiEdit2 size={17} onClick={(e) => { e.stopPropagation(); onEdit(s); }}/>
-                            </Tooltip>
-                            {onDelete && (
-                                <Tooltip title="Deletar">
-                                    <MdDelete size={17} onClick={(e) => { e.stopPropagation(); onDelete(s); }}/>
-                                </Tooltip>
-                            )}
-                        </Space>
-                    </span>
-                </div>
-            ),
-            style: {
-                marginBottom: 16,
-                background: '#383838',
-                opacity: 1,
-                borderRadius: 8,
-                border: 'none'
-            },
-            children: (
-                <div>
-                    <div style={{ marginBottom: 8, fontSize: 12, opacity: 0.8 }}>
-                        {s.startDate ? `Início: ${s.startDate}` : 'Início: —'} • {s.endDate ? `Término: ${s.endDate}` : 'Término: —'}
+                                {onDelete && (
+                                    <Tooltip title="Deletar">
+                                        <MdDelete
+                                            size={17}
+                                            onClick={(e) => { e.stopPropagation(); onDelete(s); }}
+                                        />
+                                    </Tooltip>
+                                )}
+                            </Space>
+                        </span>
                     </div>
-                    {contentBySprintId?.[s.id] ?? <div>Sem tarefas nesta sprint.</div>}
-                </div>
-            ),
-        })),
+                ),
+                style: { marginBottom: 16, background: '#383838', opacity: 1, borderRadius: 8, border: 'none' },
+                children: (
+                    <div>
+                        <div style={{ marginBottom: 8, fontSize: 12, opacity: 0.8, display: 'grid', gap: 4 }}>
+                            <div>{s.startDate ? `Início planejado: ${s.startDate}` : 'Início planejado: —'}</div>
+                            <div>{s.endDate ? `Término planejado: ${s.endDate}` : 'Término planejado: —'}</div>
+                            <div>{s.activatedAt ? `Ativada em: ${s.activatedAt}` : 'Ativada em: —'}</div>
+                            <div>{s.closedAt ? `Encerrada em: ${s.closedAt}` : 'Encerrada em: —'}</div>
+                        </div>
+                        {contentBySprintId?.[s.id] ?? <div>Sem tarefas nesta sprint.</div>}
+                    </div>
+                ),
+            } as CollapseProps['items'][number];
+        }),
         {
             key: 'backlog',
             label: <strong>Backlog</strong>,
-            style: {
-                marginBottom: 16,
-                background: '#383838',
-                borderRadius: 8,
-                border: 'none',
-            },
+            style: { marginBottom: 16, background: '#383838', borderRadius: 8, border: 'none' },
             children: backlogContent ?? <div>Sem tarefas no backlog.</div>,
         },
     ];
 
+    const defaultActiveKey = Array.from(new Set([
+        ...sprints.filter(s => s.isActive).map(s => `sprint-${s.id}`),
+        ...(autoOpenSprintId ? [`sprint-${autoOpenSprintId}`] : []),
+    ]));
+
     return (
         <Collapse
-            bordered={false}
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
+            variant='borderless'
+            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
             items={items}
+            defaultActiveKey={defaultActiveKey}
         />
     );
 };
