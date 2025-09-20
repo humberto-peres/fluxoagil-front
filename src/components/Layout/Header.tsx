@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { Avatar, Layout, Input, Flex, Tooltip, Popconfirm, App, Button, AutoComplete } from "antd";
 import { IoSearch, IoLogOutOutline, IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
-import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { BiLinkAlt } from "react-icons/bi";
+import type { DefaultOptionType } from "antd/es/select";
+import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@/context/AuthContext";
 import GithubIntegrationDrawer from "@/components/Integrations/GithubIntegrationDrawer";
 import { usePresence, formatAgo } from "@/hooks/usePresence";
-import type { DefaultOptionType } from "antd/es/select";
+import { useOpenTask } from "@/hooks/useOpenTask";
 import { searchAll, searchAllFallback, type SearchResult } from "@/services/search.services";
+import { useOpenEpic } from "@/hooks/useOpenEpic";
 
 const { Header } = Layout;
 
@@ -25,7 +28,10 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 }) => {
 	const { signOut, user } = useAuth();
 	const navigate = useNavigate();
+	const openTask = useOpenTask();
+	const openEpic = useOpenEpic();
 	const { message } = App.useApp();
+
 	const [integrationsOpen, setIntegrationsOpen] = useState(false);
 	const [searchValue, setSearchValue] = useState("");
 
@@ -52,13 +58,15 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 	const [loading, setLoading] = useState(false);
 
 	function renderOption(r: SearchResult): DefaultOptionType {
-		const tag = r.type === 'task' ? 'Tarefa' : 'Épico';
+		const tag = r.type === "task" ? "Tarefa" : "Épico";
+		const id = r.type === "task" ? r.idTask : r.key;
+
 		return {
-			value: String(r.id),
+			value: `${r.type}:${r.id}`,
 			label: (
 				<div className="flex items-center justify-between w-full">
 					<div className="truncate">
-						<div className="truncate">{r.title}</div>
+						<div className="truncate">{`${id} - ${r.title}`}</div>
 						{r.subtitle && <div className="text-xs text-gray-400 truncate">{r.subtitle}</div>}
 					</div>
 					<span className="text-xs px-2 py-0.5 rounded-full bg-white/10 border border-white/10">{tag}</span>
@@ -71,10 +79,10 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 	const groupBy = (items: SearchResult[]) => {
 		const tasks: DefaultOptionType[] = [];
 		const epics: DefaultOptionType[] = [];
-		items.forEach(r => (r.type === 'task' ? tasks : epics).push(renderOption(r)));
+		items.forEach(r => (r.type === "task" ? tasks : epics).push(renderOption(r)));
 		const blocks: DefaultOptionType[] = [];
-		if (tasks.length) blocks.push({ label: 'Tarefas', options: tasks });
-		if (epics.length) blocks.push({ label: 'Épicos', options: epics });
+		if (tasks.length) blocks.push({ label: "Tarefas", options: tasks });
+		if (epics.length) blocks.push({ label: "Épicos", options: epics });
 		return blocks;
 	};
 
@@ -93,9 +101,15 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 
 	const handleSelect = (_: string, option: any) => {
 		const r: SearchResult = option.result;
-		navigate(r.route, { state: { focus: r } });
+
+		if (r.type === "task") {
+			openTask(r.id, { from: "header-search" });
+		} else {
+			openEpic(r.id, { from: "header-search" });
+		}
+
 		setOptions([]);
-		setSearchValue('');
+		setSearchValue("");
 	};
 
 	return (
@@ -121,6 +135,7 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 							options={options}
 							popupMatchSelectWidth={420}
 							className="w-[320px] xl:w-[420px]"
+							notFoundContent={loading ? "Buscando..." : undefined}
 						>
 							<Input
 								size="large"
@@ -128,7 +143,7 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 								prefix={<IoSearch className="text-gray-400" />}
 								allowClear
 								onPressEnter={() => doSearch(searchValue)}
-								style={{ backgroundColor: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.2)' }}
+								style={{ backgroundColor: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.2)" }}
 							/>
 						</AutoComplete>
 					</div>
@@ -139,7 +154,7 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 						type="text"
 						className="md:!hidden !text-white hover:!bg-white/10 transition-all duration-200"
 						aria-label="Pesquisar"
-						onClick={() => message.info('Pesquisa mobile em desenvolvimento')}
+						onClick={() => message.info("Pesquisa mobile em desenvolvimento")}
 						icon={<IoSearch size={20} />}
 					/>
 
@@ -147,7 +162,7 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 						<IoNotificationsOutline
 							size={20}
 							className="cursor-pointer"
-							onClick={() => message.info('Central de notificações em breve!')}
+							onClick={() => message.info("Central de notificações em breve!")}
 						/>
 					</Tooltip>
 
@@ -161,8 +176,8 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 
 					<Tooltip title="Encerrar Sessão">
 						<Popconfirm
-							title={'Deseja encerrar a sessão?'}
-							description={'Você será redirecionado para a tela de login.'}
+							title={"Deseja encerrar a sessão?"}
+							description={"Você será redirecionado para a tela de login."}
 							okText="Confirmar"
 							cancelText="Cancelar"
 							okButtonProps={{ danger: true }}
@@ -180,12 +195,12 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 						</Popconfirm>
 					</Tooltip>
 
-					<Tooltip title={statusTitle}>
+					<Tooltip placement="leftBottom" title={statusTitle}>
 						<div className="relative">
 							<Avatar
 								size={isMobile ? "default" : "large"}
 								className="!bg-gradient-to-r from-violet-600 to-indigo-600 !text-white !cursor-pointer hover:scale-105 transition-all duration-200 shadow-lg"
-								onClick={() => navigate('/configuration')}
+								onClick={() => navigate("/configuration")}
 							>
 								{(user?.name ?? "").trim().slice(0, 1).toLocaleUpperCase("pt-BR") || "?"}
 							</Avatar>

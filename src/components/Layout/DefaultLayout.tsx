@@ -8,21 +8,34 @@ const { Content } = Layout;
 
 interface DefaultLayoutProps {
     title: string;
+    subtitle?: string;
     children: React.ReactNode;
     addButton?: boolean;
     textButton?: string;
     onAddClick?: () => void;
+    breadcrumbItems?: Array<{ title: React.ReactNode; href?: string }>;
+    extra?: React.ReactNode;
 }
 
 const SIDER_WIDTH = 240;
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = ({
-    title, children, addButton = false, textButton, onAddClick,
+    title,
+    subtitle,
+    children,
+    addButton = false,
+    textButton,
+    onAddClick,
+    breadcrumbItems,
+    extra,
 }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
-    const marginLeft = useMemo(() => (isMobile || collapsed ? 0 : SIDER_WIDTH), [isMobile, collapsed]);
+    const marginLeft = useMemo(
+        () => (isMobile || collapsed ? 0 : SIDER_WIDTH),
+        [isMobile, collapsed]
+    );
 
     return (
         <Layout className="!min-h-screen">
@@ -56,9 +69,12 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = ({
                 <Content className="px-2 md:px-4">
                     <SubHeader
                         title={title}
+                        subtitle={subtitle}
                         addButton={addButton}
                         textButton={textButton}
                         onAddClick={onAddClick}
+                        breadcrumbItems={breadcrumbItems}
+                        extra={extra}
                     />
                     <div className="pt-6 md:pt-1 pb-6">
                         <div className="mt-2 md:mt-4 p-3 md:p-5">{children}</div>

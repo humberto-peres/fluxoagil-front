@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Flex, Layout, Menu, Typography, Badge } from "antd";
+import { Flex, Layout, Menu, Typography } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { MenuProps } from "antd";
 
@@ -12,6 +12,7 @@ import { PiUserCircleLight } from "react-icons/pi";
 import { FaCheckSquare } from "react-icons/fa";
 import { AiOutlineDashboard } from "react-icons/ai";
 import { RiFlag2Line } from "react-icons/ri";
+import { GrTask } from "react-icons/gr";
 import { useAuth } from "@/context/AuthContext";
 
 const { Sider } = Layout;
@@ -60,6 +61,7 @@ const DefaultSidebar: React.FC<Props> = ({ collapsed, onCollapse, onBreakpoint, 
 					{ key: "/dashboard", icon: <AiOutlineDashboard className="text-lg" />, label: "Dashboard" },
 					{ key: "/board", icon: <IoGridOutline className="text-lg" />, label: "Board" },
 					{ key: "/backlog", icon: <IoListOutline className="text-lg" />, label: "Backlog" },
+					{ key: "/task", icon: <GrTask className="text-lg" />, label: "Atividades" },
 					{ key: "/epic", icon: <RiFlag2Line className="text-lg" />, label: "Épicos" },
 					{ key: "/workspace", icon: <HiOutlineOfficeBuilding className="text-lg" />, label: "Workspace" },
 				],
