@@ -1,8 +1,10 @@
 import React from 'react';
-import { Button, Divider, List, Popconfirm, Space, Tag, Tooltip, Typography, Grid } from 'antd';
+import { Button, List, Popconfirm, Space, Tag, Tooltip, Typography, Grid, Avatar } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { IoIosLink } from 'react-icons/io';
 import { type EpicDTO as BaseEpicDTO } from '@/services/epic.services';
+import { MdOpenInNew } from 'react-icons/md';
+import { useOpenEpic } from '@/hooks/useOpenEpic';
 
 type EpicDTO = BaseEpicDTO & { _count?: { tasks: number } };
 
@@ -26,6 +28,7 @@ const EpicList: React.FC<EpicListProps> = ({
 }) => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
+    const openEpic = useOpenEpic();
 
     return (
         <List
@@ -40,6 +43,9 @@ const EpicList: React.FC<EpicListProps> = ({
                         <List.Item
                             actions={[
                                 <Space size="small" key="actions">
+                                    <Tooltip title="Abrir dados">
+                                        <Button type="text" aria-label="Editar épico" icon={<MdOpenInNew size={18} />} onClick={() => openEpic(item.id, { from: 'epic-list' })} />
+                                    </Tooltip>
                                     <Tooltip title="Editar">
                                         <Button type="text" aria-label="Editar épico" icon={<FiEdit2 size={18} />} onClick={() => onEdit(item)} />
                                     </Tooltip>
@@ -65,24 +71,13 @@ const EpicList: React.FC<EpicListProps> = ({
                                 </Space>,
                             ]}
                             data-epic-id={item.id}
+                            className='pt-8 pb-8'
                         >
                             <List.Item.Meta
                                 avatar={
-                                    <div
-                                        style={{
-                                            width: 40,
-                                            height: 40,
-                                            borderRadius: 8,
-                                            background: '#d01f1f',
-                                            display: 'grid',
-                                            placeItems: 'center',
-                                            fontWeight: 600,
-                                            color: '#fff',
-                                        }}
-                                        aria-hidden
-                                    >
+                                    <Avatar className="bg-[#d01f1f] text-white shadow-lg">
                                         {index + 1}
-                                    </div>
+                                    </Avatar>
                                 }
                                 title={
                                     <Space wrap>
@@ -108,7 +103,6 @@ const EpicList: React.FC<EpicListProps> = ({
                                 }
                             />
                         </List.Item>
-                        <Divider />
                     </>
                 );
             }}

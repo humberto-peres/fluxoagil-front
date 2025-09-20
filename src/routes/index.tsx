@@ -24,6 +24,9 @@ const Epic = lazy(() => import("@/pages/Epic"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const About = lazy(() => import("@/pages/About"));
 const SignUp = lazy(() => import("@/pages/Auth/SignUp"));
+const Task = lazy(() => import("@/pages/Task"));
+const TaskDetails  = lazy(() => import("@/pages/Task/TaskDetails"));
+const EpicDetails  = lazy(() => import("@/pages/Epic/EpicDetails"));
 
 function withSuspense(el: React.ReactNode, text?: string) {
     return (
@@ -37,20 +40,23 @@ const routes: RouteObject[] = [
     { path: "/", element: withSuspense(<Protected><Navigate to="/dashboard" replace /></Protected>) },
 
     { path: "/about", element: withSuspense(<About />) },
-    { path: "/dashboard", element: withSuspense(<Protected><Dashboard /></Protected>) },
-    { path: "/board", element: withSuspense(<Protected><Board /></Protected>) },
     { path: "/backlog", element: withSuspense(<Protected><Backlog /></Protected>) },
+    { path: "/board", element: withSuspense(<Protected><Board /></Protected>) },
+    { path: "/configuration", element: withSuspense(<Protected><Configuration /></Protected>) },
+    { path: "/dashboard", element: withSuspense(<Protected><Dashboard /></Protected>) },
     { path: "/epic", element: withSuspense(<Protected><Epic /></Protected>) },
-    { path: "/workspace", element: withSuspense(<Protected><Workspace /></Protected>) },
+    { path: "/epic/:id", element: withSuspense(<Protected><EpicDetails /></Protected>) },
+    { path: "/forgot-password", element: withSuspense(<ForgotPassword />) },
+    { path: "/login", element: withSuspense(<Login />) },
     { path: "/priority", element: withSuspense(<Protected><Priority /></Protected>) },
+    { path: "/signup", element: withSuspense(<SignUp />) },
     { path: "/step", element: withSuspense(<Protected><Step /></Protected>) },
+    { path: "/task", element: withSuspense(<Protected><Task /></Protected>) },
+    { path: "/task/:id", element: withSuspense(<Protected><TaskDetails  /></Protected>) },
     { path: "/type-task", element: withSuspense(<Protected><TypeTask /></Protected>) },
     { path: "/team", element: withSuspense(<Protected><Team /></Protected>) },
     { path: "/user", element: withSuspense(<Protected roles={["admin"]}><User /></Protected>) },
-    { path: "/login", element: withSuspense(<Login />) },
-    { path: "/signup", element: withSuspense(<SignUp />) },
-    { path: "/forgot-password", element: withSuspense(<ForgotPassword />) },
-    { path: "/configuration", element: withSuspense(<Protected><Configuration /></Protected>) },
+    { path: "/workspace", element: withSuspense(<Protected><Workspace /></Protected>) },
     { path: "*", element: withSuspense(<NotFound />) },
 ];
 

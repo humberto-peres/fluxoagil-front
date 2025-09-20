@@ -7,7 +7,6 @@ export const getPriorities = async () => {
 };
 
 export const createPriority = async (data: any) => {
-	console.log("data create", data)
 	const response = await fetch(`${BASE_URL}/priorities/`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },

@@ -157,6 +157,10 @@ const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({ children 
 					},
 					Timeline: {
 						dotBg: 'transparent'
+					},
+					Message: {
+						contentBg: customTheme.colors.white,
+						colorText: customTheme.colors.black
 					}
 				},
 			}}

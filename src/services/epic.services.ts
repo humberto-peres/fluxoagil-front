@@ -10,6 +10,8 @@ export type EpicDTO = {
   targetDate?: string | null;
   priority?: { id: number; name: string; label: string } | null;
   workspaceId: number;
+  createdAt: string;
+  updatedAt: string;
   _count?: { tasks: number };
 };
 
