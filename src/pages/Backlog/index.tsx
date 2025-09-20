@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FloatButton, Modal, Form, Result, App } from 'antd';
+import { FloatButton, Modal, Form, Result, App, Grid, Switch, Space, Typography } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
+import { useLocation } from 'react-router-dom';
 
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import BoardFilterDrawer from '@/components/Task/BoardFilterDrawer';
@@ -10,6 +11,7 @@ import SprintList from '@/components/Sprint/SprintList';
 import FormSprint from '@/components/Sprint/FormSprint';
 import TaskList from '@/components/Task/TaskList';
 import FormTask from '@/components/Task/FormTask';
+import CloseSprintModal from '@/components/Sprint/CloseSprintModal';
 
 import { getWorkspaces } from '@/services/workspace.services';
 import {
@@ -31,14 +33,18 @@ import {
 type Workspace = { id: number; name: string; methodology: string };
 
 const COOKIE_KEY = 'board.selectedWorkspaceId';
+const { useBreakpoint } = Grid;
 
 const Backlog: React.FC = () => {
 	const { message } = App.useApp();
+	const screens = useBreakpoint();
+	const location = useLocation();
 
 	const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
 
 	const [filterOpen, setFilterOpen] = useState(false);
+	const [showClosed, setShowClosed] = useState(false);
 
 	const [sprints, setSprints] = useState<SprintDTO[]>([]);
 	const [tasks, setTasks] = useState<TaskDTO[]>([]);
@@ -51,16 +57,16 @@ const Backlog: React.FC = () => {
 	const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
 	const [taskForm] = Form.useForm();
 
+	const [closeOpen, setCloseOpen] = useState(false);
+	const [closingSprint, setClosingSprint] = useState<SprintDTO | null>(null);
+	const [closingLoading, setClosingLoading] = useState(false);
+
 	useEffect(() => {
 		(async () => {
-			try {
-				const data = await getWorkspaces();
-				setWorkspaces(data);
-			} catch {
-				message.error('Erro ao carregar workspaces');
-			}
+			try { setWorkspaces(await getWorkspaces()); }
+			catch { message.error('Erro ao carregar workspaces'); }
 		})();
-	}, []);
+	}, [message]);
 
 	useEffect(() => {
 		const saved = Cookies.get(COOKIE_KEY);
@@ -74,99 +80,94 @@ const Backlog: React.FC = () => {
 	);
 	const isScrum = selectedWorkspace?.methodology === 'Scrum';
 
+	useEffect(() => {
+		const focus = (location.state as any)?.focus;
+		if (!focus || focus.type !== 'task') return;
+		const t = setTimeout(() => {
+			const el = document.querySelector<HTMLElement>(`[data-task-id="${focus.id}"]`);
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				el.classList.add('ring-2', 'ring-violet-500', 'shadow-[0_0_0_6px_rgba(139,92,246,0.35)]');
+				setTimeout(() => el.classList.remove('ring-2', 'ring-violet-500', 'shadow-[0_0_0_6px_rgba(139,92,246,0.35)]'), 2200);
+			}
+		}, 300);
+		return () => clearTimeout(t);
+	}, [location.state]);
+
 	const loadSprints = async () => {
-		if (!selectedWorkspaceId) {
-			setSprints([]);
-			return;
-		}
+		if (!selectedWorkspaceId) { setSprints([]); return; }
 		try {
-			const list = await getSprints({ workspaceId: selectedWorkspaceId });
+			const list = await getSprints({
+				workspaceId: selectedWorkspaceId,
+				state: showClosed ? 'all' : 'open',
+			});
 			setSprints(list);
-		} catch {
-			message.error('Erro ao carregar sprints');
-		}
+		} catch { message.error('Erro ao carregar sprints'); }
 	};
 
 	const loadTasks = async () => {
-		if (!selectedWorkspaceId) {
-			setTasks([]);
-			return;
-		}
+		if (!selectedWorkspaceId) { setTasks([]); return; }
 		try {
 			const list = await getTasks({ workspaceId: selectedWorkspaceId });
 			setTasks(list || []);
-		} catch {
-			message.error('Erro ao carregar tarefas');
-		}
+		} catch { message.error('Erro ao carregar tarefas'); }
 	};
 
 	useEffect(() => {
-		(async () => {
-			await Promise.all([loadSprints(), loadTasks()]);
-		})();
+		(async () => { await Promise.all([loadSprints(), loadTasks()]); })();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedWorkspaceId]);
+	}, [selectedWorkspaceId, showClosed]);
 
-	const openCreate = () => {
-		setEditingId(null);
-		form.resetFields();
-		setIsModalOpen(true);
-	};
-
+	const openCreate = () => { setEditingId(null); form.resetFields(); setIsModalOpen(true); };
 	const openEdit = (s: SprintDTO) => {
 		setEditingId(s.id);
 		form.setFieldsValue({
 			name: s.name,
-			startDate: s.startDate ? dayjs(s.startDate, 'DD/MM/YYYY, HH:mm:ss') : undefined,
-			endDate: s.endDate ? dayjs(s.endDate, 'DD/MM/YYYY, HH:mm:ss') : undefined,
+			startDate: s.startDate ? dayjs(s.startDate, 'DD/MM/YYYY') : undefined,
+			endDate: s.endDate ? dayjs(s.endDate, 'DD/MM/YYYY') : undefined,
 		});
 		setIsModalOpen(true);
 	};
 
 	const submitForm = async (values: any) => {
 		try {
-			if (!selectedWorkspaceId) {
-				message.error('Selecione um workspace');
-				return;
-			}
+			if (!selectedWorkspaceId) { message.error('Selecione um workspace'); return; }
 			const payload = {
 				name: values.name,
 				workspaceId: selectedWorkspaceId,
 				startDate: values.startDate?.toISOString?.() ?? null,
 				endDate: values.endDate?.toISOString?.() ?? null,
 			};
-			if (editingId) {
-				await updateSprint(editingId, payload);
-				message.success('Sprint atualizada');
-			} else {
-				await createSprint(payload);
-				message.success('Sprint criada');
-			}
-			setIsModalOpen(false);
-			form.resetFields();
+			if (editingId) { await updateSprint(editingId, payload); message.success('Sprint atualizada'); }
+			else { await createSprint(payload); message.success('Sprint criada'); }
+			setIsModalOpen(false); form.resetFields();
 			await Promise.all([loadSprints(), loadTasks()]);
-		} catch (e: any) {
-			message.error(e?.message || 'Erro ao salvar sprint');
-		}
+		} catch (e: any) { message.error(e?.message || 'Erro ao salvar sprint'); }
 	};
 
 	const onActivate = async (s: SprintDTO) => {
-		try {
-			await activateSprint(s.id);
-			message.success('Sprint ativada');
-			await Promise.all([loadSprints(), loadTasks()]);
-		} catch (e: any) {
-			message.error(e?.message || 'Erro ao ativar sprint');
-		}
+		try { await activateSprint(s.id); message.success('Sprint ativada'); await Promise.all([loadSprints(), loadTasks()]); }
+		catch (e: any) { message.error(e?.message || 'Erro ao ativar sprint'); }
 	};
 
-	const onClose = async (s: SprintDTO) => {
+	const onCloseSprint = (s: SprintDTO) => {
+		setClosingSprint(s);
+		setCloseOpen(true);
+	};
+
+	const doCloseSprint = async (move: { to: 'backlog' } | { to: 'sprint'; sprintId: number }) => {
+		if (!closingSprint) return;
+		setClosingLoading(true);
 		try {
-			await closeSprint(s.id);
+			await closeSprint(closingSprint.id, move);
 			message.success('Sprint encerrada');
+			setCloseOpen(false);
+			setClosingSprint(null);
 			await Promise.all([loadSprints(), loadTasks()]);
 		} catch (e: any) {
 			message.error(e?.message || 'Erro ao encerrar sprint');
+		} finally {
+			setClosingLoading(false);
 		}
 	};
 
@@ -182,16 +183,14 @@ const Backlog: React.FC = () => {
 				sprint: data.sprintId ?? undefined,
 				epicId: data.epic?.id ?? undefined,
 				estimate: data.estimate ?? undefined,
-				'start-date': data.startDate ? dayjs(data.startDate, 'DD/MM/YYYY, HH:mm:ss') : undefined,
+				'start-date': data.startDate ? dayjs(data.startDate, 'DD/MM/YYYY') : undefined,
 				deadline: data.deadline ? dayjs(data.deadline, 'DD/MM/YYYY') : undefined,
 				report: data.reporterId ?? undefined,
 				responsible: data.assigneeId ?? undefined,
 				description: data.description ?? '',
 			});
 			setIsTaskModalOpen(true);
-		} catch {
-			message.error('Erro ao carregar atividade');
-		}
+		} catch { message.error('Erro ao carregar atividade'); }
 	};
 
 	const submitTaskForm = async (values: any) => {
@@ -216,19 +215,12 @@ const Backlog: React.FC = () => {
 			setIsTaskModalOpen(false);
 			taskForm.resetFields();
 			await loadTasks();
-		} catch (e: any) {
-			message.error(e?.message || 'Erro ao salvar atividade');
-		}
+		} catch (e: any) { message.error(e?.message || 'Erro ao salvar atividade'); }
 	};
 
 	const handleDeleteTask = async (taskId: number) => {
-		try {
-			await deleteTasks([taskId]);
-			message.success('Atividade removida');
-			await loadTasks();
-		} catch (e: any) {
-			message.error(e?.message || 'Não é possível remover a atividade');
-		}
+		try { await deleteTasks([taskId]); message.success('Atividade removida'); await loadTasks(); }
+		catch (e: any) { message.error(e?.message || 'Não é possível remover a atividade'); }
 	};
 
 	const { contentBySprintId, backlogContent } = useMemo(() => {
@@ -247,32 +239,31 @@ const Backlog: React.FC = () => {
 		const contentBySprintId: Record<number, React.ReactNode> = {};
 		for (const s of sprints) {
 			contentBySprintId[s.id] = (
-				<TaskList
-					tasks={bySprint[s.id] ?? []}
-					onEdit={(taskId) => openEditTask(taskId)}
-					onDelete={(taskId) => handleDeleteTask(taskId)}
-				/>
+				<div className="px-2 md:px-3">
+					<TaskList
+						tasks={bySprint[s.id] ?? []}
+						onEdit={(taskId) => openEditTask(taskId)}
+						onDelete={(taskId) => handleDeleteTask(taskId)}
+					/>
+				</div>
 			);
 		}
 
 		const backlogContent = (
-			<TaskList
-				tasks={backlog}
-				onEdit={(taskId) => openEditTask(taskId)}
-				onDelete={(taskId) => handleDeleteTask(taskId)}
-			/>
+			<div className="px-2 md:px-3">
+				<TaskList
+					tasks={backlog}
+					onEdit={(taskId) => openEditTask(taskId)}
+					onDelete={(taskId) => handleDeleteTask(taskId)}
+				/>
+			</div>
 		);
 
 		return { contentBySprintId, backlogContent };
 	}, [tasks, sprints, isScrum]);
 
 	return (
-		<DefaultLayout
-			title="Backlog"
-			addButton
-			textButton="Criar Sprint"
-			onAddClick={openCreate}
-		>
+		<DefaultLayout title="Backlog" addButton textButton="Criar Sprint" onAddClick={() => { setEditingId(null); setIsModalOpen(true); }}>
 			<FloatButton
 				icon={<FilterOutlined />}
 				tooltip="Filtros"
@@ -285,19 +276,23 @@ const Backlog: React.FC = () => {
 				open={filterOpen}
 				onClose={() => setFilterOpen(false)}
 				initialWorkspaceId={selectedWorkspaceId}
-				onApply={({ workspaceId }) => {
-					if (workspaceId) {
-						Cookies.set(COOKIE_KEY, String(workspaceId), { expires: 365 });
-					} else {
-						Cookies.remove(COOKIE_KEY);
-					}
+				/* 👇 só no Backlog */
+				showClosedToggle
+				initialShowClosed={showClosed}
+				onApply={({ workspaceId, showClosed: sc }) => {
+					if (workspaceId) Cookies.set(COOKIE_KEY, String(workspaceId), { expires: 365 });
+					else Cookies.remove(COOKIE_KEY);
 					setSelectedWorkspaceId(workspaceId ?? null);
+
+					if (typeof sc === 'boolean') setShowClosed(sc);
+
 					message.success('Filtro aplicado');
 					setFilterOpen(false);
 				}}
 				onClear={() => {
 					Cookies.remove(COOKIE_KEY);
 					setSelectedWorkspaceId(null);
+					setShowClosed(false);
 					message.success('Filtro limpo');
 					setFilterOpen(false);
 				}}
@@ -309,8 +304,10 @@ const Backlog: React.FC = () => {
 				onOk={() => form.submit()}
 				okText="Salvar"
 				cancelText="Cancelar"
-				onCancel={() => setIsModalOpen(false)}
+				onCancel={() => { setIsModalOpen(false); form.resetFields(); }}
 				destroyOnHidden
+				width={screens.lg ? 720 : undefined}
+				rootClassName="responsive-modal"
 			>
 				<FormSprint form={form} onFinish={submitForm} />
 			</Modal>
@@ -321,18 +318,22 @@ const Backlog: React.FC = () => {
 				onOk={() => taskForm.submit()}
 				okText="Salvar"
 				cancelText="Cancelar"
-				onCancel={() => {
-					setIsTaskModalOpen(false);
-					taskForm.resetFields();
-				}}
+				onCancel={() => { setIsTaskModalOpen(false); taskForm.resetFields(); }}
 				destroyOnHidden
+				width={screens.lg ? 720 : undefined}
+				rootClassName="responsive-modal"
 			>
-				<FormTask
-					form={taskForm}
-					onFinish={submitTaskForm}
-					selectedWorkspaceId={selectedWorkspaceId ?? undefined}
-				/>
+				<FormTask form={taskForm} onFinish={submitTaskForm} selectedWorkspaceId={selectedWorkspaceId ?? undefined} />
 			</Modal>
+
+			<CloseSprintModal
+				open={closeOpen}
+				sprint={closingSprint}
+				workspaceId={selectedWorkspaceId}
+				confirmLoading={closingLoading}
+				onConfirm={doCloseSprint}
+				onCancel={() => { setCloseOpen(false); setClosingSprint(null); }}
+			/>
 
 			{!selectedWorkspaceId ? (
 				<Result
@@ -342,14 +343,17 @@ const Backlog: React.FC = () => {
 					style={{ marginTop: 48 }}
 				/>
 			) : (
-				<SprintList
-					sprints={sprints}
-					onEdit={openEdit}
-					onActivate={onActivate}
-					onClose={onClose}
-					contentBySprintId={contentBySprintId}
-					backlogContent={backlogContent}
-				/>
+				<div className="px-2 md:px-4">
+					<SprintList
+						sprints={sprints}
+						onEdit={openEdit}
+						onActivate={onActivate}
+						onClose={onCloseSprint}
+						contentBySprintId={contentBySprintId}
+						backlogContent={backlogContent}
+						autoOpenSprintId={(location.state as any)?.focus?.meta?.sprintId ?? null}
+					/>
+				</div>
 			)}
 		</DefaultLayout>
 	);

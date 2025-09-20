@@ -1,14 +1,27 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Drawer, Form, Button, Select, App } from 'antd';
-import { getMyWorkspaces } from '@/services/workspace.services';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Drawer, Form, Button, Select, Switch, App, Grid } from 'antd';
+import { getMyWorkspaces, canAccessWorkspace } from '@/services/workspace.services';
+
+type BaseValues = {
+	workspaceId?: number;
+	sprintId?: number | null;
+	showClosed?: boolean;
+};
 
 type Props = {
 	open: boolean;
 	onClose: () => void;
-	onApply: (values: { workspaceId?: number }) => void;
+	onApply: (values: BaseValues) => void;
 	onClear: () => void;
 	initialWorkspaceId?: number | null;
+	showSprintSelector?: boolean;
+	sprintOptions?: Array<{ label: string; value: number }>;
+	initialSprintId?: number | null;
+	showClosedToggle?: boolean;
+	initialShowClosed?: boolean;
 };
+
+const { useBreakpoint } = Grid;
 
 const BoardFilterDrawer: React.FC<Props> = ({
 	open,
@@ -16,11 +29,43 @@ const BoardFilterDrawer: React.FC<Props> = ({
 	onApply,
 	onClear,
 	initialWorkspaceId,
+	showSprintSelector = false,
+	sprintOptions = [],
+	initialSprintId = null,
+	showClosedToggle = false,
+	initialShowClosed = false,
 }) => {
 	const { message } = App.useApp();
-	const [form] = Form.useForm();
+	const screens = useBreakpoint();
+	const isMobile = !screens.md;
+
+	const [form] = Form.useForm<BaseValues>();
 	const [loading, setLoading] = useState(false);
 	const [workspaces, setWorkspaces] = useState<Array<{ id: number; name: string }>>([]);
+
+	const validatedRef = useRef<number | null | undefined>(undefined);
+
+	useEffect(() => {
+		let alive = true;
+		(async () => {
+			if (initialWorkspaceId == null) return;
+			if (validatedRef.current === initialWorkspaceId) return;
+
+			try {
+				const { allowed } = await canAccessWorkspace(Number(initialWorkspaceId));
+				if (!alive) return;
+
+				validatedRef.current = initialWorkspaceId;
+				if (!allowed) {
+					onClear();
+					message.info('Você não faz parte da equipe desse workspace. Filtro limpo.');
+				}
+			} catch { }
+		})();
+		return () => {
+			alive = false;
+		};
+	}, [initialWorkspaceId, onClear, message]);
 
 	useEffect(() => {
 		let alive = true;
@@ -29,38 +74,38 @@ const BoardFilterDrawer: React.FC<Props> = ({
 			try {
 				const list = await getMyWorkspaces();
 				if (!alive) return;
-				setWorkspaces(list.map(w => ({ id: w.id, name: w.name })));
-
-				if (initialWorkspaceId && !list.some(w => w.id === initialWorkspaceId)) {
-					onClear();
-					message.info('Você não faz parte da equipe desse workspace. Filtro limpo.');
-				}
+				setWorkspaces(list.map((w: any) => ({ id: Number(w.id), name: String(w.name) })));
 			} catch {
-				if (initialWorkspaceId != null) onClear();
 			} finally {
 				if (alive) setLoading(false);
 			}
 		})();
-		return () => { alive = false; };
-	}, [initialWorkspaceId, onClear, message]);
+		return () => {
+			alive = false;
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!open) return;
 		form.setFieldsValue({
-			workspaceId: workspaces.some(w => w.id === initialWorkspaceId!)
-				? initialWorkspaceId
-				: undefined,
+			workspaceId: initialWorkspaceId ?? undefined,
+			sprintId: initialSprintId ?? undefined,
+			showClosed: initialShowClosed,
 		});
-	}, [open, initialWorkspaceId, workspaces, form]);
+	}, [open, initialWorkspaceId, initialSprintId, initialShowClosed, form]);
 
-	const options = useMemo(
-		() => workspaces.map(ws => ({ label: ws.name, value: ws.id })),
+	const workspaceOptions = useMemo(
+		() => workspaces.map((ws) => ({ label: ws.name, value: ws.id })),
 		[workspaces]
 	);
 
 	const handleApply = async () => {
 		const values = await form.validateFields();
-		onApply(values);
+		onApply({
+			workspaceId: values.workspaceId,
+			sprintId: showSprintSelector ? values.sprintId ?? null : undefined,
+			showClosed: showClosedToggle ? Boolean(values.showClosed) : undefined,
+		});
 	};
 
 	const handleClear = () => {
@@ -70,10 +115,13 @@ const BoardFilterDrawer: React.FC<Props> = ({
 
 	return (
 		<Drawer
-			title="Filtros do Board"
+			title="Filtros"
 			open={open}
 			onClose={onClose}
-			destroyOnClose
+			placement={isMobile ? 'bottom' : 'right'}
+			height={isMobile ? '70vh' : undefined}
+			width={isMobile ? '100%' : 420}
+			destroyOnHidden
 			footer={
 				<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 					<Button onClick={handleClear}>Limpar</Button>
@@ -92,12 +140,39 @@ const BoardFilterDrawer: React.FC<Props> = ({
 						size="large"
 						placeholder="Selecione um Workspace"
 						allowClear
-						options={options}
+						options={workspaceOptions}
 						showSearch
 						optionFilterProp="label"
 						loading={loading}
 					/>
 				</Form.Item>
+
+				{showSprintSelector && sprintOptions.length > 0 && (
+					<Form.Item
+						label="Sprint ativa"
+						name="sprintId"
+						tooltip="Se o workspace mudar, a sprint selecionada pode ser ignorada."
+					>
+						<Select
+							size="large"
+							allowClear
+							placeholder="Escolha a sprint ativa"
+							options={sprintOptions}
+							showSearch
+							optionFilterProp="label"
+						/>
+					</Form.Item>
+				)}
+
+				{showClosedToggle && (
+					<Form.Item
+						label="Mostrar sprints encerradas"
+						name="showClosed"
+						valuePropName="checked"
+					>
+						<Switch />
+					</Form.Item>
+				)}
 			</Form>
 		</Drawer>
 	);

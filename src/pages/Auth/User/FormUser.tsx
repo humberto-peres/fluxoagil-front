@@ -1,6 +1,6 @@
 import React from "react";
 import type { FormInstance } from "antd";
-import { Col, Flex, Form, Input, Row } from "antd";
+import { Col, Form, Input, Row } from "antd";
 import cepUtils from "../../../utils/cepUtils";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -43,40 +43,30 @@ const FormUser: React.FC<FormUserProps> = ({
 				street: addressData.street,
 			});
 			setAddressFieldsDisabled(false);
-		} catch (error) {
+		} catch {
 			setAddressFieldsDisabled(true);
 		}
 	};
 
 	return (
 		<Form form={form} name="user-form" layout="vertical" onFinish={onFinish}>
-			<Flex>
-				<div style={{ width: "50%", paddingRight: 24 }}>
-					<Form.Item<FieldType>
-						name="name"
-						label="Nome"
-						rules={[{ required: true }]}
-					>
+			<Row gutter={[24, 0]}>
+				<Col xs={24} md={12}>
+					<Form.Item<FieldType> name="name" label="Nome" rules={[{ required: true }]}>
 						<Input size="large" />
 					</Form.Item>
-					<Form.Item<FieldType>
-						name="email"
-						label="Email"
-						rules={[{ required: true }, { type: "email" }]}
-					>
+
+					<Form.Item<FieldType> name="email" label="Email" rules={[{ required: true }, { type: "email" }]}>
 						<Input size="large" />
 					</Form.Item>
+
 					<Row gutter={16}>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="username"
-								label="Username"
-								rules={[{ required: true }]}
-							>
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="username" label="Username" rules={[{ required: true }]}>
 								<Input size="large" />
 							</Form.Item>
 						</Col>
-						<Col span={12}>
+						<Col xs={24} md={12}>
 							<Form.Item<FieldType>
 								name="password"
 								label="Senha"
@@ -84,78 +74,54 @@ const FormUser: React.FC<FormUserProps> = ({
 							>
 								<Input.Password
 									size="large"
-									placeholder={
-										isEditing ? "Deixe em branco para manter a senha atual" : ""
-									}
+									placeholder={isEditing ? "Deixe em branco para manter a senha atual" : ""}
 								/>
 							</Form.Item>
 						</Col>
 					</Row>
-				</div>
+				</Col>
 
-				<div style={{ width: "50%" }}>
+				<Col xs={24} md={12}>
 					<Row gutter={16}>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="cep"
-								label="CEP"
-								rules={[{ required: true }]}
-							>
-								<Input.Search onSearch={onSearch} size="large" />
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="cep" label="CEP">
+								<Input.Search onSearch={onSearch} size="large" placeholder="Ex.: 01001-000" />
 							</Form.Item>
 						</Col>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="state"
-								label="Estado"
-								rules={[{ required: true }]}
-							>
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="state" label="Estado">
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
 					</Row>
+
 					<Row gutter={16}>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="city"
-								label="Cidade"
-								rules={[{ required: true }]}
-							>
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="city" label="Cidade">
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="street"
-								label="Rua"
-								rules={[{ required: true }]}
-							>
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="street" label="Rua">
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
 					</Row>
+
 					<Row gutter={16}>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="neighborhood"
-								label="Bairro"
-								rules={[{ required: true }]}
-							>
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="neighborhood" label="Bairro">
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
-						<Col span={12}>
-							<Form.Item<FieldType>
-								name="number"
-								label="Número"
-								rules={[{ required: true }]}
-							>
+						<Col xs={24} md={12}>
+							<Form.Item<FieldType> name="number" label="Número">
 								<Input size="large" type="number" />
 							</Form.Item>
 						</Col>
 					</Row>
-				</div>
-			</Flex>
+				</Col>
+			</Row>
 		</Form>
 	);
 };

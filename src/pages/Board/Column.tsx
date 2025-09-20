@@ -1,9 +1,9 @@
+import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { TaskCard } from './TaskCard';
-import styles from './Column.module.css';
-import { Divider } from 'antd';
+import { Divider, Typography } from 'antd';
+import TaskCard  from './TaskCard';
+import type { Task } from './TaskCard';
 
-export type Task = { id: string; status: string; title: string; description: string };
 export type Column = { id: string; title: string };
 
 type ColumnProps = {
@@ -16,15 +16,33 @@ export function Column({ column, tasks, onEditTask }: ColumnProps) {
 	const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
 	return (
-		<div className={styles.column}>
+		<div
+			className="
+        snap-start
+        min-w-[92vw] sm:min-w-[80vw] md:min-w-[340px] md:w-[340px]
+        min-h-[calc(100vh-320px)] md:min_h-[calc(100vh-387px)]
+        flex flex-col p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur
+      "
+		>
 			<div>
-				<h3 className={styles.title}>{column.title}</h3>
-				<p className={styles.subTitle}>
+				<Typography.Title level={4} ellipsis={{ rows: 1, tooltip: column.title }}>
+					{column.title}
+				</Typography.Title>
+				<p className="text-[11px] text-gray-300">
 					{tasks.length} {tasks.length > 1 ? 'Atividades' : 'Atividade'} na etapa
 				</p>
-				<Divider style={{ borderWidth: '2px', margin: '16px 0' }} />
+				<Divider style={{ borderWidth: 2, margin: '16px 0' }} />
 			</div>
-			<div ref={setNodeRef} className={`${styles.dropZone} ${isOver ? styles.isOver : ''}`}>
+
+			<div
+				ref={setNodeRef}
+				className={[
+					'flex-1 flex flex-col gap-4 p-2 rounded-lg transition-[background,box-shadow] duration-200',
+					isOver
+						? 'bg-purple-500/20 ring-2 ring-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]'
+						: 'bg-transparent',
+				].join(' ')}
+			>
 				{tasks.map((task) => (
 					<TaskCard key={task.id} task={task} onEdit={onEditTask} />
 				))}
@@ -32,3 +50,5 @@ export function Column({ column, tasks, onEditTask }: ColumnProps) {
 		</div>
 	);
 }
+
+export default Column;

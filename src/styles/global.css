@@ -1,13 +1,34 @@
+@layer theme, base, reset, antd, components, utilities;
+@import url("antd/dist/reset.css") layer(reset);
 @import "tailwindcss";
 
-* {
+@layer theme {
+  :root {
+    --white: #fff;
+    --black: #000;
+    --background: #080a0f;
+    --text: #fff;
+  }
+}
+
+@layer base {
+  * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+
+    body {
+      background: var(--background);
+      color: var(--text);
+    }
+  }
 }
 
-:root {
-    --white: #fff;
-    --black: #000;
-    --background: rgba(8,10,15,255);
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Form, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
+import { Table, Tag, Form, Modal, Tooltip, Popconfirm, Button, App, Grid } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import FormPriority from './FormPriority';
@@ -12,19 +12,37 @@ type PriorityType = {
 	label: string;
 };
 
+const { useBreakpoint } = Grid;
+
+function getContrastText(hex: string) {
+	const c = hex.replace('#', '');
+	const r = parseInt(c.substring(0, 2), 16);
+	const g = parseInt(c.substring(2, 4), 16);
+	const b = parseInt(c.substring(4, 6), 16);
+	const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+	return luminance > 0.6 ? '#000' : '#fff';
+}
+
 const Priority: React.FC = () => {
 	const { message } = App.useApp();
+	const screens = useBreakpoint();
+	const isCompact = !screens.lg;
+
 	const [priorities, setPriorities] = useState<PriorityType[]>([]);
+	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [form] = Form.useForm();
 	const [editingId, setEditingId] = useState<number | null>(null);
+	const [form] = Form.useForm();
 
 	const fetchPriorities = async () => {
 		try {
+			setLoading(true);
 			const data = await getPriorities();
 			setPriorities(data);
 		} catch {
 			message.error('Erro ao buscar prioridades');
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -32,9 +50,7 @@ const Priority: React.FC = () => {
 		fetchPriorities();
 	}, []);
 
-	const openModal = () => {
-		setIsModalOpen(true);
-	};
+	const openModal = () => setIsModalOpen(true);
 
 	const closeModal = () => {
 		setIsModalOpen(false);
@@ -59,7 +75,7 @@ const Priority: React.FC = () => {
 
 			closeModal();
 			fetchPriorities();
-		} catch (error) {
+		} catch {
 			message.error('Erro ao salvar prioridade');
 		}
 	};
@@ -84,8 +100,15 @@ const Priority: React.FC = () => {
 		{
 			title: 'Cor',
 			dataIndex: 'label',
-			width: '20%',
-			render: (color: string) => <Tag color={color}>{color}</Tag>,
+			width: 160,
+			render: (color: string) => (
+				<Tag
+					color={color}
+					style={{ color: getContrastText(color), borderColor: color }}
+				>
+					{color}
+				</Tag>
+			),
 		},
 		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
 		{
@@ -115,11 +138,8 @@ const Priority: React.FC = () => {
 						>
 							<Button
 								type="text"
-								className="group"
 								aria-label={`Excluir ${record.name}`}
-								icon={
-									<FiTrash2 size={18} />
-								}
+								icon={<FiTrash2 size={18} />}
 							/>
 						</Popconfirm>
 					</Tooltip>
@@ -135,7 +155,16 @@ const Priority: React.FC = () => {
 			textButton="Criar Prioridade"
 			onAddClick={openModal}
 		>
-			<Table columns={columns} dataSource={priorities} rowKey="id" />
+			<Table
+				columns={columns}
+				dataSource={priorities}
+				rowKey="id"
+				loading={loading}
+				size="middle"
+				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				scroll={isCompact ? { x: 'max-content' } : undefined}
+				tableLayout="auto"
+			/>
 
 			<Modal
 				open={isModalOpen}
@@ -144,6 +173,9 @@ const Priority: React.FC = () => {
 				okText="Salvar"
 				cancelText="Cancelar"
 				onCancel={closeModal}
+				destroyOnHidden
+				rootClassName="responsive-modal"
+				width={560}
 			>
 				<FormPriority form={form} onFinish={handleFormSubmit} />
 			</Modal>

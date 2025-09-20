@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Flex, Layout, Menu, Typography } from "antd";
+import { Flex, Layout, Menu, Typography, Badge } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { MenuProps } from "antd";
 
@@ -19,101 +19,157 @@ const { Sider } = Layout;
 type ItemType = Required<MenuProps>["items"][number];
 
 function getItem(
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  children?: ItemType[],
-  type?: "group"
+	label: React.ReactNode,
+	key: React.Key,
+	icon?: React.ReactNode,
+	children?: ItemType[],
+	type?: "group"
 ): ItemType {
-  return { key, icon, children, label, type } as ItemType;
+	return { key, icon, children, label, type } as ItemType;
 }
 
-const DefaultSidebar: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+type Props = {
+	collapsed: boolean;
+	onCollapse: (v: boolean) => void;
+	onBreakpoint?: (broken: boolean) => void;
+	width?: number;
+};
 
-  const dividerItem: ItemType = {
-    type: "divider",
-    style: { backgroundColor: "rgba(255, 255, 255, 0.65)", margin: 10 },
-  };
+const DefaultSidebar: React.FC<Props> = ({ collapsed, onCollapse, onBreakpoint, width = 250 }) => {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const { user } = useAuth();
+	const isAdmin = user?.role === "admin";
 
-  const items = useMemo<ItemType[]>(() => {
-    return [
-      getItem(
-        "Gestão",
-        "group-gestao",
-        undefined,
-        [
-          { key: "/", icon: <AiOutlineDashboard />, label: "Dashboard" },
-          { key: "/board", icon: <IoGridOutline />, label: "Board" },
-          { key: "/backlog", icon: <IoListOutline />, label: "Backlog" },
-          { key: "/epic", icon: <RiFlag2Line />, label: "Épicos" },
-          { key: "/workspace", icon: <HiOutlineOfficeBuilding />, label: "Workspace" },
-        ],
-        "group"
-      ),
-      dividerItem,
-      getItem(
-        "Configurações",
-        "group-config",
-        undefined,
-        [
-          { key: "/priority", icon: <MdOutlinePriorityHigh />, label: "Prioridade" },
-          { key: "/step", icon: <GiFootsteps />, label: "Etapa" },
-          { key: "/type-task", icon: <TbArrowsShuffle2 />, label: "Tipo de Atividade" },
-          { key: "/team", icon: <IoPeopleOutline />, label: "Equipe" },
-        ],
-        "group"
-      ),
-      ...(isAdmin
-        ? [
-            dividerItem,
-            getItem(
-              "Cadastro",
-              "group-cadastro",
-              undefined,
-              [{ key: "/user", icon: <PiUserCircleLight />, label: "Usuários" }],
-              "group"
-            ),
-          ]
-        : []),
-    ];
-  }, [isAdmin]);
+	const dividerItem: ItemType = {
+		type: "divider",
+		style: { 
+			backgroundColor: "rgba(139, 43, 226, 0.3)", 
+			margin: "12px 16px",
+			height: "1px"
+		},
+	};
 
-  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    navigate(String(key));
-  };
+	const items = useMemo<ItemType[]>(() => {
+		return [
+			getItem(
+				"Gestão",
+				"group-gestao",
+				undefined,
+				[
+					{ key: "/dashboard", icon: <AiOutlineDashboard className="text-lg" />, label: "Dashboard" },
+					{ key: "/board", icon: <IoGridOutline className="text-lg" />, label: "Board" },
+					{ key: "/backlog", icon: <IoListOutline className="text-lg" />, label: "Backlog" },
+					{ key: "/epic", icon: <RiFlag2Line className="text-lg" />, label: "Épicos" },
+					{ key: "/workspace", icon: <HiOutlineOfficeBuilding className="text-lg" />, label: "Workspace" },
+				],
+				"group"
+			),
+			dividerItem,
+			getItem(
+				"Configurações",
+				"group-config",
+				undefined,
+				[
+					{ key: "/priority", icon: <MdOutlinePriorityHigh className="text-lg" />, label: "Prioridades" },
+					{ key: "/step", icon: <GiFootsteps className="text-lg" />, label: "Etapas" },
+					{ key: "/type-task", icon: <TbArrowsShuffle2 className="text-lg" />, label: "Tipos de Atividade" },
+					{ key: "/team", icon: <IoPeopleOutline className="text-lg" />, label: "Equipes" },
+				],
+				"group"
+			),
+			...(isAdmin
+				? [
+					dividerItem,
+					getItem(
+						"Administração",
+						"group-admin",
+						undefined,
+						[
+							{ key: "/user", icon: <PiUserCircleLight className="text-lg" />, label: "Usuários" }
+						],
+						"group"
+					),
+				]
+				: []),
+		];
+	}, [isAdmin]);
 
-  return (
-    <Sider
-      trigger={null}
-      width={240}
-      style={{
-        height: "100vh",
-        overflow: "hidden",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 1000,
-      }}
-    >
-      <div className="h-full">
-        <Flex className="!p-[20px]">
-          <FaCheckSquare size={35} color="#8A2BE2" className="!mr-[8px]" />
-          <Typography.Title level={3}>Fluxo Ágil</Typography.Title>
-        </Flex>
-        <Menu
-          mode="inline"
-          onClick={handleMenuClick}
-          selectedKeys={[location.pathname]}
-          items={items}
-        />
-      </div>
-    </Sider>
-  );
+	const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
+		navigate(String(key));
+	};
+
+	return (
+		<Sider
+			trigger={null}
+			collapsible
+			collapsed={collapsed}
+			onCollapse={(c) => onCollapse(!!c)}
+			collapsedWidth={0}
+			width={width}
+			breakpoint="lg"
+			onBreakpoint={onBreakpoint}
+			className="border-r border-white/10"
+			style={{
+				height: "100vh",
+				overflow: "auto",
+				position: "fixed",
+				left: 0,
+				top: 0,
+				bottom: 0,
+				zIndex: 1000,
+			}}
+		>
+			<div className="h-full flex flex-col">
+				<div
+					className="p-4 md:p-5 flex items-center cursor-pointer select-none hover:bg-white/5 transition-all duration-200 border-b border-white/10"
+					role="button"
+					tabIndex={0}
+					onClick={() => navigate('/about')}
+					onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate('/about')}
+				>
+					<div className="relative">
+						<FaCheckSquare size={32} className="text-purple-500 mr-3" />
+					</div>
+					<div className="flex flex-col">
+						<Typography.Title level={4} className="!mb-0 !text-white">
+							Fluxo Ágil
+						</Typography.Title>
+						<Typography.Text className="text-xs text-gray-400">
+							v1.0.0
+						</Typography.Text>
+					</div>
+				</div>
+
+				<div className="flex-1 py-2">
+					<Menu
+						mode="inline"
+						onClick={handleMenuClick}
+						selectedKeys={[location.pathname]}
+						items={items}
+						className="bg-transparent border-r-0"
+						style={{
+							fontSize: '15px',
+						}}
+					/>
+				</div>
+
+				<div className="p-4 border-t border-white/10 bg-gradient-to-r from-purple-600/10 to-transparent">
+					<Flex vertical align="center">
+						<Typography.Text className="text-xs text-gray-400 block">
+							Logado como
+						</Typography.Text>
+						<Typography.Text className="text-sm text-white font-medium block truncate">
+							{user?.name || 'Usuário'}
+						</Typography.Text>
+						<Typography.Text className="text-xs text-purple-400 block">
+							{user?.role === 'admin' ? '👑 Administrador' : '👤 Usuário'}
+						</Typography.Text>
+					</Flex>
+				</div>
+			</div>
+		</Sider>
+	);
 };
 
 export default DefaultSidebar;

@@ -38,10 +38,7 @@ const Workspace: React.FC = () => {
 		fetchWorkspaces();
 	}, []);
 
-	const openModal = () => {
-		setIsModalOpen(true);
-	};
-
+	const openModal = () => setIsModalOpen(true);
 	const closeModal = () => {
 		setIsModalOpen(false);
 		form.resetFields();
@@ -99,13 +96,14 @@ const Workspace: React.FC = () => {
 	};
 
 	const columns: TableColumnsType<WorkspaceType> = [
-		{ title: 'Nome', dataIndex: 'name', width: '32%' },
-		{ title: 'Código', dataIndex: 'key', width: '12%' },
-		{ title: 'Metodologia', dataIndex: 'methodology', width: '20%' },
+		{ title: 'Nome', dataIndex: 'name', width: 280, ellipsis: true },
+		{ title: 'Código', dataIndex: 'key', width: 120, responsive: ['sm'] },
+		{ title: 'Metodologia', dataIndex: 'methodology', width: 160, responsive: ['md'] },
 		{
 			title: 'Equipe',
 			dataIndex: 'teamName',
-			width: '25%',
+			width: 220,
+			responsive: ['lg'],
 			render: (_, record) => {
 				const content = (
 					<div style={{ maxWidth: 240 }}>
@@ -116,10 +114,9 @@ const Workspace: React.FC = () => {
 						)}
 					</div>
 				);
-
 				return (
 					<Popover content={content} title="Membros da equipe" trigger="hover">
-						<span style={{ cursor: 'pointer', color: '#1677ff' }}>{record.teamName}</span>
+						<a>{record.teamName}</a>
 					</Popover>
 				);
 			}
@@ -127,10 +124,10 @@ const Workspace: React.FC = () => {
 		{
 			title: 'Ações',
 			key: 'actions',
-			width: 120,
-			align: 'center',
+			width: 110,
+			fixed: 'right',
 			render: (_: unknown, record: WorkspaceType) => (
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
 					<Tooltip title="Editar">
 						<Button
 							type="text"
@@ -139,7 +136,6 @@ const Workspace: React.FC = () => {
 							icon={<FiEdit2 size={18} />}
 						/>
 					</Tooltip>
-
 					<Tooltip title="Excluir">
 						<Popconfirm
 							title="Excluir workspace?"
@@ -151,11 +147,8 @@ const Workspace: React.FC = () => {
 						>
 							<Button
 								type="text"
-								className="group"
 								aria-label={`Excluir ${record.name}`}
-								icon={
-									<FiTrash2 size={18} />
-								}
+								icon={<FiTrash2 size={18} />}
 							/>
 						</Popconfirm>
 					</Tooltip>
@@ -163,6 +156,10 @@ const Workspace: React.FC = () => {
 			),
 		},
 	];
+
+	const stepsWatch = Form.useWatch('steps', form) as any[] | undefined;
+	const stepsCount = (stepsWatch?.length ?? 0);
+	const disableOk = !editingId && stepsCount < 3;
 
 	return (
 		<DefaultLayout
@@ -175,6 +172,9 @@ const Workspace: React.FC = () => {
 				columns={columns}
 				dataSource={workspaces}
 				rowKey="id"
+				size="middle"
+				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				scroll={{ x: 720 }}
 			/>
 
 			<Modal
@@ -182,8 +182,10 @@ const Workspace: React.FC = () => {
 				title={editingId ? 'Editar Workspace' : 'Criar Workspace'}
 				onOk={() => form.submit()}
 				okText="Salvar"
+				okButtonProps={{ disabled: disableOk }}
 				cancelText="Cancelar"
 				onCancel={closeModal}
+				rootClassName="responsive-modal"
 				width={700}
 			>
 				<FormWorkspace form={form} onFinish={handleFormSubmit} isEditing={!!editingId} />

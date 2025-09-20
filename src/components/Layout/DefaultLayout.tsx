@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Layout } from "antd";
 import Sidebar from "@/components/Layout/Sidebar";
 import Header from "@/components/Layout/Header";
@@ -14,21 +14,55 @@ interface DefaultLayoutProps {
     onAddClick?: () => void;
 }
 
-const DefaultLayout: React.FC<DefaultLayoutProps> = ({ title, children, addButton = false, textButton, onAddClick }) => {
+const SIDER_WIDTH = 240;
+
+const DefaultLayout: React.FC<DefaultLayoutProps> = ({
+    title, children, addButton = false, textButton, onAddClick,
+}) => {
+    const [collapsed, setCollapsed] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    const marginLeft = useMemo(() => (isMobile || collapsed ? 0 : SIDER_WIDTH), [isMobile, collapsed]);
+
     return (
         <Layout className="!min-h-screen">
-            <Sidebar />
+            <Sidebar
+                collapsed={collapsed}
+                onCollapse={(v) => setCollapsed(!!v)}
+                onBreakpoint={(broken) => {
+                    setIsMobile(broken);
+                    setCollapsed(broken);
+                }}
+                width={SIDER_WIDTH}
+            />
 
-            <Layout className="!ml-[240px]" style={{ borderLeft: "1px solid rgba(159, 159, 159, 0.3)"}}>
-                <Header />
-                <Content className="!pl-2">
+            <Layout
+                className="
+          min-h-screen
+          transition-[margin-left] duration-200 ease-in-out
+          bg-[radial-gradient(ellipse_at_top,_rgba(138,43,226,0.10),_transparent_60%)]
+        "
+                style={{
+                    marginLeft,
+                    borderLeft: "1px solid rgba(159, 159, 159, 0.3)",
+                }}
+            >
+                <Header
+                    onToggleSidebar={() => setCollapsed((c) => !c)}
+                    isSiderCollapsed={collapsed}
+                    isMobile={isMobile}
+                />
+
+                <Content className="px-2 md:px-4">
                     <SubHeader
                         title={title}
                         addButton={addButton}
                         textButton={textButton}
                         onAddClick={onAddClick}
                     />
-                    <div className="!mt-[80px] !p-5">{children}</div>
+                    <div className="pt-6 md:pt-1 pb-6">
+                        <div className="mt-2 md:mt-4 p-3 md:p-5">{children}</div>
+                    </div>
                 </Content>
             </Layout>
         </Layout>

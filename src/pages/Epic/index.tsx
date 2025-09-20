@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-	Modal,
-	Form,
-	Result,
-	FloatButton,
-	App
-} from "antd";
-import {
-	FilterOutlined,
-} from '@ant-design/icons';
+import { Modal, Form, Result, FloatButton, App, Grid } from "antd";
+import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
+import { useLocation } from 'react-router-dom';
 
 import DefaultLayout from '@/components/Layout/DefaultLayout';
 import BoardFilterDrawer from '@/components/Task/BoardFilterDrawer';
@@ -29,11 +22,20 @@ import EpicList from '@/components/Epic/EpicList';
 type EpicDTO = BaseEpicDTO & { _count?: { tasks: number } };
 
 const COOKIE_KEY = 'board.selectedWorkspaceId';
+const { useBreakpoint } = Grid;
+
+function highlight(el: HTMLElement) {
+	el.classList.add('ring-2', 'ring-violet-500', 'shadow-[0_0_0_6px_rgba(139,92,246,0.35)]');
+	setTimeout(() => el.classList.remove('ring-2', 'ring-violet-500', 'shadow-[0_0_0_6px_rgba(139,92,246,0.35)]'), 2200);
+}
 
 const EpicPage: React.FC = () => {
 	const { message } = App.useApp();
-	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
+	const screens = useBreakpoint();
+	const isMobile = !screens.md;
+	const location = useLocation();
 
+	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
 	const [filterOpen, setFilterOpen] = useState(false);
 
 	const [epics, setEpics] = useState<EpicDTO[]>([]);
@@ -51,6 +53,20 @@ const EpicPage: React.FC = () => {
 		const parsed = saved ? Number(saved) : null;
 		if (parsed && !Number.isNaN(parsed)) setSelectedWorkspaceId(parsed);
 	}, []);
+
+	useEffect(() => {
+		const focus = (location.state as any)?.focus;
+		if (!focus || focus.type !== 'epic') return;
+
+		const t = setTimeout(() => {
+			const el = document.querySelector<HTMLElement>(`[data-epic-id="${focus.id}"]`);
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				highlight(el);
+			}
+		}, 120);
+		return () => clearTimeout(t);
+	}, [location.state]);
 
 	const loadEpics = async (): Promise<void> => {
 		if (!selectedWorkspaceId) {
@@ -204,7 +220,9 @@ const EpicPage: React.FC = () => {
 				okText="Salvar"
 				cancelText="Cancelar"
 				onCancel={closeModal}
-				destroyOnClose
+				destroyOnHidden
+				rootClassName="responsive-modal"
+				width={640}
 			>
 				<FormEpic form={form} onFinish={handleSubmit} />
 			</Modal>

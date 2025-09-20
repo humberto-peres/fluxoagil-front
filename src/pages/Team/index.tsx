@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Form, Button, Tooltip, Popover, Modal, Popconfirm, App } from 'antd';
+import { Table, Form, Button, Tooltip, Popover, Modal, Popconfirm, App, Grid, Typography } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
@@ -14,24 +14,37 @@ import {
 } from '@/services/team.services';
 import type { TableColumnsType } from 'antd';
 
-type User = { id: number; name: string; };
-type TeamType = { id: number; name: string; members: { user: User }[]; };
+type User = { id: number; name: string };
+type TeamType = { id: number; name: string; members: { user: User }[] };
+
+const { Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const Team: React.FC = () => {
+	const screens = useBreakpoint();
+	const isCompact = !screens.lg;
 	const { message } = App.useApp();
+
 	const [teams, setTeams] = useState<TeamType[]>([]);
+	const [loading, setLoading] = useState(false);
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
 	const [editingTeamId, setEditingTeamId] = useState<number | null>(null);
-	const [form] = Form.useForm();
 	const [currentTeamId, setCurrentTeamId] = useState<number | null>(null);
+
+	const [form] = Form.useForm();
 
 	const loadTeams = async () => {
 		try {
+			setLoading(true);
 			const data = await getTeams();
 			setTeams(data);
 		} catch {
 			message.error('Erro ao carregar equipes');
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -86,7 +99,7 @@ const Team: React.FC = () => {
 	const handleDeleteRecord = async (id: number) => {
 		try {
 			await deleteTeams([id]);
-			message.success('Equipe excluida com sucesso!');
+			message.success('Equipe excluída com sucesso!');
 			loadTeams();
 		} catch {
 			message.error('Erro ao excluir equipe');
@@ -94,20 +107,35 @@ const Team: React.FC = () => {
 	};
 
 	const columns: TableColumnsType<TeamType> = [
-		{ title: 'Nome', dataIndex: 'name', width: '40%' },
+		{
+			title: 'Nome',
+			dataIndex: 'name',
+			ellipsis: true,
+			render: (name, record) => (
+				<span>
+					{name}
+					{!screens.md && record.members?.length > 0 && (
+						<Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>
+							({record.members.length} {record.members.length === 1 ? 'membro' : 'membros'})
+						</Text>
+					)}
+				</span>
+			),
+		},
 		{
 			title: 'Membros',
 			dataIndex: 'members',
-			render: (members) => {
-				if (!members.length) return '-';
-				const names = members.map((m: any) => m.user.name);
+			responsive: ['md'],
+			render: (members: { user: User }[]) => {
+				if (!members?.length) return '-';
+				const names = members.map((m) => m.user.name);
 				const content = (
-					<div style={{ maxWidth: 200 }}>
-						{names.map((n: string, i: number) => (<div key={i}>{n}</div>))}
+					<div style={{ maxWidth: 260 }}>
+						{names.map((n, i) => (<div key={i}>{n}</div>))}
 					</div>
 				);
 				return (
-					<Popover content={content} title="Membros" placement="top">
+					<Popover content={content} title="Membros" trigger="hover" placement="top">
 						<a>{names.length === 1 ? names[0] : `${names[0]} e mais ${names.length - 1}`}</a>
 					</Popover>
 				);
@@ -115,13 +143,17 @@ const Team: React.FC = () => {
 		},
 		{
 			title: 'Ações',
-			dataIndex: 'actions',
-			width: 110,
-			align: 'center',
+			key: 'actions',
+			width: 160,
+			align: 'right',
 			render: (_, record) => (
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
 					<Tooltip title="Gerenciar membros">
-						<Button type="primary" icon={<TeamOutlined />} onClick={() => openDrawer(record.id)} />
+						<Button
+							type="primary"
+							icon={<TeamOutlined />}
+							onClick={() => openDrawer(record.id)}
+						/>
 					</Tooltip>
 
 					<Tooltip title="Editar">
@@ -144,11 +176,8 @@ const Team: React.FC = () => {
 						>
 							<Button
 								type="text"
-								className="group"
 								aria-label={`Excluir ${record.name}`}
-								icon={
-									<FiTrash2 size={18} />
-								}
+								icon={<FiTrash2 size={18} />}
 							/>
 						</Popconfirm>
 					</Tooltip>
@@ -164,7 +193,16 @@ const Team: React.FC = () => {
 			textButton="Criar Equipe"
 			onAddClick={openModal}
 		>
-			<Table columns={columns} dataSource={teams} rowKey="id" />
+			<Table
+				columns={columns}
+				dataSource={teams}
+				rowKey="id"
+				loading={loading}
+				size="middle"
+				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				scroll={isCompact ? { x: 'max-content' } : undefined}
+				tableLayout="auto"
+			/>
 
 			<Modal
 				open={isModalOpen}
@@ -173,6 +211,9 @@ const Team: React.FC = () => {
 				okText="Salvar"
 				cancelText="Cancelar"
 				onCancel={closeModal}
+				destroyOnHidden
+				rootClassName="responsive-modal"
+				width={560}
 			>
 				<FormTeam form={form} onFinish={handleFormSubmit} />
 			</Modal>
