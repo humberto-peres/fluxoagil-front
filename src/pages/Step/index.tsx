@@ -99,13 +99,6 @@ const Step: React.FC = () => {
 	const columns: TableColumnsType<StepType> = [
 		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
 		{
-			title: 'Descrição',
-			dataIndex: 'description',
-			ellipsis: true,
-			responsive: ['md'],
-			render: (text?: string) => text || '-',
-		},
-		{
 			title: 'Ações',
 			key: 'actions',
 			width: 110,

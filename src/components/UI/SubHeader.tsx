@@ -32,7 +32,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({
         { title }
     ];
 
-    const finalBreadcrumb = breadcrumbItems.length > 0g ? customBreadcrumb : defaultBreadcrumb;
+    const finalBreadcrumb = breadcrumbItems.length > 0 ? customBreadcrumb : defaultBreadcrumb;
 
     return (
         <div className="sticky top-16 z-[900] backdrop-blur-sm">

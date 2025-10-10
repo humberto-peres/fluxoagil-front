@@ -5,8 +5,9 @@ import { getTaskTypes } from '@/services/taskType.services';
 import { getPriorities } from '@/services/priority.services';
 import { getUsers } from '@/services/user.services';
 import { getSprints } from '@/services/sprint.services';
-import { getWorkspaces } from '@/services/workspace.services';
+import { getMyWorkspaces } from '@/services/workspace.services';
 import { getEpics } from '@/services/epic.services';
+import { useAuth } from '@/context/AuthContext';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -20,6 +21,7 @@ type Props = {
 };
 
 const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
+	const { user } = useAuth();
 	const [types, setTypes] = useState<OptionType[]>([]);
 	const [priorities, setPriorities] = useState<OptionType[]>([]);
 	const [users, setUsers] = useState<OptionType[]>([]);
@@ -33,15 +35,20 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 				const [typesRes, prioritiesRes, usersRes] = await Promise.all([getTaskTypes(), getPriorities(), getUsers()]);
 				setTypes((typesRes || []).map((t: any) => ({ label: t.name, value: t.id })));
 				setPriorities((prioritiesRes || []).map((p: any) => ({ label: p.name, value: p.id })));
-				setUsers((usersRes || []).map((u: any) => ({ label: u.name, value: u.id })));
+
+				const opts = (usersRes || []).map((u: any) => ({ label: u.name, value: u.id }));
+				if (user && !opts.some((o: { value: any; }) => Number(o.value) === Number(user.id))) {
+					opts.unshift({ label: user.name ?? 'Você', value: Number(user.id) });
+				}
+				setUsers(opts);
 			} catch { }
 		})();
-	}, []);
+	}, [user]);
 
 	useEffect(() => {
 		(async () => {
 			try {
-				const ws = await getWorkspaces();
+				const ws = await getMyWorkspaces();
 				setWorkspaces(ws.map((w: any) => ({ label: `${w.name} (${w.key})`, value: w.id })));
 				if (selectedWorkspaceId) {
 					form.setFieldsValue({ workspaceId: selectedWorkspaceId });
@@ -68,6 +75,14 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 		})();
 	}, [selectedWorkspaceId, form]);
 
+	useEffect(() => {
+		if (!user) return;
+		const current = form.getFieldValue('report');
+		if (!current) {
+			form.setFieldsValue({ report: Number(user.id) });
+		}
+	}, [user, users, form]);
+
 	const onWorkspaceChange = async (wid: number) => {
 		form.setFieldsValue({ sprint: undefined, epicId: undefined });
 		try {
@@ -91,7 +106,6 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 					size="large"
 					placeholder="Selecione um workspace"
 					allowClear
-					disabled={!!selectedWorkspaceId}
 					onChange={(val) => onWorkspaceChange(Number(val))}
 					options={workspaces}
 					showSearch
