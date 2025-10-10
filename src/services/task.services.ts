@@ -36,7 +36,9 @@ export type TaskDTO = {
 };
 
 export const getAllTasks = async () => {
-	const res = await fetch(`${BASE_URL}/tasks/all`);
+	const res = await fetch(`${BASE_URL}/tasks/all`,{
+		credentials: 'include',
+	});
 	if (!res.ok) throw new Error('Erro ao buscar tarefas');
 	return res.json() as Promise<TaskDTO[]>;
 };

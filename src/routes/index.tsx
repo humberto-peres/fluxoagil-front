@@ -18,7 +18,6 @@ const TypeTask = lazy(() => import("@/pages/TypeTask"));
 const Team = lazy(() => import("@/pages/Team"));
 const User = lazy(() => import("@/pages/Auth/User"));
 const Login = lazy(() => import("@/pages/Auth/Login"));
-const ForgotPassword = lazy(() => import("@/pages/Auth/ForgotPassword"));
 const Configuration = lazy(() => import("@/pages/Configuration"));
 const Epic = lazy(() => import("@/pages/Epic"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -46,7 +45,6 @@ const routes: RouteObject[] = [
     { path: "/dashboard", element: withSuspense(<Protected><Dashboard /></Protected>) },
     { path: "/epic", element: withSuspense(<Protected><Epic /></Protected>) },
     { path: "/epic/:id", element: withSuspense(<Protected><EpicDetails /></Protected>) },
-    { path: "/forgot-password", element: withSuspense(<ForgotPassword />) },
     { path: "/login", element: withSuspense(<Login />) },
     { path: "/priority", element: withSuspense(<Protected><Priority /></Protected>) },
     { path: "/signup", element: withSuspense(<SignUp />) },

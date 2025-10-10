@@ -81,7 +81,7 @@ const TaskType: React.FC = () => {
 	};
 
 	const columns: TableColumnsType<TaskTypeData> = [
-		{ title: 'Nome', dataIndex: 'name', width: 420, ellipsis: true },
+		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
 		{
 			title: 'Ações',
 			key: 'actions',

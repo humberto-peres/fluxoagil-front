@@ -214,11 +214,11 @@ const Board: React.FC = () => {
 			<FloatButton icon={<FilterOutlined />} tooltip="Filtros" onClick={openFilter}
 				badge={selectedWorkspaceId ? { dot: true } : undefined} type="primary" /> 
 
-			{!isMobile && (
+			{/* {!isMobile && (
 				<div className="px-4 mb-4">
 					<QuickAddTask onCreate={handleQuickCreate} selectedWorkspaceId={selectedWorkspaceId} />
 				</div>
-			)}
+			)} */}
 
 			<BoardFilterDrawer
 				open={filterOpen}

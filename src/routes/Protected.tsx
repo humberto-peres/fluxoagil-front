@@ -14,7 +14,7 @@ export function Protected({ children, roles }: ProtectedProps) {
 	if (loading) return null;
 
 	if (!user) {
-		return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+		return <Navigate to="/about" replace state={{ from: location.pathname }} />;
 	}
 
 	if (roles && !roles.includes(user.role)) {
