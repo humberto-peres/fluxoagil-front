@@ -23,8 +23,31 @@ export const createUser = async (data: any) => {
 		credentials: 'include',
 		body: JSON.stringify(data),
 	});
-	if (!res.ok) throw new Error('Erro ao criar usuário');
-	return res.json();
+	
+	const responseData = await res.json();
+	
+	if (!res.ok) {
+		throw new Error(responseData.message || 'Erro ao criar usuário');
+	}
+	
+	return responseData;
+};
+
+export const updateUser = async (id: number, data: any) => {
+	const res = await fetch(`${BASE_URL}/users/${id}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(data),
+	});
+	
+	const responseData = await res.json();
+	
+	if (!res.ok) {
+		throw new Error(responseData.message || 'Erro ao atualizar usuário');
+	}
+	
+	return responseData;
 };
 
 export const deleteUsers = async (ids: number[]) => {
@@ -34,6 +57,12 @@ export const deleteUsers = async (ids: number[]) => {
 		credentials: 'include',
 		body: JSON.stringify({ ids }),
 	});
-	if (!res.ok) throw new Error('Erro ao excluir usuários');
-	return res.json();
+	
+	const data = await res.json();
+	
+	if (!res.ok) {
+		throw new Error(data.message || 'Erro ao excluir usuários');
+	}
+	
+	return data;
 };

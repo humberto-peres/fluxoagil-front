@@ -51,13 +51,17 @@ export const getTasks = async (params: { workspaceId: number; stepId?: number; s
 		if (params.sprintId === null) qs.set('sprintId', 'null');
 		else qs.set('sprintId', String(params.sprintId));
 	}
-	const res = await fetch(`${BASE_URL}/tasks/?${qs.toString()}`);
+	const res = await fetch(`${BASE_URL}/tasks/?${qs.toString()}`,{
+		credentials: 'include',
+	});
 	if (!res.ok) throw new Error('Erro ao buscar tarefas');
 	return res.json() as Promise<TaskDTO[]>;
 };
 
 export const getTaskById = async (id: number) => {
-	const res = await fetch(`${BASE_URL}/tasks/${id}`);
+	const res = await fetch(`${BASE_URL}/tasks/${id}`,{
+		credentials: 'include',
+	});
 	if (!res.ok) throw new Error('Erro ao buscar tarefa');
 	return res.json() as Promise<TaskDTO>;
 };
@@ -67,6 +71,7 @@ export const createTask = async (data: any) => {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(data),
+		credentials: 'include',
 	});
 	if (!res.ok) throw new Error('Erro ao criar tarefa');
 	return res.json() as Promise<TaskDTO>;
@@ -77,6 +82,7 @@ export const updateTask = async (id: number, data: any) => {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(data),
+		credentials: 'include',
 	});
 	if (!res.ok) throw new Error('Erro ao atualizar tarefa');
 	return res.json() as Promise<TaskDTO>;
@@ -87,6 +93,7 @@ export const deleteTasks = async (ids: number[]) => {
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ ids }),
+		credentials: 'include',
 	});
 	if (!res.ok) throw new Error('Erro ao excluir tarefas');
 	return res.json();
@@ -97,6 +104,7 @@ export const moveTask = async (id: number, stepId: number) => {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ stepId }),
+		credentials: 'include',
 	});
 	if (!res.ok) throw new Error('Erro ao mover tarefa');
 	return res.json() as Promise<TaskDTO>;

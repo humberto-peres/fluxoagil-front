@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Result, FloatButton, Form, Modal, App, Grid, Select, Space, Typography } from 'antd';
+import { Result, FloatButton, Form, Modal, App, Grid } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
@@ -10,7 +10,6 @@ import DefaultLayout from '@/components/Layout/DefaultLayout';
 import { Column as ColumnCmp } from './Column';
 import BoardFilterDrawer from '@/components/Task/BoardFilterDrawer';
 import FormTask from '@/components/Task/FormTask';
-import QuickAddTask from '@/components/Task/QuickAddTask';
 import { TaskCard } from './TaskCard';
 
 import { getWorkspaces } from '@/services/workspace.services';
@@ -202,23 +201,10 @@ const Board: React.FC = () => {
 		} catch { message.error('Erro ao carregar atividade'); }
 	};
 
-	const handleQuickCreate = async (partial: any) => {
-		const stepIdDefault = columns[0] ? Number(columns[0].id) : undefined;
-		if (!stepIdDefault) throw new Error('Nenhuma etapa encontrada neste Workspace');
-		const payload = { ...partial, workspaceId: selectedWorkspaceId, stepId: stepIdDefault, status: String(stepIdDefault) };
-		await create(payload);
-	};
-
 	return (
 		<DefaultLayout title="Board" addButton textButton="Criar Atividade" onAddClick={openModal}>
 			<FloatButton icon={<FilterOutlined />} tooltip="Filtros" onClick={openFilter}
 				badge={selectedWorkspaceId ? { dot: true } : undefined} type="primary" /> 
-
-			{/* {!isMobile && (
-				<div className="px-4 mb-4">
-					<QuickAddTask onCreate={handleQuickCreate} selectedWorkspaceId={selectedWorkspaceId} />
-				</div>
-			)} */}
 
 			<BoardFilterDrawer
 				open={filterOpen}

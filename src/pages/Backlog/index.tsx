@@ -118,7 +118,6 @@ const Backlog: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedWorkspaceId, showClosed]);
 
-	const openCreate = () => { setEditingId(null); form.resetFields(); setIsModalOpen(true); };
 	const openEdit = (s: SprintDTO) => {
 		setEditingId(s.id);
 		form.setFieldsValue({
