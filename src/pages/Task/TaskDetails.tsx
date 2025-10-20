@@ -190,7 +190,7 @@ const TaskDetails: React.FC = () => {
                     {/* Coluna lateral */}
                     <div className="space-y-12">
                         <Card title="Detalhes" variant="borderless">
-                            <Descriptions column={1} size="small" labelStyle={{ width: 140 }}>
+                            <Descriptions column={1} size="small" style={{ width: 140 }}>
                                 <Descriptions.Item label="Código">
                                     {task.idTask}
                                 </Descriptions.Item>

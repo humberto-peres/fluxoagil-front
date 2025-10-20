@@ -157,7 +157,7 @@ const EpicDetails: React.FC = () => {
                     {/* Coluna lateral (Detalhes + Ações), igual ao padrão da Task */}
                     <div className="space-y-12">
                         <Card title="Detalhes" variant="borderless">
-                            <Descriptions column={1} size="small" labelStyle={{ width: 140 }}>
+                            <Descriptions column={1} size="small" style={{ width: 140 }}>
                                 <Descriptions.Item label="Chave">{epic.key || "—"}</Descriptions.Item>
                                 <Descriptions.Item label="Prioridade">
                                     {fmt(epic.priority?.name)}
