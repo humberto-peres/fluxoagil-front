@@ -67,7 +67,6 @@ const SubHeader: React.FC<SubHeaderProps> = ({
                         )}
                     </div>
 
-                    {/* à direita: extra (se houver) + botão adicionar (se habilitado) */}
                     <div className="flex items-center gap-2">
                         {extra}
                         {addButton && (

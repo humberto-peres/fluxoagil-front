@@ -13,7 +13,6 @@ const FormLogin: React.FC = () => {
     const [form] = Form.useForm<FieldType>();
     const [submitting, setSubmitting] = useState(false);
 
-    // Se já estiver autenticado, redireciona automaticamente
     useEffect(() => {
         if (!authLoading && user) {
             navigate('/dashboard', { replace: true });
@@ -21,7 +20,6 @@ const FormLogin: React.FC = () => {
     }, [authLoading, user, navigate]);
 
     const onFinish = async (values: FieldType) => {
-        // Bloqueia tentativa de login se já estiver autenticado
         if (user) {
             message.info('Você já está autenticado.');
             return;
