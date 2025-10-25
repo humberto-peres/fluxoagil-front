@@ -1,0 +1,10 @@
+export { default as SprintInfoWidget } from './SprintInfoWidget';
+export { default as TotalTasksWidget } from './TotalTasksWidget';
+export { default as OverdueWidget } from './OverdueWidget';
+export { default as UpcomingWidget } from './UpcomingWidget';
+export { default as MyTasksWidget } from './MyTasksWidget';
+export { default as TasksByStatusWidget } from './TasksByStatusWidget';
+export { default as TasksByPriorityWidget } from './TasksByPriorityWidget';
+export { default as TasksByTypeWidget } from './TasksByTypeWidget';
+export { default as EpicProgressWidget } from './EpicProgressWidget';
+export { default as RecentActivityWidget } from './RecentActivityWidget';

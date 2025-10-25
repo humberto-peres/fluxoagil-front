@@ -155,16 +155,6 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 						icon={<IoSearch size={20} />}
 					/>
 
-					<Tooltip title="Notificações">
-						<IoNotificationsOutline
-							size={20}
-							className="cursor-pointer"
-							aria-label="Notificações"
-							data-testid="notifications-icon"
-							onClick={() => message.info("Central de notificações em breve!")}
-						/>
-					</Tooltip>
-
 					<Tooltip title="Encerrar Sessão">
 						<Popconfirm
 							title={"Deseja encerrar a sessão?"}

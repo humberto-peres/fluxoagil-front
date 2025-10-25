@@ -1,11 +1,8 @@
 import React from 'react';
-import { Layout, Typography, Avatar } from 'antd';
+import { Layout, Typography } from 'antd';
 import FormLogin from './FormLogin';
 import logo from '@/assets/icons/agil.png';
-import { FaGithubAlt } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-
-const { Footer } = Layout;
 
 const Login: React.FC = () => {
 	const navigate = useNavigate();

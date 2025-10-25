@@ -116,9 +116,7 @@ const EpicDetails: React.FC = () => {
                 />
             ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                    {/* Coluna principal (igual à Task: bloco de infos + descrição) */}
                     <div className="xl:col-span-2 space-y-12">
-                        {/* Bloco de infos (sem Card, como na Task) */}
                         <div>
                             <Space direction="vertical">
                                 <Space>
@@ -140,7 +138,6 @@ const EpicDetails: React.FC = () => {
                             </Space>
                         </div>
 
-                        {/* Descrição (borderless, como na Task) */}
                         <Card title="Descrição" variant="borderless">
                             <div style={{ whiteSpace: "pre-wrap" }}>
                                 {epic.description ? (
@@ -150,11 +147,8 @@ const EpicDetails: React.FC = () => {
                                 )}
                             </div>
                         </Card>
-
-                        {/* espaço para Comentários / Histórico etc. */}
                     </div>
 
-                    {/* Coluna lateral (Detalhes + Ações), igual ao padrão da Task */}
                     <div className="space-y-12">
                         <Card title="Detalhes" variant="borderless">
                             <Descriptions column={1} size="small" style={{ width: 140 }}>
@@ -195,7 +189,6 @@ const EpicDetails: React.FC = () => {
                 </div>
             )}
 
-            {/* Drawer com as tarefas do épico */}
             <EpicTaskDrawer
                 open={drawerOpen}
                 epicId={epic?.id ?? null}

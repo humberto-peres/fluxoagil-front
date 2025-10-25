@@ -136,7 +136,6 @@ const TaskDetails: React.FC = () => {
                 />
             ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                    {/* Coluna principal */}
                     <div className="xl:col-span-2 space-y-12">
                         <div>
                             <Space direction='vertical'>
@@ -183,11 +182,8 @@ const TaskDetails: React.FC = () => {
                                 )}
                             </div>
                         </Card>
-
-                        {/* espaço para Comentários / Histórico etc. */}
                     </div>
 
-                    {/* Coluna lateral */}
                     <div className="space-y-12">
                         <Card title="Detalhes" variant="borderless">
                             <Descriptions column={1} size="small" style={{ width: 140 }}>

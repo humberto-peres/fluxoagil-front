@@ -164,7 +164,7 @@ const Board: React.FC = () => {
 				userId: Number(values.report ?? values.responsible),
 				workspaceId: Number(values.workspaceId ?? selectedWorkspaceId),
 				epicId: values.epicId ?? null,
-				stepId: editingId ? undefined : stepIdDefault,
+				stepId: editingId ? values.stepId : stepIdDefault,
 				status: editingId ? undefined : String(stepIdDefault),
 			};
 
@@ -196,6 +196,7 @@ const Board: React.FC = () => {
 				report: data.reporterId ?? undefined,
 				responsible: data.assigneeId ?? undefined,
 				description: data.description ?? '',
+				stepId: data.stepId
 			});
 			setIsModalOpen(true);
 		} catch { message.error('Erro ao carregar atividade'); }
@@ -262,7 +263,8 @@ const Board: React.FC = () => {
 				<Result status="info" title="Selecione um Workspace para visualizar o Board"
 					subTitle="Use o botão de Filtros para escolher um workspace." style={{ marginTop: 48, height: 'calc(100% - 200px)' }} />
 			) : selectedWorkspace?.methodology === 'Scrum' && activeSprints.length === 0 ? (
-				<></>
+				<Result status="info" title="Nenhuma Sprint Ativa"
+					subTitle="Para visualizar o Board, ative uma Sprint no seu Workspace." style={{ marginTop: 48, height: 'calc(100% - 200px)' }} />
 			) : (
 				<div className="flex gap-3 overflow-x-auto px-3 py-2 snap-x snap-mandatory scroll-px-3 no-scrollbar">
 					<DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>

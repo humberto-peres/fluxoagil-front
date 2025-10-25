@@ -152,8 +152,9 @@ const ConfigurationProvider: React.FC<ConfigurationProviderProps> = ({ children 
 					},
 					Collapse: {
 						headerBg: 'transparent',
-        				contentBg: 'transparent',
+        		contentBg: 'transparent',
 						colorBorder: 'transparent',
+						colorBgBlur: 'red'
 					},
 					Timeline: {
 						dotBg: 'transparent'

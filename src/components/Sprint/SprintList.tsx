@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapse, Space, Tag, Tooltip } from 'antd';
+import { Collapse, Flex, Space, Tag, Tooltip } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import type { CollapseProps } from 'antd';
 import { FiEdit2 } from 'react-icons/fi';
@@ -85,15 +85,21 @@ const SprintList: React.FC<Props> = ({
                         </span>
                     </div>
                 ),
-                style: { marginBottom: 16, background: '#383838', opacity: 1, borderRadius: 8, border: 'none' },
+                style: { marginBottom: 16, background: 'rgba(56, 56, 56, 0.5)', opacity: 1, borderRadius: 8, border: 'none' },
                 children: (
                     <div>
-                        <div style={{ marginBottom: 8, fontSize: 12, opacity: 0.8, display: 'grid', gap: 4 }}>
-                            <div>{s.startDate ? `Início planejado: ${s.startDate}` : 'Início planejado: —'}</div>
-                            <div>{s.endDate ? `Término planejado: ${s.endDate}` : 'Término planejado: —'}</div>
-                            <div>{s.activatedAt ? `Ativada em: ${s.activatedAt}` : 'Ativada em: —'}</div>
-                            <div>{s.closedAt ? `Encerrada em: ${s.closedAt}` : 'Encerrada em: —'}</div>
-                        </div>
+                        <Flex style={{ marginBottom: 16, marginLeft: 24, fontSize: 12, opacity: 0.8 }}>
+                            <Space size={50}>
+                                <div>
+                                    <div>{s.startDate ? `Início planejado: ${s.startDate}` : 'Início planejado: —'}</div>
+                                    <div>{s.endDate ? `Término planejado: ${s.endDate}` : 'Término planejado: —'}</div>
+                                </div>
+                                <div>
+                                    <div>{s.activatedAt ? `Ativada em: ${s.activatedAt}` : 'Ativada em: —'}</div>
+                                    <div>{s.closedAt ? `Encerrada em: ${s.closedAt}` : 'Encerrada em: —'}</div>
+                                </div>
+                            </Space>
+                        </Flex>
                         {contentBySprintId?.[s.id] ?? <div>Sem tarefas nesta sprint.</div>}
                     </div>
                 ),
@@ -102,7 +108,7 @@ const SprintList: React.FC<Props> = ({
         {
             key: 'backlog',
             label: <strong>Backlog</strong>,
-            style: { marginBottom: 16, background: '#383838', borderRadius: 8, border: 'none' },
+            style: { marginBottom: 16, background: 'rgba(56, 56, 56, 0.5)', borderRadius: 8, border: 'none' },
             children: backlogContent ?? <div>Sem tarefas no backlog.</div>,
         },
     ];
@@ -114,7 +120,7 @@ const SprintList: React.FC<Props> = ({
 
     return (
         <Collapse
-            variant='borderless'
+            bordered={false}
             expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
             items={items}
             defaultActiveKey={defaultActiveKey}

@@ -5,7 +5,7 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 type User = { id: number; name: string };
 type Priority = { id: number; name: string; label: string };
 type TypeTask = { id: number; name: string };
-type Step = { id: number; name: string };
+type StepTask = { id: number; name: string };
 
 export type TaskItem = {
     id: number;
@@ -16,7 +16,7 @@ export type TaskItem = {
     estimate?: string | null;
     priority?: Priority;
     typeTask?: TypeTask;
-    step?: Step;
+    step?: StepTask;
     reporter?: User | null;
     assignee?: User | null;
     epic?: { id: number; key: string; title: string } | null;
@@ -29,6 +29,28 @@ type Props = {
 };
 
 const TaskList: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
+    
+    const renderDetail = (label: string, value: string | React.ReactNode) => (
+        <div className="text-sm">
+            <span className="font-medium text-gray-400">{label}: </span> 
+            <span className="font-medium text-white">{value}</span>
+        </div>
+    );
+
+    const renderEpicDetail = (epic: TaskItem['epic']) => {
+        if (!epic?.key) {
+            return renderDetail('Épico', 'Sem associação');
+        }
+        
+        const epicTag = (
+            <Tag color="blue" className="ml-0 font-mono text-xs font-semibold">
+                {`${epic.key} - ${epic.title}`}
+            </Tag>
+        );
+
+        return renderDetail('Épico', epicTag);
+    };
+
     return (
         <List
             dataSource={tasks}
@@ -37,22 +59,25 @@ const TaskList: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
                 const canDelete = !t.epic;
 
                 return (
-                    <List.Item className="px-2 md:px-3">
-                        <div className="group relative w-full rounded-xl border border-white/10 bg-white/5 p-4 md:p-5 transition-colors hover:border-white/20">
-                            <div className="absolute right-3 top-3 flex items-center gap-2 opacity-70 transition-opacity group-hover:opacity-100">
+                    <List.Item className="px-0 py-1 sm:px-2 md:py-1.5 mt-2"> 
+                        <div 
+                            className="group relative w-full rounded-xl shadow-lg transition-all duration-300 ease-in-out bg-[#1A112C] border border-[#1e293b] hover:shadow-xl hover:border-[#8A2BE2] p-3 md:p-4 mb-2"
+                        >
+                            
+                            <div className="absolute right-3 top-2.5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 {onEdit && (
-                                    <Tooltip title="Editar">
+                                    <Tooltip title="Editar" placement="top">
                                         <button
                                             aria-label="Editar atividade"
                                             onClick={() => onEdit?.(t.id)}
-                                            className="cursor-pointer"
+                                            className="text-gray-400 hover:text-[#8A2BE2] transition-colors"
                                         >
-                                            <FiEdit2 size={18} />
+                                            <FiEdit2 size={16} />
                                         </button>
                                     </Tooltip>
                                 )}
                                 {onDelete && (
-                                    <Tooltip title="Excluir">
+                                    <Tooltip title={!canDelete ? "Atividade associada a um épico" : "Excluir"} placement="top">
                                         <Popconfirm
                                             title="Excluir atividade?"
                                             description={
@@ -65,53 +90,50 @@ const TaskList: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
                                             cancelText="Cancelar"
                                             onConfirm={() => onDelete?.(t.id)}
                                         >
-                                            <button aria-label="Excluir atividade" className="cursor-pointer">
-                                                <FiTrash2 size={19} />
+                                            <button 
+                                                aria-label="Excluir atividade" 
+                                                className={`transition-colors ${canDelete ? 'text-gray-400 hover:text-red-500' : 'text-gray-600 cursor-not-allowed'}`}
+                                                disabled={!canDelete}
+                                            >
+                                                <FiTrash2 size={17} />
                                             </button>
                                         </Popconfirm>
                                     </Tooltip>
                                 )}
                             </div>
 
-                            <div className="mb-2 flex flex-wrap items-center gap-2 pr-12">
-                                {t.priority?.name && <Tag color={t.priority.label}>{t.priority.name}</Tag>}
-                                <Tag color="purple">{t.idTask}</Tag>
-                                {t.typeTask?.name && <Tag color="magenta">{t.typeTask.name}</Tag>}
+                            <div className="mb-2 flex flex-wrap items-center gap-2 pr-16">
+                                {t.priority?.name && (
+                                    <Tag color={t.priority.label} className="font-semibold text-xs px-2 py-0.5">
+                                        {t.priority.name}
+                                    </Tag>
+                                )}
+                                <Tag color="geekblue" className="text-xs font-mono border-none px-2 py-0.5">
+                                    {t.idTask}
+                                </Tag>
+                                {t.typeTask?.name && (
+                                    <Tag color="magenta" className="text-xs border-none px-2 py-0.5">
+                                        {t.typeTask.name}
+                                    </Tag>
+                                )}
                             </div>
 
                             <Typography.Text
                                 strong
-                                className="block text-base md:text-lg leading-snug line-clamp-2"
+                                className="block text-lg md:text-xl font-bold leading-snug line-clamp-2 text-white"
                                 title={`${t.idTask} - ${t.title}`}
                             >
-                                {t.idTask} - {t.title}
+                                {t.title}
                             </Typography.Text>
-
-                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-1 text-sm">
-                                <div>
-                                    <span className="text-gray-400">Etapa atual: </span>
-                                    <span>{t.step?.name ?? '—'}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-400">Prazo: </span>
-                                    <span>{t.deadline ?? 'Não preenchido'}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-400">Tipo da tarefa: </span>
-                                    <span>{t.typeTask?.name ?? '—'}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-400">Responsável: </span>
-                                    <span>{t.assignee?.name ?? 'Não preenchido'}</span>
-                                </div>
-                                <div className="md:col-span-2">
-                                    <span className="text-gray-400">Épico associado: </span>
-                                    {t.epic?.key ? (
-                                        <Tag color="geekblue" className="ml-1">{`${t.epic.key} - ${t.epic.title}`}</Tag>
-                                    ) : (
-                                        <span className="ml-1">Sem associações</span>
-                                    )}
-                                </div>
+                            
+                            <div 
+                                className="mt-3 pt-2 border-t border-dashed border-gray-700 grid grid-cols-2 lg:grid-cols-4 gap-y-2 gap-x-6"
+                            >
+                                
+                                {renderDetail('Etapa atual', t.step?.name ?? '—')}
+                                {renderDetail('Prazo', t.deadline ?? 'Não preenchido')}
+                                {renderDetail('Responsável', t.assignee?.name ?? 'Não preenchido')}
+                                {renderEpicDetail(t.epic)}
                             </div>
                         </div>
                     </List.Item>
