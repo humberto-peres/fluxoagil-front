@@ -55,7 +55,6 @@ describe('EpicPage/index', () => {
   });
 
   it('deve abrir modal de edição', async () => {
-    const user = userEvent.setup();
     vi.mocked(Cookies.get).mockReturnValue('1');
 
     render(<EpicPage />, { wrapper: Wrapper });

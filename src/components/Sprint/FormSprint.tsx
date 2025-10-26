@@ -1,7 +1,7 @@
 import React from 'react';
 import type { FormInstance } from 'antd';
 import { Form, Input, DatePicker } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 
 type Props = {
 	form: FormInstance;

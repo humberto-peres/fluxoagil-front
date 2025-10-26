@@ -60,7 +60,7 @@ const BoardFilterDrawer: React.FC<Props> = ({
 					onClear();
 					message.info('Você não faz parte da equipe desse workspace. Filtro limpo.');
 				}
-			} catch { }
+			} catch { /* noop */ }
 		})();
 		return () => {
 			alive = false;
@@ -76,6 +76,7 @@ const BoardFilterDrawer: React.FC<Props> = ({
 				if (!alive) return;
 				setWorkspaces(list.map((w: any) => ({ id: Number(w.id), name: String(w.name) })));
 			} catch {
+				/* noop */
 			} finally {
 				if (alive) setLoading(false);
 			}

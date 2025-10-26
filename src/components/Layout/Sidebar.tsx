@@ -42,16 +42,16 @@ const DefaultSidebar: React.FC<Props> = ({ collapsed, onCollapse, onBreakpoint, 
 	const { user } = useAuth();
 	const isAdmin = user?.role === "admin";
 
-	const dividerItem: ItemType = {
-		type: "divider",
-		style: { 
-			backgroundColor: "rgba(139, 43, 226, 0.3)", 
-			margin: "12px 16px",
-			height: "1px"
-		},
-	};
-
 	const items = useMemo<ItemType[]>(() => {
+		const dividerItem: ItemType = {
+			type: "divider",
+			style: {
+				backgroundColor: "rgba(139, 43, 226, 0.3)",
+				margin: "12px 16px",
+				height: "1px"
+			},
+		};
+
 		return [
 			getItem(
 				"Gestão",
@@ -87,9 +87,7 @@ const DefaultSidebar: React.FC<Props> = ({ collapsed, onCollapse, onBreakpoint, 
 						"Administração",
 						"group-admin",
 						undefined,
-						[
-							{ key: "/user", icon: <PiUserCircleLight className="text-lg" />, label: "Usuários" }
-						],
+						[{ key: "/user", icon: <PiUserCircleLight className="text-lg" />, label: "Usuários" }],
 						"group"
 					),
 				]

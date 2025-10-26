@@ -11,6 +11,7 @@ export type TaskDTO = {
 
 	sprintId?: number | null;
 	stepId: number;
+	epicId?: number;
 
 	priorityId: number;
 	typeTaskId: number;
@@ -20,8 +21,8 @@ export type TaskDTO = {
 	userId: number;
 
 	status: string;
-	workspaceId: number;
-	sequenceNumber: number;
+	workspaceId?: number;
+	sequenceNumber?: number;
 
 	priority?: { id: number; name: string; label: string };
 	typeTask?: { id: number; name: string };

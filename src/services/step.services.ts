@@ -1,7 +1,24 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export const getSteps = async (p0: { workspaceId: number; }) => {
-    const response = await fetch(`${BASE_URL}/steps/`);
+export type Step = {
+    id: number;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type GetStepsParams = {
+    workspaceId?: number;
+};
+
+export const getSteps = async (params?: GetStepsParams): Promise<Step[]> => {
+    let url = `${BASE_URL}/steps/`;
+
+    if (params?.workspaceId) {
+        url += `?workspaceId=${params.workspaceId}`;
+    }
+
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Erro ao buscar etapas');
     return response.json();
 };

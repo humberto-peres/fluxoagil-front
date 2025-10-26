@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Statistic, Typography } from 'antd';
+import { Statistic, Typography } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;

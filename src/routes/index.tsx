@@ -9,7 +9,6 @@ import { Protected } from "./Protected";
 import PageLoader from "@/components/UI/PageLoader";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Dashboardv2 = lazy(() => import("@/pages/Dashboard/DashboardV2"));
 const Board = lazy(() => import("@/pages/Board"));
 const Backlog = lazy(() => import("@/pages/Backlog"));
 const Workspace = lazy(() => import("@/pages/Workspace"));

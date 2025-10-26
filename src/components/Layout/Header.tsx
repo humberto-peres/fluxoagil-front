@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Avatar, Layout, Input, Flex, Tooltip, Popconfirm, App, Button, AutoComplete } from "antd";
-import { IoSearch, IoLogOutOutline, IoNotificationsOutline } from "react-icons/io5";
+import { IoSearch, IoLogOutOutline } from "react-icons/io5";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import type { DefaultOptionType } from "antd/es/select";
 import { useNavigate } from "react-router-dom";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Table, Form, Popover, Modal, App, Grid, Button, Tooltip, Popconfirm } from "antd";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import DefaultLayout from "@/components/Layout/DefaultLayout";
@@ -37,18 +37,18 @@ const User: React.FC = () => {
 	const [data, setData] = useState<UserType[]>([]);
 	const [editingUserId, setEditingUserId] = useState<number | null>(null);
 
-	const fetchUsers = async () => {
+	const fetchUsers = useCallback(async () => {
 		try {
 			const users = await getUsers();
 			setData(users);
-		} catch (error) {
+		} catch {
 			message.error("Erro ao carregar usuários");
 		}
-	};
+	}, [message]);
 
 	useEffect(() => {
 		fetchUsers();
-	}, []);
+	}, [fetchUsers]);
 
 	const openModal = () => setIsModalOpen(true);
 

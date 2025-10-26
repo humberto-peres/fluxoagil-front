@@ -39,7 +39,7 @@ vi.mock('@/components/Layout/DefaultLayout', () => ({
 }));
 
 vi.mock('@/pages/Auth/User/FormUser', () => ({
-  default: ({ form, onFinish }: any) => {
+  default: ({ onFinish }: any) => {
     (global as any).__testOnFinish = onFinish;
     return (
       <div data-testid="form-user">

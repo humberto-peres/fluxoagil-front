@@ -24,7 +24,6 @@ const CODE_ONLY_LETTERS = /^[A-Za-z]*$/;
 const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 	const [steps, setSteps] = useState<StepType[]>([]);
 	const [teams, setTeams] = useState<TeamType[]>([]);
-	const [_, setMethodology] = useState<'Scrum' | 'Kanban'>('Scrum');
 
 	useEffect(() => {
 		(async () => {
@@ -66,7 +65,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 				</Form.Item>
 
 				<Form.Item className="md:col-span-1" label="Metodologia" name="methodology" rules={[{ required: true }]}>
-					<Select size="large" placeholder="Selecione a metodologia" onChange={(value) => setMethodology(value)}>
+					<Select size="large" placeholder="Selecione a metodologia">
 						<Option value="Scrum">Scrum</Option>
 						<Option value="Kanban">Kanban</Option>
 					</Select>

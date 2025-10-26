@@ -47,7 +47,8 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 					opts.unshift({ label: user.name ?? 'Você', value: Number(user.id) });
 				}
 				setUsers(opts);
-			} catch (err) {
+			} catch {
+				/* noop */
 			}
 		})();
 	}, [user]);
@@ -60,7 +61,7 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 				if (selectedWorkspaceId) {
 					form.setFieldsValue({ workspaceId: selectedWorkspaceId });
 				}
-			} catch { }
+			} catch { /* noop */ }
 		})();
 	}, [selectedWorkspaceId, form]);
 
@@ -75,7 +76,7 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 				const [sps, eps, stps] = await Promise.all([
 					getSprints({ workspaceId: Number(wsId) }),
 					getEpics({ workspaceId: Number(wsId) }),
-					getSteps({ workspaceId: Number(wsId) }), // <-- buscar steps por workspaceId
+					getSteps({ workspaceId: Number(wsId) }),
 				]);
 				setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
 				setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));

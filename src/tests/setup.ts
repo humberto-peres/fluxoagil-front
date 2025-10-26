@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom'
 
 if (!window.matchMedia) {
-  // @ts-ignore
   window.matchMedia = (query: string) => ({
     matches: false,
     media: query,
@@ -15,7 +14,6 @@ if (!window.matchMedia) {
 }
 
 if (!('ResizeObserver' in window)) {
-  // @ts-ignore
   window.ResizeObserver = class {
     observe() {}
     unobserve() {}
@@ -24,7 +22,6 @@ if (!('ResizeObserver' in window)) {
 }
 
 if (!document.createRange) {
-  // @ts-ignore
   document.createRange = () => ({
     setStart: () => {},
     setEnd: () => {},
@@ -38,5 +35,4 @@ if (!document.createRange) {
 }
 
 const originalGetComputedStyle = window.getComputedStyle
-// @ts-ignore
 window.getComputedStyle = (elt: Element) => originalGetComputedStyle(elt)

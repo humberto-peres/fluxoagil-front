@@ -5,9 +5,7 @@ import {
 } from 'antd';
 import {
     CheckCircleOutlined,
-    ThunderboltOutlined,
     ProjectOutlined,
-    GithubOutlined,
     DashboardOutlined,
     DeploymentUnitOutlined,
     QuestionCircleOutlined

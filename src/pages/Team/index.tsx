@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, Form, Button, Tooltip, Popover, Modal, Popconfirm, App, Grid, Typography } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
@@ -36,7 +36,7 @@ const Team: React.FC = () => {
 
 	const [form] = Form.useForm();
 
-	const loadTeams = async () => {
+	const loadTeams = useCallback(async () => {
 		try {
 			setLoading(true);
 			const data = await getTeams();
@@ -46,9 +46,9 @@ const Team: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [message]);
 
-	useEffect(() => { loadTeams(); }, []);
+	useEffect(() => { loadTeams(); }, [loadTeams]);
 
 	const openModal = () => {
 		form.resetFields();

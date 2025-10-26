@@ -5,7 +5,6 @@ import 'dayjs/locale/pt-br';
 dayjs.locale('pt-br');
 
 import { useAuth } from '@/context/AuthContext';
-import { getMyWorkspaces } from '@/services/workspace.services';
 import { getTaskTypes } from '@/services/taskType.services';
 import { getPriorities } from '@/services/priority.services';
 import { getSprints } from '@/services/sprint.services';
@@ -37,6 +36,7 @@ const QuickAddTask: React.FC<Props> = ({ onCreate, selectedWorkspaceId }) => {
 				);
 				setDefaultPriorityId((medium ?? priorities?.[0])?.id);
 			} catch {
+				/* noop */
 			}
 		})();
 	}, []);
@@ -55,13 +55,6 @@ const QuickAddTask: React.FC<Props> = ({ onCreate, selectedWorkspaceId }) => {
 			}
 		})();
 	}, [selectedWorkspaceId]);
-
-	const canCreate =
-		title.trim().length > 0 &&
-		!!selectedWorkspaceId &&
-		!!defaultTypeId &&
-		!!defaultPriorityId &&
-		!!me?.id;
 
 	const handleCreate = async () => {
 		if (!selectedWorkspaceId) {
