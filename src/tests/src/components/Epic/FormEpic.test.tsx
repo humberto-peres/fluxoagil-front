@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { Form } from 'antd'
 import FormEpic from '@/components/Epic/FormEpic'
 
 vi.mock('@/services/priority.services', () => ({
@@ -10,9 +11,13 @@ vi.mock('@/services/priority.services', () => ({
   ])
 }))
 
-function Wrapper({ onFinish, disabled = false }: any) {
-  const Antd = require('antd')
-  const [form] = Antd.Form.useForm()
+type WrapperProps = {
+  onFinish: (values: unknown) => void;
+  disabled?: boolean;
+}
+
+function Wrapper({ onFinish, disabled = false }: WrapperProps) {
+  const [form] = Form.useForm()
   return <FormEpic form={form} onFinish={onFinish} disabled={disabled} />
 }
 

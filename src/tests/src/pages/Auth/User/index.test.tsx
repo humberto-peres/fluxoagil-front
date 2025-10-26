@@ -24,7 +24,7 @@ vi.mock('@/components/Layout/DefaultLayout', () => ({
 }));
 
 vi.mock('@/pages/Auth/User/FormUser', () => ({
-  default: ({ form, onFinish }: any) => (
+  default: ({ onFinish }: any) => (
     <form data-testid="form-user" onSubmit={(e) => {
       e.preventDefault();
       onFinish({ name: 'Teste', username: 'teste', email: 'teste@test.com' });

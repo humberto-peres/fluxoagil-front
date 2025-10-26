@@ -10,12 +10,12 @@ vi.mock('antd', async (orig) => {
       ...mod.App,
       useApp: () => ({ message: { success: vi.fn(), error: vi.fn() } }),
     },
-    Popconfirm: ({ onConfirm, children }: any) => (
-      <div>
-        {children}
-        <button aria-label="__confirm__" onClick={() => onConfirm?.()} />
-      </div>
-    ),
+    Popconfirm: ({ onConfirm, children }: any) => {
+      const childWithClick = React.cloneElement(children, {
+        onClick: () => onConfirm?.(),
+      })
+      return childWithClick
+    },
   }
 })
 
@@ -63,10 +63,8 @@ describe('EpicTaskDrawer', () => {
 
     render(<EpicTaskDrawer open epicId={10} workspaceId={1} onClose={() => {}} />)
 
-    const removerBtn = await screen.findByRole('button', { name: 'Remover' })
+    const removerBtn = await screen.findByText('Remover')
     fireEvent.click(removerBtn)
-
-    fireEvent.click(screen.getByLabelText('__confirm__'))
 
     await waitFor(() => {
       expect(updateTask).toHaveBeenCalledWith(101, { epicId: null })

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, Form, Modal, Tooltip, Popconfirm, Button, App, Grid } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
@@ -31,7 +31,7 @@ const Step: React.FC = () => {
 	const [data, setData] = useState<StepType[]>([]);
 	const [loading, setLoading] = useState(false);
 
-	const fetchSteps = async () => {
+	const fetchSteps = useCallback(async () => {
 		try {
 			setLoading(true);
 			const response = await getSteps();
@@ -41,11 +41,11 @@ const Step: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [message]);
 
 	useEffect(() => {
 		fetchSteps();
-	}, []);
+	}, [fetchSteps]);
 
 	const openModal = () => {
 		setEditingId(null);

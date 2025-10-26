@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, Form, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
@@ -24,7 +24,7 @@ const TaskType: React.FC = () => {
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
 
-	const fetchTaskTypes = async () => {
+	const fetchTaskTypes = useCallback(async () => {
 		try {
 			setLoading(true);
 			const data = await getTaskTypes();
@@ -34,11 +34,11 @@ const TaskType: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [message]);
 
 	useEffect(() => {
 		fetchTaskTypes();
-	}, []);
+	}, [fetchTaskTypes]);
 
 	const openModal = () => setIsModalOpen(true);
 

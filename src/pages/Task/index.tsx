@@ -14,7 +14,7 @@ function Task() {
 		try {
 			const apiTasks: TaskDTO[] = await getAllTasks();
 			setTasks(apiTasks || []);
-		} catch (error) {
+		} catch {
 			message.error('Erro ao buscar as tarefas');
 			setTasks([]);
 		}

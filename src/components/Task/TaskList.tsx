@@ -129,7 +129,6 @@ const TaskList: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
                             <div 
                                 className="mt-3 pt-2 border-t border-dashed border-gray-700 grid grid-cols-2 lg:grid-cols-4 gap-y-2 gap-x-6"
                             >
-                                
                                 {renderDetail('Etapa atual', t.step?.name ?? '—')}
                                 {renderDetail('Prazo', t.deadline ?? 'Não preenchido')}
                                 {renderDetail('Responsável', t.assignee?.name ?? 'Não preenchido')}

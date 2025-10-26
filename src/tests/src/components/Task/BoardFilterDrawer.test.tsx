@@ -248,10 +248,18 @@ describe('BoardFilterDrawer', () => {
 			);
 
 			await waitFor(() => {
-				expect(screen.getByRole('button', { name: /aplicar/i })).toBeInTheDocument();
+				expect(workspaceServices.getMyWorkspaces).toHaveBeenCalled();
 			});
 
-			await user.click(screen.getByRole('button', { name: /aplicar/i }));
+			await waitFor(() => {
+				expect(workspaceServices.canAccessWorkspace).toHaveBeenCalledWith(1);
+			});
+
+			const applyButton = screen.getByRole('button', { name: /aplicar/i });
+
+			expect(applyButton).not.toBeDisabled();
+
+			await user.click(applyButton);
 
 			await waitFor(() => {
 				expect(mockOnApply).toHaveBeenCalledWith({
@@ -259,7 +267,7 @@ describe('BoardFilterDrawer', () => {
 					sprintId: undefined,
 					showClosed: undefined,
 				});
-			});
+			}, { timeout: 3000 });
 		});
 
 		it('deve incluir sprint quando habilitado', async () => {

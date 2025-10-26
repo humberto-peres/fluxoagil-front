@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useBoardTasks } from '@/hooks/useBoardTasks';
 import * as taskServices from '@/services/task.services';
 

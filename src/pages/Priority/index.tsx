@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Table, Tag, Form, Modal, Tooltip, Popconfirm, Button, App, Grid } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import DefaultLayout from '@/components/Layout/DefaultLayout';
@@ -34,7 +34,7 @@ const Priority: React.FC = () => {
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
 
-	const fetchPriorities = async () => {
+	const fetchPriorities = useCallback(async () => {
 		try {
 			setLoading(true);
 			const data = await getPriorities();
@@ -44,11 +44,11 @@ const Priority: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [message]);
 
 	useEffect(() => {
 		fetchPriorities();
-	}, []);
+	}, [fetchPriorities]);
 
 	const openModal = () => setIsModalOpen(true);
 

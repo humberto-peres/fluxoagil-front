@@ -47,7 +47,6 @@ function setSprintCookie(wsId: number | null, sprintId: number | null) {
 const Board: React.FC = () => {
 	const { message } = App.useApp();
 	const screens = useBreakpoint();
-	const isMobile = !screens.md;
 
 	const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
@@ -118,6 +117,7 @@ const Board: React.FC = () => {
 			}
 		};
 		run();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedWorkspaceId, selectedWorkspace]);
 
 	const tasksByColumn = useMemo<Record<string, Task[]>>(() => {

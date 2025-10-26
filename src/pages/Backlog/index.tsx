@@ -261,7 +261,8 @@ const Backlog: React.FC = () => {
 		);
 
 		return { contentBySprintId, backlogContent };
-	}, [tasks, sprints, isScrum]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [tasks, sprints, isScrum]);  
 
 	return (
 		<DefaultLayout title="Backlog" addButton textButton="Criar Sprint" onAddClick={() => { setEditingId(null); setIsModalOpen(true); }}>

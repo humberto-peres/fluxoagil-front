@@ -10,7 +10,6 @@ describe('cepUtils.fetchAddress', () => {
   })
 
   it('returns address when CEP is valid', async () => {
-    // @ts-ignore
     global.fetch = vi.fn().mockResolvedValue({
       json: vi.fn().mockResolvedValue({
         logradouro: 'Av. Paulista',
@@ -31,7 +30,6 @@ describe('cepUtils.fetchAddress', () => {
   })
 
   it('throws on invalid CEP', async () => {
-    // @ts-ignore
     global.fetch = vi.fn().mockResolvedValue({
       json: vi.fn().mockResolvedValue({ erro: true }),
     })

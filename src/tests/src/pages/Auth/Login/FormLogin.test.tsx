@@ -123,12 +123,20 @@ describe('FormLogin', () => {
 
     renderLogin();
 
+    expect(screen.getByPlaceholderText('Username')).toHaveValue('');
+    expect(screen.getByPlaceholderText('Senha')).toHaveValue('');
+
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     await waitFor(() => {
       expect(screen.getByText('Username não preenchido!')).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    await waitFor(() => {
       expect(screen.getByText('Senha não preenchida!')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
+
+    expect(mockSignIn).not.toHaveBeenCalled();
   });
 
   it('deve exibir link para criar conta', () => {

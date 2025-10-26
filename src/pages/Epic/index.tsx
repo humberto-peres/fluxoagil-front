@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Result, FloatButton, App, Grid } from "antd";
+import { Modal, Form, Result, FloatButton, App } from "antd";
 import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
@@ -22,7 +22,6 @@ import EpicList from '@/components/Epic/EpicList';
 type EpicDTO = BaseEpicDTO & { _count?: { tasks: number } };
 
 const COOKIE_KEY = 'board.selectedWorkspaceId';
-const { useBreakpoint } = Grid;
 
 function highlight(el: HTMLElement) {
 	el.classList.add('ring-2', 'ring-violet-500', 'shadow-[0_0_0_6px_rgba(139,92,246,0.35)]');
@@ -31,8 +30,6 @@ function highlight(el: HTMLElement) {
 
 const EpicPage: React.FC = () => {
 	const { message } = App.useApp();
-	const screens = useBreakpoint();
-	const isMobile = !screens.md;
 	const location = useLocation();
 
 	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);

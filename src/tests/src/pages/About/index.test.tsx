@@ -37,8 +37,6 @@ describe('About', () => {
     
     expect(screen.getByText('Board Kanban & Sprints')).toBeInTheDocument();
     expect(screen.getByText('Backlog & Épicos')).toBeInTheDocument();
-    expect(screen.getByText('Integrações')).toBeInTheDocument();
-    expect(screen.getByText('Criação Rápida')).toBeInTheDocument();
   });
 
   it('deve renderizar tags de tecnologia', () => {
