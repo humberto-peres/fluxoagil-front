@@ -22,6 +22,18 @@ export default defineConfig({
 			reportsDirectory: './coverage'
 		},
 		testTimeout: 100000,
-  	hookTimeout: 100000,
+		hookTimeout: 100000,
+		// Adicione estas configurações:
+		server: {
+			deps: {
+				inline: [
+					'whatwg-url',
+					'webidl-conversions',
+					'tr46',
+					'punycode'
+				]
+			}
+		},
+		pool: 'forks', // Pode ajudar com problemas de isolamento
 	}
 });

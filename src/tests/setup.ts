@@ -1,37 +1,94 @@
+import { TextEncoder, TextDecoder } from 'util'
 import '@testing-library/jest-dom'
+
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder as any
+
+if (typeof global.fetch === 'undefined') {
+  global.fetch = fetch
+  global.Headers = Headers
+  global.Request = Request
+  global.Response = Response
+}
+
+Object.defineProperty(global, 'URL', {
+  value: URL,
+  writable: true,
+  configurable: true,
+})
+
+Object.defineProperty(global, 'URLSearchParams', {
+  value: URLSearchParams,
+  writable: true,
+  configurable: true,
+})
 
 if (!window.matchMedia) {
   window.matchMedia = (query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    addListener: () => { },
+    removeListener: () => { },
+    addEventListener: () => { },
+    removeEventListener: () => { },
     dispatchEvent: () => false,
   })
 }
 
 if (!('ResizeObserver' in window)) {
-  window.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  }
+  window.ResizeObserver = class ResizeObserver {
+    observe() { }
+    unobserve() { }
+    disconnect() { }
+  } as any
 }
 
 if (!document.createRange) {
-  document.createRange = () => ({
-    setStart: () => {},
-    setEnd: () => {},
-    commonAncestorContainer: document.body,
-    createContextualFragment: (html: string) => {
-      const template = document.createElement('template')
-      template.innerHTML = html
-      return template.content
-    },
-  })
+  document.createRange = () => {
+    const range = {
+      setStart: () => { },
+      setEnd: () => { },
+      commonAncestorContainer: document.body,
+      createContextualFragment: (html: string) => {
+        const template = document.createElement('template')
+        template.innerHTML = html
+        return template.content
+      },
+      cloneRange: () => range,
+      collapse: () => { },
+      compareBoundaryPoints: () => 0,
+      deleteContents: () => { },
+      detach: () => { },
+      extractContents: () => document.createDocumentFragment(),
+      getBoundingClientRect: () => ({
+        bottom: 0,
+        height: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        width: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => { },
+      }),
+      getClientRects: () => ({
+        length: 0,
+        item: () => null,
+        [Symbol.iterator]: function* () { },
+      }),
+      insertNode: () => { },
+      selectNode: () => { },
+      selectNodeContents: () => { },
+      setEndAfter: () => { },
+      setEndBefore: () => { },
+      setStartAfter: () => { },
+      setStartBefore: () => { },
+      surroundContents: () => { },
+      toString: () => '',
+    } as unknown as Range
+    return range
+  }
 }
 
 const originalGetComputedStyle = window.getComputedStyle
