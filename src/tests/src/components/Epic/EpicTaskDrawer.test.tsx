@@ -63,7 +63,7 @@ describe('EpicTaskDrawer', () => {
 
     render(<EpicTaskDrawer open epicId={10} workspaceId={1} onClose={() => {}} />)
 
-    const removerBtn = await screen.findByRole('button', { name: 'Remover' })
+    const removerBtn = await screen.findByText('Remover')
     fireEvent.click(removerBtn)
 
     await waitFor(() => {
