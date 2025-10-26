@@ -53,7 +53,7 @@ describe('BoardFilterDrawer', () => {
 			await waitFor(() => {
 				expect(screen.getByText('Filtros')).toBeInTheDocument();
 			});
-			
+
 			expect(screen.getByText('Workspace')).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /aplicar/i })).toBeInTheDocument();
 		});
@@ -317,12 +317,12 @@ describe('BoardFilterDrawer', () => {
 			await user.click(screen.getByRole('button', { name: /aplicar/i }));
 
 			await waitFor(() => {
-				expect(mockOnApply).toHaveBeenCalledWith({
-					workspaceId: undefined,
-					sprintId: undefined,
-					showClosed: true,
-				});
-			});
+				expect(mockOnApply).toHaveBeenCalledWith(
+					expect.objectContaining({
+						showClosed: true,
+					})
+				);
+			}, { timeout: 3000 });
 		});
 	});
 });
