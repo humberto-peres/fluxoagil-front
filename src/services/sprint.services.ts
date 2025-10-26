@@ -7,8 +7,8 @@ export type SprintDTO = {
 	endDate: string | null;
 	isActive: boolean;
 	workspaceId: number;
-	activatedAt?: string | null;
-	closedAt?: string | null;
+	activatedAt: string | null;
+	closedAt: string | null;
 };
 
 export type SprintState = 'open' | 'active' | 'planned' | 'closed' | 'all';

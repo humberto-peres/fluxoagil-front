@@ -14,6 +14,7 @@ export type SprintItem = {
     isActive: boolean;
     activatedAt: string | null;
     closedAt: string | null;
+    workspaceId: number;
 };
 
 type Props = {
@@ -103,7 +104,8 @@ const SprintList: React.FC<Props> = ({
                         {contentBySprintId?.[s.id] ?? <div>Sem tarefas nesta sprint.</div>}
                     </div>
                 ),
-            } as CollapseProps['items'][number];
+            } as NonNullable<CollapseProps['items']>[number];
+
         }),
         {
             key: 'backlog',

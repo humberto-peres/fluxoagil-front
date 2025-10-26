@@ -33,7 +33,7 @@ export type TaskDTO = {
 	epic?: { id: number; key: string; title: string } | null;
 	sprint?: {id: number, name: string }
 
-	idTask?: string;
+	idTask: string;
 };
 
 export const getAllTasks = async () => {

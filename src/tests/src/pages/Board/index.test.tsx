@@ -82,10 +82,6 @@ vi.mock('@/components/Task/FormTask', () => ({
   default: () => <div data-testid="form-task">Form Task</div>,
 }));
 
-vi.mock('@/components/Task/QuickAddTask', () => ({
-  default: () => <div data-testid="quick-add">Quick Add</div>,
-}));
-
 vi.mock('@/pages/Board/TaskCard', () => ({
   TaskCard: ({ task }: any) => <div data-testid={`task-${task.id}`}>{task.title}</div>,
 }));
