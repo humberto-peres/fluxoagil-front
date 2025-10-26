@@ -1,27 +1,4 @@
-import { TextEncoder, TextDecoder } from 'util'
 import '@testing-library/jest-dom'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder as any
-
-if (typeof global.fetch === 'undefined') {
-  global.fetch = fetch
-  global.Headers = Headers
-  global.Request = Request
-  global.Response = Response
-}
-
-Object.defineProperty(global, 'URL', {
-  value: URL,
-  writable: true,
-  configurable: true,
-})
-
-Object.defineProperty(global, 'URLSearchParams', {
-  value: URLSearchParams,
-  writable: true,
-  configurable: true,
-})
 
 if (!window.matchMedia) {
   window.matchMedia = (query: string) => ({
