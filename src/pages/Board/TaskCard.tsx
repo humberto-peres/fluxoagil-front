@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { Avatar, Card, Flex, Tag, Typography } from 'antd';
+import { Avatar, Card, Flex, Space, Tag, Typography } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 
 export type Task = {
@@ -65,11 +65,11 @@ export function TaskCard({ task, onEdit, overlay, overlaySize }: TaskCardProps) 
 		<div ref={refProp} {...wrapperProps} style={style} className="w-full" data-task-id={task.id}>
 			<Card variant="borderless" style={{ borderRadius: 6 }} className="w-full">
 				<Flex justify="space-between" style={{ marginBottom: 15 }}>
-					<div className="flex flex-wrap gap-1.5">
+					<Space size={1}>
 						<Tag color="purple">{task.idTask}</Tag>
 						<Tag color={task.priority.label}>{task.priority.name}</Tag>
 						<Tag color="magenta">{task.typeTask.name}</Tag>
-					</div>
+					</Space>
 					<div>{actions}</div>
 				</Flex>
 

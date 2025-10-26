@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FloatButton, Modal, Form, Result, App, Grid, Switch, Space, Typography } from 'antd';
+import { FloatButton, Modal, Form, Result, App, Grid } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
@@ -118,7 +118,6 @@ const Backlog: React.FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedWorkspaceId, showClosed]);
 
-	const openCreate = () => { setEditingId(null); form.resetFields(); setIsModalOpen(true); };
 	const openEdit = (s: SprintDTO) => {
 		setEditingId(s.id);
 		form.setFieldsValue({
@@ -188,6 +187,7 @@ const Backlog: React.FC = () => {
 				report: data.reporterId ?? undefined,
 				responsible: data.assigneeId ?? undefined,
 				description: data.description ?? '',
+				stepId: data.stepId
 			});
 			setIsTaskModalOpen(true);
 		} catch { message.error('Erro ao carregar atividade'); }
@@ -210,6 +210,7 @@ const Backlog: React.FC = () => {
 				userId: Number(values.report ?? values.responsible),
 				workspaceId: Number(values.workspaceId ?? selectedWorkspaceId),
 				epicId: values.epicId ?? null,
+				stepId: values.stepId
 			});
 			message.success('Atividade atualizada');
 			setIsTaskModalOpen(false);
@@ -276,7 +277,6 @@ const Backlog: React.FC = () => {
 				open={filterOpen}
 				onClose={() => setFilterOpen(false)}
 				initialWorkspaceId={selectedWorkspaceId}
-				/* 👇 só no Backlog */
 				showClosedToggle
 				initialShowClosed={showClosed}
 				onApply={({ workspaceId, showClosed: sc }) => {

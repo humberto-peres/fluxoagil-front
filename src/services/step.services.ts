@@ -1,6 +1,6 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export const getSteps = async () => {
+export const getSteps = async (p0: { workspaceId: number; }) => {
     const response = await fetch(`${BASE_URL}/steps/`);
     if (!response.ok) throw new Error('Erro ao buscar etapas');
     return response.json();

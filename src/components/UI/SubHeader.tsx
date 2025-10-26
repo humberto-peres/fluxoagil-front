@@ -9,7 +9,6 @@ interface SubHeaderProps {
     onAddClick?: () => void;
     subtitle?: string;
     breadcrumbItems?: Array<{ title: React.ReactNode; href?: string }>;
-    /** área opcional à direita (ex.: botões, filtros, etc.) */
     extra?: React.ReactNode;
 }
 
@@ -32,10 +31,10 @@ const SubHeader: React.FC<SubHeaderProps> = ({
         { title }
     ];
 
-    const finalBreadcrumb = breadcrumbItems.length > 0g ? customBreadcrumb : defaultBreadcrumb;
+    const finalBreadcrumb = breadcrumbItems.length > 0 ? customBreadcrumb : defaultBreadcrumb;
 
     return (
-        <div className="sticky top-16 z-[900] backdrop-blur-sm">
+        <div className="top-16 z-[900]">
             <div className="py-4 px-3 md:px-5">
                 <Breadcrumb
                     className="mb-3"
@@ -68,7 +67,6 @@ const SubHeader: React.FC<SubHeaderProps> = ({
                         )}
                     </div>
 
-                    {/* à direita: extra (se houver) + botão adicionar (se habilitado) */}
                     <div className="flex items-center gap-2">
                         {extra}
                         {addButton && (

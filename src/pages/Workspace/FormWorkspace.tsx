@@ -154,7 +154,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 												name={[field.name, 'stepId']}
 												rules={[{ required: true, message: 'Selecione uma etapa' }]}
 												style={{ marginBottom: 0, flex: 1 }}
-												className="min-w-0"
+												className="w-[150px]"
 											>
 												<Select
 													placeholder={`Etapa #${index + 1}`}

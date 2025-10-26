@@ -1,38 +1,50 @@
-import React, { useState } from 'react';
-import { Button, Flex, Form, Input, App } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Flex, Form, Input, App, Typography } from 'antd';
 import { FaLock, FaUserAlt } from "react-icons/fa";
 import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 type FieldType = { username: string; password: string };
 
 const FormLogin: React.FC = () => {
-    const { signIn } = useAuth();
+    const { user, loading: authLoading, signIn } = useAuth();
     const { message } = App.useApp();
     const navigate = useNavigate();
-    const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
+    const [form] = Form.useForm<FieldType>();
+    const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!authLoading && user) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [authLoading, user, navigate]);
 
     const onFinish = async (values: FieldType) => {
+        if (user) {
+            message.info('Você já está autenticado.');
+            return;
+        }
+
         try {
-            setLoading(true);
+            setSubmitting(true);
             await signIn(values);
             message.success(`Bem-vindo, ${values.username}!`);
-            navigate("/dashboard");
+            navigate('/dashboard', { replace: true });
         } catch {
             message.error('Usuário/senha inválidos');
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
+    const isBusy = authLoading || submitting || !!user;
+
     return (
-        <Form
+        <Form<FieldType>
             form={form}
             layout="vertical"
             onFinish={onFinish}
             autoComplete="off"
-            initialValues={{ remember: true }}
         >
             <Form.Item<FieldType>
                 name="username"
@@ -44,6 +56,7 @@ const FormLogin: React.FC = () => {
                     placeholder="Username"
                     prefix={<FaUserAlt className="opacity-70 mr-1.5" />}
                     autoFocus
+                    disabled={isBusy}
                 />
             </Form.Item>
 
@@ -56,17 +69,32 @@ const FormLogin: React.FC = () => {
                     size="large"
                     placeholder="Senha"
                     prefix={<FaLock className="opacity-70 mr-1.5" />}
+                    disabled={isBusy}
                 />
             </Form.Item>
 
             <Form.Item noStyle>
                 <Flex vertical gap={8}>
-                    <Button type="primary" size="large" htmlType="submit" block loading={loading}>
+                    <Button
+                        type="primary"
+                        size="large"
+                        htmlType="submit"
+                        block
+                        loading={authLoading || submitting}
+                        disabled={!!user}
+                    >
                         Entrar
                     </Button>
-                    <a href="/forgot-password" className="text-center opacity-90 hover:opacity-100">
-                        Esqueci minha senha
-                    </a>
+
+                    <Typography.Text className="text-center opacity-90">
+                        Não tem uma conta?{' '}
+                        <Link
+                            to="/signup"
+                            className="font-medium hover:opacity-100 transition-opacity"
+                        >
+                            Criar conta
+                        </Link>
+                    </Typography.Text>
                 </Flex>
             </Form.Item>
         </Form>

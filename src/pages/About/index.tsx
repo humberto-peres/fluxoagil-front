@@ -41,20 +41,6 @@ const About: React.FC = () => {
             gradient: 'from-violet-600 to-indigo-600',
         },
         {
-            icon: <GithubOutlined className="text-2xl" />,
-            title: 'Integrações',
-            description:
-                'GitHub (issues/PRs) e Slack (notificações). Webhooks para automações que evitam trabalho manual.',
-            gradient: 'from-violet-600 to-indigo-600',
-        },
-        {
-            icon: <ThunderboltOutlined className="text-2xl" />,
-            title: 'Criação Rápida',
-            description:
-                'Atalhos e modais leves: cadastre tarefas sem sair do fluxo. Menos cliques, mais foco.',
-            gradient: 'from-violet-600 to-indigo-600',
-        },
-        {
             icon: <DeploymentUnitOutlined className="text-2xl" />,
             title: 'Times & Permissões',
             description:

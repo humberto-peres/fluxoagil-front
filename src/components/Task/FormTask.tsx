@@ -5,8 +5,10 @@ import { getTaskTypes } from '@/services/taskType.services';
 import { getPriorities } from '@/services/priority.services';
 import { getUsers } from '@/services/user.services';
 import { getSprints } from '@/services/sprint.services';
-import { getWorkspaces } from '@/services/workspace.services';
+import { getMyWorkspaces } from '@/services/workspace.services';
 import { getEpics } from '@/services/epic.services';
+import { useAuth } from '@/context/AuthContext';
+import { getSteps } from '@/services/step.services';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -20,29 +22,41 @@ type Props = {
 };
 
 const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
+	const { user } = useAuth();
 	const [types, setTypes] = useState<OptionType[]>([]);
 	const [priorities, setPriorities] = useState<OptionType[]>([]);
 	const [users, setUsers] = useState<OptionType[]>([]);
 	const [sprints, setSprints] = useState<OptionType[]>([]);
 	const [workspaces, setWorkspaces] = useState<OptionType[]>([]);
 	const [epics, setEpics] = useState<OptionType[]>([]);
+	const [steps, setSteps] = useState<OptionType[]>([]);
 
 	useEffect(() => {
 		(async () => {
 			try {
-				const [typesRes, prioritiesRes, usersRes] = await Promise.all([getTaskTypes(), getPriorities(), getUsers()]);
+				const [typesRes, prioritiesRes, usersRes] = await Promise.all([
+					getTaskTypes(),
+					getPriorities(),
+					getUsers(),
+				]);
 				setTypes((typesRes || []).map((t: any) => ({ label: t.name, value: t.id })));
 				setPriorities((prioritiesRes || []).map((p: any) => ({ label: p.name, value: p.id })));
-				setUsers((usersRes || []).map((u: any) => ({ label: u.name, value: u.id })));
-			} catch { }
+
+				const opts = (usersRes || []).map((u: any) => ({ label: u.name, value: u.id }));
+				if (user && !opts.some((o: { value: any; }) => Number(o.value) === Number(user.id))) {
+					opts.unshift({ label: user.name ?? 'Você', value: Number(user.id) });
+				}
+				setUsers(opts);
+			} catch (err) {
+			}
 		})();
-	}, []);
+	}, [user]);
 
 	useEffect(() => {
 		(async () => {
 			try {
-				const ws = await getWorkspaces();
-				setWorkspaces(ws.map((w: any) => ({ label: `${w.name} (${w.key})`, value: w.id })));
+				const ws = await getMyWorkspaces();
+				setWorkspaces((ws || []).map((w: any) => ({ label: `${w.name} (${w.key})`, value: w.id })));
 				if (selectedWorkspaceId) {
 					form.setFieldsValue({ workspaceId: selectedWorkspaceId });
 				}
@@ -54,34 +68,65 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 		(async () => {
 			const wsId = form.getFieldValue('workspaceId') || selectedWorkspaceId;
 			if (!wsId) {
-				setSprints([]); setEpics([]);
+				setSprints([]); setEpics([]); setSteps([]);
 				return;
 			}
 			try {
-				const [sps, eps] = await Promise.all([getSprints({ workspaceId: Number(wsId) }), getEpics({ workspaceId: Number(wsId) })]);
+				const [sps, eps, stps] = await Promise.all([
+					getSprints({ workspaceId: Number(wsId) }),
+					getEpics({ workspaceId: Number(wsId) }),
+					getSteps({ workspaceId: Number(wsId) }), // <-- buscar steps por workspaceId
+				]);
 				setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
 				setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));
+				setSteps((stps || []).map((p: any) => ({ label: p.name, value: p.id })));
 			} catch {
-				setSprints([]);
-				setEpics([]);
+				setSprints([]); setEpics([]); setSteps([]);
 			}
 		})();
 	}, [selectedWorkspaceId, form]);
 
+	useEffect(() => {
+		if (!user) return;
+		const current = form.getFieldValue('reporterId');
+		if (!current) {
+			form.setFieldsValue({ reporterId: Number(user.id) });
+		}
+	}, [user, users, form]);
+
 	const onWorkspaceChange = async (wid: number) => {
-		form.setFieldsValue({ sprint: undefined, epicId: undefined });
+		form.setFieldsValue({ sprintId: undefined, epicId: undefined, stepId: undefined });
 		try {
-			const [sps, eps] = await Promise.all([getSprints({ workspaceId: wid }), getEpics({ workspaceId: wid })]);
+			const [sps, eps, stps] = await Promise.all([
+				getSprints({ workspaceId: wid }),
+				getEpics({ workspaceId: wid }),
+				getSteps({ workspaceId: wid }),
+			]);
 			setSprints((sps || []).map((s: any) => ({ label: s.name, value: s.id })));
 			setEpics((eps || []).map((e: any) => ({ label: `${e.key} — ${e.title}`, value: e.id })));
+			setSteps((stps || []).map((p: any) => ({ label: p.name, value: p.id })));
 		} catch {
-			setSprints([]);
-			setEpics([]);
+			setSprints([]); setEpics([]); setSteps([]);
 		}
 	};
 
 	return (
 		<Form form={form} layout="vertical" onFinish={onFinish}>
+			<Form.Item
+				label="Etapa"
+				name="stepId"
+				rules={[{ required: true, message: 'Informe o workspace' }]}
+			>
+				<Select
+					size="large"
+					placeholder="Selecione a etapa"
+					allowClear
+					options={steps}
+					showSearch
+					optionFilterProp="label"
+				/>
+			</Form.Item>
+			
 			<Form.Item
 				label="Workspace"
 				name="workspaceId"
@@ -91,7 +136,6 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 					size="large"
 					placeholder="Selecione um workspace"
 					allowClear
-					disabled={!!selectedWorkspaceId}
 					onChange={(val) => onWorkspaceChange(Number(val))}
 					options={workspaces}
 					showSearch

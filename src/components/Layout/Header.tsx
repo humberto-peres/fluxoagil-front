@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import { Avatar, Layout, Input, Flex, Tooltip, Popconfirm, App, Button, AutoComplete } from "antd";
 import { IoSearch, IoLogOutOutline, IoNotificationsOutline } from "react-icons/io5";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
-import { BiLinkAlt } from "react-icons/bi";
 import type { DefaultOptionType } from "antd/es/select";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
-import GithubIntegrationDrawer from "@/components/Integrations/GithubIntegrationDrawer";
 import { usePresence, formatAgo } from "@/hooks/usePresence";
 import { useOpenTask } from "@/hooks/useOpenTask";
 import { searchAll, searchAllFallback, type SearchResult } from "@/services/search.services";
@@ -32,7 +30,6 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 	const openEpic = useOpenEpic();
 	const { message } = App.useApp();
 
-	const [integrationsOpen, setIntegrationsOpen] = useState(false);
 	const [searchValue, setSearchValue] = useState("");
 
 	const { presence, lastActiveAt } = usePresence({
@@ -158,22 +155,6 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 						icon={<IoSearch size={20} />}
 					/>
 
-					<Tooltip title="Notificações">
-						<IoNotificationsOutline
-							size={20}
-							className="cursor-pointer"
-							onClick={() => message.info("Central de notificações em breve!")}
-						/>
-					</Tooltip>
-
-					<Tooltip title="Integrações">
-						<BiLinkAlt
-							size={20}
-							className="cursor-pointer"
-							onClick={() => setIntegrationsOpen(true)}
-						/>
-					</Tooltip>
-
 					<Tooltip title="Encerrar Sessão">
 						<Popconfirm
 							title={"Deseja encerrar a sessão?"}
@@ -191,7 +172,12 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 								}
 							}}
 						>
-							<IoLogOutOutline size={20} className="cursor-pointer" />
+							<IoLogOutOutline
+								size={20}
+								className="cursor-pointer"
+								aria-label="Encerrar Sessão"
+								data-testid="logout-icon"
+							/>
 						</Popconfirm>
 					</Tooltip>
 
@@ -217,11 +203,6 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 					</Tooltip>
 				</Flex>
 			</Flex>
-
-			<GithubIntegrationDrawer
-				open={integrationsOpen}
-				onClose={() => setIntegrationsOpen(false)}
-			/>
 		</Header>
 	);
 };
