@@ -13,10 +13,7 @@ export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		globals: true,
-		setupFiles: [
-			'./vitest.polyfills.ts',
-			'./src/tests/setup.ts'
-		],
+		setupFiles: ['./src/tests/setup.ts'],
 		css: true,
 		include: ['src/tests/**/*.test.{ts,tsx}'],
 		coverage: {
@@ -25,18 +22,6 @@ export default defineConfig({
 			reportsDirectory: './coverage'
 		},
 		testTimeout: 100000,
-		hookTimeout: 100000,
-		server: {
-			deps: {
-				inline: [
-					/whatwg-url/,
-					/webidl-conversions/,
-					/tr46/,
-					/punycode/,
-				]
-			}
-		},
-		pool: 'forks',
-		isolate: true,
+  	hookTimeout: 100000,
 	}
 });
