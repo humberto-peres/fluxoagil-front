@@ -65,16 +65,16 @@ const User: React.FC = () => {
 			username: values.username,
 			email: values.email,
 			...(values.password && { password: values.password }),
-		};
+			address: {
+				zipCode: values.cep,
+				street: values.street,
+				city: values.city,
+				state: values.state,
+				neighborhood: values.neighborhood,
+				number: Number(values.number),
 
-		if (values.cep || values.street || values.city || values.state || values.neighborhood || values.number) {
-			payload.cep = values.cep;
-			payload.street = values.street;
-			payload.city = values.city;
-			payload.state = values.state;
-			payload.neighborhood = values.neighborhood;
-			payload.number = values.number;
-		}
+			},
+		};
 
 		try {
 			if (editingUserId) {

@@ -84,12 +84,12 @@ const FormUser: React.FC<FormUserProps> = ({
 				<Col xs={24} md={12}>
 					<Row gutter={16}>
 						<Col xs={24} md={12}>
-							<Form.Item<FieldType> name="cep" label="CEP">
+							<Form.Item<FieldType> name="cep" label="CEP" rules={[{ required: true }]}>
 								<Input.Search onSearch={onSearch} size="large" placeholder="Ex.: 01001-000" />
 							</Form.Item>
 						</Col>
 						<Col xs={24} md={12}>
-							<Form.Item<FieldType> name="state" label="Estado">
+							<Form.Item<FieldType> name="state" label="Estado" rules={[{ required: true }]}>
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
@@ -97,12 +97,12 @@ const FormUser: React.FC<FormUserProps> = ({
 
 					<Row gutter={16}>
 						<Col xs={24} md={12}>
-							<Form.Item<FieldType> name="city" label="Cidade">
+							<Form.Item<FieldType> name="city" label="Cidade" rules={[{ required: true }]}>
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
 						<Col xs={24} md={12}>
-							<Form.Item<FieldType> name="street" label="Rua">
+							<Form.Item<FieldType> name="street" label="Rua" rules={[{ required: true }]}>
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
@@ -110,12 +110,12 @@ const FormUser: React.FC<FormUserProps> = ({
 
 					<Row gutter={16}>
 						<Col xs={24} md={12}>
-							<Form.Item<FieldType> name="neighborhood" label="Bairro">
+							<Form.Item<FieldType> name="neighborhood" label="Bairro" rules={[{ required: true }]}>
 								<Input size="large" disabled={addressFieldsDisabled} />
 							</Form.Item>
 						</Col>
 						<Col xs={24} md={12}>
-							<Form.Item<FieldType> name="number" label="Número">
+							<Form.Item<FieldType> name="number" label="Número" rules={[{ required: true }]}>
 								<Input size="large" type="number" />
 							</Form.Item>
 						</Col>

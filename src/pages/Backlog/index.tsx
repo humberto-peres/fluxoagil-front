@@ -265,7 +265,7 @@ const Backlog: React.FC = () => {
 	}, [tasks, sprints, isScrum]);  
 
 	return (
-		<DefaultLayout title="Backlog" addButton textButton="Criar Sprint" onAddClick={() => { setEditingId(null); setIsModalOpen(true); }}>
+		<DefaultLayout title="Backlog" addButton={isScrum} textButton="Criar Sprint" onAddClick={() => { setEditingId(null); setIsModalOpen(true); }}>
 			<FloatButton
 				icon={<FilterOutlined />}
 				tooltip="Filtros"
@@ -278,7 +278,7 @@ const Backlog: React.FC = () => {
 				open={filterOpen}
 				onClose={() => setFilterOpen(false)}
 				initialWorkspaceId={selectedWorkspaceId}
-				showClosedToggle
+				showClosedToggle={isScrum}
 				initialShowClosed={showClosed}
 				onApply={({ workspaceId, showClosed: sc }) => {
 					if (workspaceId) Cookies.set(COOKIE_KEY, String(workspaceId), { expires: 365 });
@@ -324,7 +324,7 @@ const Backlog: React.FC = () => {
 				width={screens.lg ? 720 : undefined}
 				rootClassName="responsive-modal"
 			>
-				<FormTask form={taskForm} onFinish={submitTaskForm} selectedWorkspaceId={selectedWorkspaceId ?? undefined} />
+				<FormTask form={taskForm} onFinish={submitTaskForm} selectedWorkspaceId={selectedWorkspaceId ?? undefined} isScrum={isScrum} />
 			</Modal>
 
 			<CloseSprintModal

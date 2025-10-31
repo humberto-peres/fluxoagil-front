@@ -256,7 +256,7 @@ const Board: React.FC = () => {
 				rootClassName="responsive-modal"
 				width={screens.lg ? 720 : undefined}
 			>
-				<FormTask form={form} onFinish={handleFormSubmit} selectedWorkspaceId={selectedWorkspaceId ?? undefined} />
+				<FormTask isEdit={editingId ? true : false} form={form} onFinish={handleFormSubmit} selectedWorkspaceId={selectedWorkspaceId ?? undefined} isScrum={selectedWorkspace?.methodology === 'Scrum'}/>
 			</Modal>
 
 			{!selectedWorkspaceId ? (

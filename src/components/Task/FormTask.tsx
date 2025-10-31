@@ -19,9 +19,11 @@ type Props = {
 	form: FormInstance;
 	onFinish: (values: any) => void;
 	selectedWorkspaceId?: number;
+	isEdit?: boolean;
+	isScrum?: boolean;
 };
 
-const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
+const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId, isEdit = true, isScrum = true }) => {
 	const { user } = useAuth();
 	const [types, setTypes] = useState<OptionType[]>([]);
 	const [priorities, setPriorities] = useState<OptionType[]>([]);
@@ -113,7 +115,7 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 
 	return (
 		<Form form={form} layout="vertical" onFinish={onFinish}>
-			<Form.Item
+			{isEdit && <Form.Item
 				label="Etapa"
 				name="stepId"
 				rules={[{ required: true, message: 'Informe o workspace' }]}
@@ -126,7 +128,7 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 					showSearch
 					optionFilterProp="label"
 				/>
-			</Form.Item>
+			</Form.Item>}
 			
 			<Form.Item
 				label="Workspace"
@@ -170,11 +172,11 @@ const FormTask: React.FC<Props> = ({ form, onFinish, selectedWorkspaceId }) => {
 			</Row>
 
 			<Row gutter={[16, 0]}>
-				<Col xs={24} md={12}>
+				{isScrum && <Col xs={24} md={12}>
 					<Form.Item label="Sprint" name="sprint">
 						<Select size="large" placeholder="Selecione a sprint" allowClear options={sprints} />
 					</Form.Item>
-				</Col>
+				</Col>}
 				<Col xs={24} md={12}>
 					<Form.Item label="Épico" name="epicId">
 						<Select size="large" placeholder="Vincular a um épico" allowClear options={epics} showSearch optionFilterProp="label" />

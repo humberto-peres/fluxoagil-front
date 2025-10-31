@@ -98,7 +98,7 @@ const About: React.FC = () => {
                     </Paragraph>
 
                     <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
-                        {['Kanban & Scrum', 'Dark Mode', 'GitHub Integration', 'Real-time'].map((tag) => (
+                        {['Kanban & Scrum', 'Dark Mode', 'Real-time'].map((tag) => (
                             <Tag
                                 key={tag}
                                 className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium bg-gradient-to-r from-violet-600/30 to-indigo-600/30 border-violet-500/40 backdrop-blur-sm"
@@ -248,7 +248,6 @@ const About: React.FC = () => {
                                 </Title>
                                 <div className="grid grid-cols-1 gap-3">
                                     {[
-                                        { icon: '⚡', text: 'Use atalhos para criar tarefas sem sair do board' },
                                         { icon: '🎯', text: 'Relacione tarefas a épicos para visão macro' },
                                         { icon: '🔥', text: 'Priorize por impacto/esforço para foco semanal' },
                                         { icon: '🏆', text: 'Mantenha uma sprint ativa para alinhar o time' },
@@ -304,21 +303,6 @@ const About: React.FC = () => {
                                     <div className="bg-gradient-to-r from-violet-500/10 to-transparent p-4 rounded-lg">
                                         <Paragraph className="!m-0 text-gray-300">
                                             Workspaces independentes, permissões por papel e contexto isolado por equipe — ideal para diferentes áreas.
-                                        </Paragraph>
-                                    </div>
-                                ),
-                            },
-                            {
-                                key: '3',
-                                label: (
-                                    <span className="text-white">
-                                        <QuestionCircleOutlined className="mr-2 text-emerald-400" /> As integrações são robustas?
-                                    </span>
-                                ),
-                                children: (
-                                    <div className="bg-gradient-to-r from-emerald-500/10 to-transparent p-4 rounded-lg">
-                                        <Paragraph className="!m-0 text-gray-300">
-                                            GitHub, Slack e webhooks. Sincronização de eventos, notificações e automações para reduzir etapas manuais.
                                         </Paragraph>
                                     </div>
                                 ),

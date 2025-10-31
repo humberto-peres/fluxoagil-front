@@ -53,12 +53,14 @@ const Configuration: React.FC = () => {
             username: values.username,
             email: values.email,
             ...(values.password?.trim() ? { password: values.password } : {}),
-            zipCode: values.cep,
-            state: values.state,
-            city: values.city,
-            street: values.street,
-            neighborhood: values.neighborhood,
-            number: values.number != null ? Number(values.number) : undefined,
+            address: {
+                zipCode: values.cep,
+                state: values.state,
+                city: values.city,
+                street: values.street,
+                neighborhood: values.neighborhood,
+                number: values.number != null ? Number(values.number) : undefined,
+            }
         };
 
         try {

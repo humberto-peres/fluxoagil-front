@@ -137,12 +137,12 @@ const SignUp: React.FC = () => {
 
                         <Row gutter={[16, 0]}>
                             <Col xs={24} md={12}>
-                                <Form.Item name="cep" label="CEP">
+                                <Form.Item name="cep" label="CEP" rules={[{ required: true }]}>
                                     <Input.Search size="large" placeholder="Ex.: 01001-000" onSearch={onSearchCep} />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
-                                <Form.Item name="state" label="Estado">
+                                <Form.Item name="state" label="Estado" rules={[{ required: true }]}>
                                     <Input size="large" disabled={addressDisabled} />
                                 </Form.Item>
                             </Col>
@@ -150,12 +150,12 @@ const SignUp: React.FC = () => {
 
                         <Row gutter={[16, 0]}>
                             <Col xs={24} md={12}>
-                                <Form.Item name="city" label="Cidade">
+                                <Form.Item name="city" label="Cidade" rules={[{ required: true }]}>
                                     <Input size="large" disabled={addressDisabled} />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
-                                <Form.Item name="street" label="Rua">
+                                <Form.Item name="street" label="Rua" rules={[{ required: true }]}>
                                     <Input size="large" disabled={addressDisabled} />
                                 </Form.Item>
                             </Col>
@@ -163,12 +163,12 @@ const SignUp: React.FC = () => {
 
                         <Row gutter={[16, 0]}>
                             <Col xs={24} md={12}>
-                                <Form.Item name="neighborhood" label="Bairro">
+                                <Form.Item name="neighborhood" label="Bairro" rules={[{ required: true }]}>
                                     <Input size="large" disabled={addressDisabled} />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} md={12}>
-                                <Form.Item name="number" label="Número">
+                                <Form.Item name="number" label="Número" rules={[{ required: true }]}>
                                     <Input size="large" type="number" disabled={addressDisabled} />
                                 </Form.Item>
                             </Col>

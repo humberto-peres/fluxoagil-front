@@ -44,7 +44,6 @@ describe('About', () => {
     
     expect(screen.getByText('Kanban & Scrum')).toBeInTheDocument();
     expect(screen.getByText('Dark Mode')).toBeInTheDocument();
-    expect(screen.getByText('GitHub Integration')).toBeInTheDocument();
     expect(screen.getByText('Real-time')).toBeInTheDocument();
   });
 
@@ -75,7 +74,6 @@ describe('About', () => {
   it('deve renderizar dicas de uso', () => {
     renderAbout();
     
-    expect(screen.getByText(/Use atalhos para criar tarefas/i)).toBeInTheDocument();
     expect(screen.getByText(/Relacione tarefas a épicos/i)).toBeInTheDocument();
   });
 });
