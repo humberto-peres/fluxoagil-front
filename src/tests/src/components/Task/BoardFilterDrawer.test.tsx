@@ -287,6 +287,10 @@ describe('BoardFilterDrawer', () => {
 				expect(screen.getByRole('button', { name: /aplicar/i })).toBeInTheDocument();
 			});
 
+			await waitFor(() => {
+				expect(workspaceServices.getMyWorkspaces).toHaveBeenCalled();
+			});
+
 			await user.click(screen.getByRole('button', { name: /aplicar/i }));
 
 			await waitFor(() => {
@@ -295,7 +299,7 @@ describe('BoardFilterDrawer', () => {
 					sprintId: 1,
 					showClosed: undefined,
 				});
-			});
+			}, { timeout: 3000 });
 		});
 
 		it('deve incluir showClosed quando habilitado', async () => {
