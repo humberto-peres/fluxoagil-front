@@ -10,6 +10,8 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
+	envDir: './',
+	envPrefix: 'VITE_',
 	test: {
 		environment: 'jsdom',
 		globals: true,
@@ -22,6 +24,6 @@ export default defineConfig({
 			reportsDirectory: './coverage'
 		},
 		testTimeout: 100000,
-  	hookTimeout: 100000,
+		hookTimeout: 100000,
 	}
 });
