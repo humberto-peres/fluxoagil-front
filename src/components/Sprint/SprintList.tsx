@@ -123,7 +123,7 @@ const SprintList: React.FC<Props> = ({
         ...(autoOpenSprintId ? [`sprint-${autoOpenSprintId}`] : []),
     ]));
 
-    const expandIcon = ({ isActive }: { isActive: boolean }) => (
+    const expandIcon = ({ isActive }: { isActive?: boolean }) => (
         <CaretRightOutlined rotate={isActive ? 90 : 0} />
     );
 

@@ -10,35 +10,25 @@ const PublicHeader: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    const handleLogoClick = () => {
+        if (!user) {
+            navigate('/login')
+        } else {
+            navigate('/')
+        }
+    };
+
     return (
         <Header className="sticky top-0 z-[900] !px-3 md:!px-6 backdrop-blur-sm border-b border-white/10 bg-transparent">
             <Flex justify="space-between" align="center" className="h-full">
-                <div
-                    onClick={() => {
-                        if (!user) {
-                            navigate('/login')
-                        } else {
-                            navigate('/')
-                        }
-
-                    }}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            if (!user) {
-                                navigate('/login')
-                            } else {
-                                navigate('/')
-                            }
-                        }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    className="flex items-center gap-2 cursor-pointer select-none"
+                <button
+                    onClick={handleLogoClick}
+                    className="flex items-center gap-2 cursor-pointer select-none bg-transparent border-0 p-0"
                     aria-label="Ir para a página inicial"
                 >
                     <img src={logo} alt="Logo" width={30} />
                     <span className="text-white font-semibold tracking-wide">Fluxo Ágil</span>
-                </div>
+                </button>
 
                 <div className="flex items-center gap-2 md:gap-3">
                     <Button
