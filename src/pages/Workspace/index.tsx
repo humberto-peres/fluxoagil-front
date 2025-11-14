@@ -116,7 +116,7 @@ const Workspace: React.FC = () => {
 				);
 				return (
 					<Popover content={content} title="Membros da equipe" trigger="hover">
-						<a>{record.teamName}</a>
+						<button type="button" className="bg-transparent border-0 p-0 text-inherit underline cursor-pointer">{record.teamName}</button>
 					</Popover>
 				);
 			}

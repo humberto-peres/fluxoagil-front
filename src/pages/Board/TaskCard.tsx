@@ -7,7 +7,7 @@ export type Task = {
 	typeTask: { name: string };
 	idTask: string;
 	deadline: string;
-	deadlineInfo: { type?: 'secondary' | 'success' | 'warning' | 'danger' | 'warning' | undefined; label: string };
+	deadlineInfo: { type?: 'secondary' | 'success' | 'warning' | 'danger'; label: string };
 	estimate: string;
 	priority: { name: string; label: string };
 	id: string;
@@ -31,10 +31,19 @@ export function TaskCard({ task, onEdit, overlay, overlaySize }: TaskCardProps) 
 
 	const dragging = !!transform && !overlay;
 
+	let zIndexValue: number | 'auto';
+	if (overlay) {
+		zIndexValue = 9999;
+	} else if (dragging) {
+		zIndexValue = 1000;
+	} else {
+		zIndexValue = 'auto';
+	}
+
 	const style: React.CSSProperties = {
 		transform: dragging ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
 		transition: 'box-shadow 0.2s',
-		zIndex: overlay ? 9999 : dragging ? 1000 : 'auto',
+		zIndex: zIndexValue,
 		position: dragging ? 'relative' : undefined,
 		pointerEvents: overlay || dragging ? 'none' : 'auto',
 		touchAction: 'none',

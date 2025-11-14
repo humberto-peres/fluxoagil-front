@@ -46,8 +46,8 @@ export function useBoardTasks() {
 
   const removeMany = useCallback(async (ids: number[]) => {
     await deleteTasks(ids);
-    const idsStr = ids.map(String);
-    setTasks(prev => prev.filter(t => !idsStr.includes(t.id)));
+    const idsStr = new Set(ids.map(String));
+    setTasks(prev => prev.filter(t => !idsStr.has(t.id)));
   }, []);
 
   const onDragEnd = useCallback(async (event: DragEndEvent) => {

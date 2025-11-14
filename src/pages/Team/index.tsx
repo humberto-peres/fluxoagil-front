@@ -131,12 +131,12 @@ const Team: React.FC = () => {
 				const names = members.map((m) => m.user.name);
 				const content = (
 					<div style={{ maxWidth: 260 }}>
-						{names.map((n, i) => (<div key={i}>{n}</div>))}
+						{names.map((n) => (<div key={n}>{n}</div>))}
 					</div>
 				);
 				return (
 					<Popover content={content} title="Membros" trigger="hover" placement="top">
-						<a>{names.length === 1 ? names[0] : `${names[0]} e mais ${names.length - 1}`}</a>
+						<button type="button" className="bg-transparent border-0 p-0 text-inherit underline cursor-pointer">{names.length === 1 ? names[0] : `${names[0]} e mais ${names.length - 1}`}</button>
 					</Popover>
 				);
 			}

@@ -29,7 +29,7 @@ const TasksByStatusWidget: React.FC<Props> = ({ data }) => {
                   const percent = (item.count / total) * 100;
                   return (
                     <circle
-                      key={i}
+                      key={`${item.name}-${i}`}
                       cx="50"
                       cy="50"
                       r="40"
@@ -52,7 +52,7 @@ const TasksByStatusWidget: React.FC<Props> = ({ data }) => {
             </div>
             <div className="space-y-2">
               {data.slice(0, 5).map((item, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div key={`${item.name}-${item.count}-${i}`} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
                   <Text className="text-white text-sm">{item.name}</Text>
                   <Text className="text-gray-400 text-sm ml-auto">{item.count}</Text>

@@ -37,19 +37,23 @@ const DefaultHeader: React.FC<DefaultHeaderProps> = ({
 		awayMs: 5 * 60_000,
 	});
 
-	const statusTitle =
-		presence === "online"
-			? `Online • ativo agora`
-			: presence === "idle"
-				? `Ocioso • sem atividade há ${formatAgo(lastActiveAt)}`
-				: `Ausente • sem atividade há ${formatAgo(lastActiveAt)}`;
+	let statusTitle: string;
+	if (presence === "online") {
+		statusTitle = `Online • ativo agora`;
+	} else if (presence === "idle") {
+		statusTitle = `Ocioso • sem atividade há ${formatAgo(lastActiveAt)}`;
+	} else {
+		statusTitle = `Ausente • sem atividade há ${formatAgo(lastActiveAt)}`;
+	}
 
-	const statusClass =
-		presence === "online"
-			? "bg-green-400"
-			: presence === "idle"
-				? "bg-amber-400"
-				: "bg-slate-400";
+	let statusClass: string;
+	if (presence === "online") {
+		statusClass = "bg-green-400";
+	} else if (presence === "idle") {
+		statusClass = "bg-amber-400";
+	} else {
+		statusClass = "bg-slate-400";
+	}
 
 	const [options, setOptions] = useState<DefaultOptionType[]>([]);
 	const [loading, setLoading] = useState(false);

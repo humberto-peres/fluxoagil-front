@@ -22,7 +22,7 @@ import { useOpenEpic } from "@/hooks/useOpenEpic";
 
 const { Text } = Typography;
 
-const fmt = (x?: string | null) => (x && x.trim() ? x : <span className="text-[#94a3b8]">Não preenchido</span>);
+const fmt = (x?: string | null) => (x?.trim() ? x : <span className="text-[#94a3b8]">Não preenchido</span>);
 
 const TaskDetails: React.FC = () => {
     const { message } = App.useApp();
@@ -119,22 +119,29 @@ const TaskDetails: React.FC = () => {
                 { title: task?.idTask },
             ]}
         >
-            {loading ? (
-                <Card>
-                    <Skeleton active paragraph={{ rows: 6 }} />
-                </Card>
-            ) : !task ? (
-                <Result
-                    status="404"
-                    title="Atividade não encontrada"
-                    subTitle="Verifique se o link está correto ou se você tem acesso a essa atividade."
-                    extra={
-                        <Button type="primary" onClick={() => navigate("/board")}>
-                            Ir para o Board
-                        </Button>
-                    }
-                />
-            ) : (
+            {(() => {
+                if (loading) {
+                    return (
+                        <Card>
+                            <Skeleton active paragraph={{ rows: 6 }} />
+                        </Card>
+                    );
+                }
+                if (!task) {
+                    return (
+                        <Result
+                            status="404"
+                            title="Atividade não encontrada"
+                            subTitle="Verifique se o link está correto ou se você tem acesso a essa atividade."
+                            extra={
+                                <Button type="primary" onClick={() => navigate("/board")}>
+                                    Ir para o Board
+                                </Button>
+                            }
+                        />
+                    );
+                }
+                return (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
                     <div className="xl:col-span-2 space-y-12">
                         <div>
@@ -226,7 +233,8 @@ const TaskDetails: React.FC = () => {
                         </Card>
                     </div>
                 </div>
-            )}
+                );
+            })()}
         </DefaultLayout>
     );
 };

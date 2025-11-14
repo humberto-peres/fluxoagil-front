@@ -251,9 +251,9 @@ const About: React.FC = () => {
                                         { icon: '🎯', text: 'Relacione tarefas a épicos para visão macro' },
                                         { icon: '🔥', text: 'Priorize por impacto/esforço para foco semanal' },
                                         { icon: '🏆', text: 'Mantenha uma sprint ativa para alinhar o time' },
-                                    ].map((tip, index) => (
+                                    ].map((tip) => (
                                         <div
-                                            key={index}
+                                            key={tip.text}
                                             className="flex items-center space-x-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300"
                                         >
                                             <span className="text-xl md:text-2xl">{tip.icon}</span>

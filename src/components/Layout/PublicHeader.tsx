@@ -22,6 +22,17 @@ const PublicHeader: React.FC = () => {
                         }
 
                     }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            if (!user) {
+                                navigate('/login')
+                            } else {
+                                navigate('/')
+                            }
+                        }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     className="flex items-center gap-2 cursor-pointer select-none"
                     aria-label="Ir para a página inicial"
                 >

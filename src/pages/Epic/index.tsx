@@ -53,7 +53,7 @@ const EpicPage: React.FC = () => {
 
 	useEffect(() => {
 		const focus = (location.state as any)?.focus;
-		if (!focus || focus.type !== 'epic') return;
+		if (focus?.type !== 'epic') return;
 
 		const t = setTimeout(() => {
 			const el = document.querySelector<HTMLElement>(`[data-epic-id="${focus.id}"]`);

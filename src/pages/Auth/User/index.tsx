@@ -144,7 +144,7 @@ const User: React.FC = () => {
 				);
 				return (
 					<Popover content={details} title="Endereço completo" placement="top">
-						<a className="cursor-pointer">{resume}</a>
+						<button type="button" className="cursor-pointer bg-transparent border-0 p-0 text-inherit underline">{resume}</button>
 					</Popover>
 				);
 			},

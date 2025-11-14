@@ -13,7 +13,18 @@ const Login: React.FC = () => {
 
 			<div className="min-h-screen grid place-items-center px-4">
 				<div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl p-6">
-					<div className="flex items-center justify-center mb-6 cursor-pointer" onClick={() => navigate('/')}>
+					<div 
+						className="flex items-center justify-center mb-6 cursor-pointer" 
+						onClick={() => navigate('/')}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								navigate('/');
+							}
+						}}
+						role="button"
+						tabIndex={0}
+						aria-label="Ir para a página inicial"
+					>
 						<img src={logo} alt="Logo" width={52} className="mr-2.5" />
 						<Typography.Title level={2} className="!mb-0">
 							Fluxo Ágil

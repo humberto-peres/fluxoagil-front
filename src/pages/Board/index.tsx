@@ -34,7 +34,7 @@ const { useBreakpoint } = Grid;
 function getSprintCookie(wsId: number | null) {
 	if (!wsId) return null;
 	const raw = Cookies.get(`${COOKIE_SPRINT_PREFIX}.${wsId}`);
-	const n = raw ? Number(raw) : NaN;
+	const n = raw ? Number(raw) : Number.NaN;
 	return Number.isFinite(n) ? n : null;
 }
 function setSprintCookie(wsId: number | null, sprintId: number | null) {
@@ -99,9 +99,12 @@ const Board: React.FC = () => {
 					setActiveSprints(actives);
 
 					const wanted = getSprintCookie(selectedWorkspaceId);
-					const chosen = actives.length
-						? (actives.some(s => s.id === wanted) ? wanted : actives[0].id)
-						: null;
+					let chosen: number | null;
+					if (actives.length) {
+						chosen = actives.some(s => s.id === wanted) ? wanted : actives[0].id;
+					} else {
+						chosen = null;
+					}
 
 					setSelectedSprintId(chosen);
 					setSprintCookie(selectedWorkspaceId, chosen);
@@ -122,7 +125,12 @@ const Board: React.FC = () => {
 
 	const tasksByColumn = useMemo<Record<string, Task[]>>(() => {
 		const by: Record<string, Task[]> = {};
-		for (const t of tasks) (by[t.status] ||= []).push(t as any);
+		for (const t of tasks) {
+			if (!by[t.status]) {
+				by[t.status] = [];
+			}
+			by[t.status].push(t as any);
+		}
 		return by;
 	}, [tasks]);
 
@@ -259,13 +267,20 @@ const Board: React.FC = () => {
 				<FormTask isEdit={editingId ? true : false} form={form} onFinish={handleFormSubmit} selectedWorkspaceId={selectedWorkspaceId ?? undefined} isScrum={selectedWorkspace?.methodology === 'Scrum'}/>
 			</Modal>
 
-			{!selectedWorkspaceId ? (
-				<Result status="info" title="Selecione um Workspace para visualizar o Board"
-					subTitle="Use o botão de Filtros para escolher um workspace." style={{ marginTop: 48, height: 'calc(100% - 200px)' }} />
-			) : selectedWorkspace?.methodology === 'Scrum' && activeSprints.length === 0 ? (
-				<Result status="info" title="Nenhuma Sprint Ativa"
-					subTitle="Para visualizar o Board, ative uma Sprint no seu Workspace." style={{ marginTop: 48, height: 'calc(100% - 200px)' }} />
-			) : (
+			{(() => {
+				if (!selectedWorkspaceId) {
+					return (
+						<Result status="info" title="Selecione um Workspace para visualizar o Board"
+							subTitle="Use o botão de Filtros para escolher um workspace." style={{ marginTop: 48, height: 'calc(100% - 200px)' }} />
+					);
+				}
+				if (selectedWorkspace?.methodology === 'Scrum' && activeSprints.length === 0) {
+					return (
+						<Result status="info" title="Nenhuma Sprint Ativa"
+							subTitle="Para visualizar o Board, ative uma Sprint no seu Workspace." style={{ marginTop: 48, height: 'calc(100% - 200px)' }} />
+					);
+				}
+				return (
 				<div className="flex gap-3 overflow-x-auto px-3 py-2 snap-x snap-mandatory scroll-px-3 no-scrollbar">
 					<DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 						{columns.map((column) => (
@@ -279,7 +294,8 @@ const Board: React.FC = () => {
 						)}
 					</DndContext>
 				</div>
-			)}
+				);
+			})()}
 		</DefaultLayout>
 	);
 };

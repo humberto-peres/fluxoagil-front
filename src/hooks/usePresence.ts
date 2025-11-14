@@ -38,7 +38,15 @@ export function usePresence(opts: UsePresenceOpts = {}) {
 
         const iv = window.setInterval(() => {
             const diff = Date.now() - lastActiveRef.current;
-            setPresence(diff >= awayMs ? 'away' : diff >= idleMs ? 'idle' : 'online');
+            let newPresence: Presence;
+            if (diff >= awayMs) {
+                newPresence = 'away';
+            } else if (diff >= idleMs) {
+                newPresence = 'idle';
+            } else {
+                newPresence = 'online';
+            }
+            setPresence(newPresence);
         }, 1000);
 
         return () => {

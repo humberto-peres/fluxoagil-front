@@ -7,11 +7,10 @@ type PageLoaderProps = {
 
 const PageLoader: React.FC<PageLoaderProps> = ({ text = 'Carregando…' }) => {
     return (
-        <div
+        <output
             className="
         min-h-[60vh] grid place-items-center p-6
       "
-            role="status"
             aria-live="polite"
         >
             <div className="flex flex-col items-center gap-3">
@@ -20,7 +19,7 @@ const PageLoader: React.FC<PageLoaderProps> = ({ text = 'Carregando…' }) => {
                     {text}
                 </Typography.Text>
             </div>
-        </div>
+        </output>
     );
 };
 

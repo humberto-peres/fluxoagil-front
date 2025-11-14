@@ -40,9 +40,12 @@ const SprintList: React.FC<Props> = ({
 }) => {
     const items: CollapseProps['items'] = [
         ...sprints.map((s) => {
-            const tag = s.isActive
-                ? <Tag color="success">Ativa</Tag>
-                : (s.closedAt ? <Tag>Encerrada</Tag> : null);
+            let tag: React.ReactNode = null;
+            if (s.isActive) {
+                tag = <Tag color="success">Ativa</Tag>;
+            } else if (s.closedAt) {
+                tag = <Tag>Encerrada</Tag>;
+            }
 
             return {
                 key: `sprint-${s.id}`,
@@ -120,10 +123,14 @@ const SprintList: React.FC<Props> = ({
         ...(autoOpenSprintId ? [`sprint-${autoOpenSprintId}`] : []),
     ]));
 
+    const expandIcon = ({ isActive }: { isActive: boolean }) => (
+        <CaretRightOutlined rotate={isActive ? 90 : 0} />
+    );
+
     return (
         <Collapse
             bordered={false}
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+            expandIcon={expandIcon}
             items={items}
             defaultActiveKey={defaultActiveKey}
         />

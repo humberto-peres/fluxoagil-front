@@ -77,8 +77,8 @@ const CloseSprintModal: React.FC<Props> = ({
         >
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <Typography.Paragraph>
-                    Ao encerrar <strong>{sprint?.name}</strong>, as atividades que <em>não</em> estiverem na
-                    <strong> última etapa</strong> serão movidas para o destino abaixo.
+                    Ao encerrar <strong>{sprint?.name}</strong>, as atividades que <em>não</em> estiverem na{' '}
+                    <strong>última etapa</strong> serão movidas para o destino abaixo.
                     As que estiverem na última etapa permanecerão vinculadas à sprint encerrada.
                 </Typography.Paragraph>
 

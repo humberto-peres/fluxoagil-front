@@ -121,12 +121,10 @@ const DefaultSidebar: React.FC<Props> = ({ collapsed, onCollapse, onBreakpoint, 
 			}}
 		>
 			<div className="h-full flex flex-col">
-				<div
-					className="p-4 md:p-5 flex items-center cursor-pointer select-none hover:bg-white/5 transition-all duration-200 border-b border-white/10"
-					role="button"
-					tabIndex={0}
+				<button
+					type="button"
+					className="p-4 md:p-5 flex items-center cursor-pointer select-none hover:bg-white/5 transition-all duration-200 border-b border-white/10 w-full text-left bg-transparent border-x-0 border-t-0"
 					onClick={() => navigate('/about')}
-					onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate('/about')}
 				>
 					<div className="relative">
 						<FaCheckSquare size={32} className="text-purple-500 mr-3" />
@@ -139,7 +137,7 @@ const DefaultSidebar: React.FC<Props> = ({ collapsed, onCollapse, onBreakpoint, 
 							v1.0.0
 						</Typography.Text>
 					</div>
-				</div>
+				</button>
 
 				<div className="flex-1 py-2">
 					<Menu

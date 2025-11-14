@@ -21,7 +21,7 @@ import { HiOutlineClipboardCopy } from "react-icons/hi";
 const { Text } = Typography;
 
 const fmt = (x?: string | null) =>
-    x && x.trim() ? x : <span className="text-[#94a3b8]">Não preenchido</span>;
+    x?.trim() ? x : <span className="text-[#94a3b8]">Não preenchido</span>;
 
 const EpicDetails: React.FC = () => {
     const { message } = App.useApp();
@@ -99,22 +99,29 @@ const EpicDetails: React.FC = () => {
                 { title: epic?.key ?? "Detalhes" },
             ]}
         >
-            {loading ? (
-                <Card>
-                    <Skeleton active paragraph={{ rows: 6 }} />
-                </Card>
-            ) : !epic ? (
-                <Result
-                    status="404"
-                    title="Épico não encontrado"
-                    subTitle="Verifique se o link está correto ou se você tem acesso a esse épico."
-                    extra={
-                        <Button type="primary" onClick={() => navigate("/epic")}>
-                            Ir para a lista de Épicos
-                        </Button>
-                    }
-                />
-            ) : (
+            {(() => {
+                if (loading) {
+                    return (
+                        <Card>
+                            <Skeleton active paragraph={{ rows: 6 }} />
+                        </Card>
+                    );
+                }
+                if (!epic) {
+                    return (
+                        <Result
+                            status="404"
+                            title="Épico não encontrado"
+                            subTitle="Verifique se o link está correto ou se você tem acesso a esse épico."
+                            extra={
+                                <Button type="primary" onClick={() => navigate("/epic")}>
+                                    Ir para a lista de Épicos
+                                </Button>
+                            }
+                        />
+                    );
+                }
+                return (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
                     <div className="xl:col-span-2 space-y-12">
                         <div>
@@ -187,7 +194,8 @@ const EpicDetails: React.FC = () => {
                         </Card>
                     </div>
                 </div>
-            )}
+                );
+            })()}
 
             <EpicTaskDrawer
                 open={drawerOpen}

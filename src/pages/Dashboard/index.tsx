@@ -174,18 +174,26 @@ const Dashboard: React.FC = () => {
 
   return (
     <DefaultLayout title="Dashboard" subtitle="Visão geral do seu workspace">
-      {!selectedWorkspaceId ? (
-        <Result
-          status="info"
-          title="Selecione um Workspace"
-          subTitle="Use o botão de filtros no canto inferior direito para selecionar um workspace e visualizar o dashboard."
-          style={{ marginTop: 48 }}
-        />
-      ) : loading ? (
-        <div className="flex items-center justify-center" style={{ minHeight: '400px' }}>
-          <Spin size="large" tip="Carregando dashboard..." />
-        </div>
-      ) : data ? (
+      {(() => {
+        if (!selectedWorkspaceId) {
+          return (
+            <Result
+              status="info"
+              title="Selecione um Workspace"
+              subTitle="Use o botão de filtros no canto inferior direito para selecionar um workspace e visualizar o dashboard."
+              style={{ marginTop: 48 }}
+            />
+          );
+        }
+        if (loading) {
+          return (
+            <div className="flex items-center justify-center" style={{ minHeight: '400px' }}>
+              <Spin size="large" tip="Carregando dashboard..." />
+            </div>
+          );
+        }
+        if (data) {
+          return (
         <div className="space-y-4">
           <div className="mb-4">
             <Button
@@ -283,7 +291,10 @@ const Dashboard: React.FC = () => {
             />
           )}
         </div>
-      ) : null}
+          );
+        }
+        return null;
+      })()}
 
       <Drawer
         title="Personalizar Dashboard"

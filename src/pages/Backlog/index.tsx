@@ -82,7 +82,7 @@ const Backlog: React.FC = () => {
 
 	useEffect(() => {
 		const focus = (location.state as any)?.focus;
-		if (!focus || focus.type !== 'task') return;
+		if (focus?.type !== 'task') return;
 		const t = setTimeout(() => {
 			const el = document.querySelector<HTMLElement>(`[data-task-id="${focus.id}"]`);
 			if (el) {
@@ -231,7 +231,12 @@ const Backlog: React.FC = () => {
 		for (const t of tasks) {
 			if (isScrum) {
 				if (t.sprintId == null) backlog.push(t);
-				else (bySprint[t.sprintId] ||= []).push(t);
+				else {
+					if (!bySprint[t.sprintId]) {
+						bySprint[t.sprintId] = [];
+					}
+					bySprint[t.sprintId].push(t);
+				}
 			} else {
 				backlog.push(t);
 			}
