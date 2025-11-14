@@ -70,10 +70,9 @@ jobs:
           path: coverage/
           retention-days: 30
 
-sonarcloud:
+  sonarcloud:
     name: 📊 SonarCloud Analysis
     runs-on: ubuntu-latest
-    # ⭐ REMOVA: needs: [test] para rodar em paralelo
     
     steps:
       - name: 📥 Checkout
