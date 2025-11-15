@@ -14,6 +14,7 @@ type EpicListProps = {
     openDrawer: (id: number) => void;
     onEdit: (epic: EpicDTO) => void;
     onDelete: (epic: EpicDTO) => void;
+    deletingId: number | null;
 };
 
 const { Text } = Typography;
@@ -25,6 +26,7 @@ const EpicList: React.FC<EpicListProps> = ({
     openDrawer,
     onEdit,
     onDelete,
+    deletingId,
 }) => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
@@ -37,6 +39,7 @@ const EpicList: React.FC<EpicListProps> = ({
             pagination={{ pageSize: 8, responsive: true }}
             renderItem={(item, index) => {
                 const hasTasks = (item._count?.tasks ?? 0) > 0;
+                const isDeleting = deletingId === item.id;
 
                 return (
                     <>
@@ -44,10 +47,22 @@ const EpicList: React.FC<EpicListProps> = ({
                             actions={[
                                 <Space size="small" key="actions">
                                     <Tooltip title="Abrir dados">
-                                        <Button type="text" aria-label="Editar épico" icon={<MdOpenInNew size={18} />} onClick={() => openEpic(item.id, { from: 'epic-list' })} />
+                                        <Button 
+                                            type="text" 
+                                            aria-label="Abrir dados do épico" 
+                                            icon={<MdOpenInNew size={18} />} 
+                                            onClick={() => openEpic(item.id, { from: 'epic-list' })}
+                                            disabled={isDeleting}
+                                        />
                                     </Tooltip>
                                     <Tooltip title="Editar">
-                                        <Button type="text" aria-label="Editar épico" icon={<FiEdit2 size={18} />} onClick={() => onEdit(item)} />
+                                        <Button 
+                                            type="text" 
+                                            aria-label="Editar épico" 
+                                            icon={<FiEdit2 size={18} />} 
+                                            onClick={() => onEdit(item)}
+                                            disabled={isDeleting}
+                                        />
                                     </Tooltip>
                                     <Tooltip title="Excluir">
                                         <Popconfirm
@@ -61,12 +76,25 @@ const EpicList: React.FC<EpicListProps> = ({
                                             okButtonProps={{ danger: true, disabled: hasTasks }}
                                             cancelText="Cancelar"
                                             onConfirm={() => onDelete(item)}
+                                            disabled={isDeleting}
                                         >
-                                            <Button type="text" aria-label="Excluir épico" icon={<FiTrash2 size={18} />} />
+                                            <Button 
+                                                type="text" 
+                                                aria-label="Excluir épico" 
+                                                icon={<FiTrash2 size={18} />}
+                                                loading={isDeleting}
+                                                disabled={isDeleting}
+                                            />
                                         </Popconfirm>
                                     </Tooltip>
                                     <Tooltip title="Abrir vínculos do épico">
-                                        <Button type="text" aria-label="Vínculos do épico" icon={<IoIosLink size={18} />} onClick={() => openDrawer(item.id)} />
+                                        <Button 
+                                            type="text" 
+                                            aria-label="Vínculos do épico" 
+                                            icon={<IoIosLink size={18} />} 
+                                            onClick={() => openDrawer(item.id)}
+                                            disabled={isDeleting}
+                                        />
                                     </Tooltip>
                                 </Space>,
                             ]}

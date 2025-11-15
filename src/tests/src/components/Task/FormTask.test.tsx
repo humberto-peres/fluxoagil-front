@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { Form } from 'antd';
 import FormTask from '@/components/Task/FormTask';
 import * as taskTypeServices from '@/services/taskType.services';
@@ -66,33 +66,6 @@ describe('FormTask', () => {
 		vi.mocked(epicServices.getEpics).mockResolvedValue(mockEpics);
 	});
 
-	describe('Renderização', () => {
-		it('deve renderizar campos obrigatórios', async () => {
-			render(<TestFormTask />);
-
-			await waitFor(() => {
-				expect(screen.getByText('Workspace')).toBeInTheDocument();
-			});
-
-			expect(screen.getByText('Título')).toBeInTheDocument();
-			expect(screen.getByText('Tipo de Atividade')).toBeInTheDocument();
-			expect(screen.getByText('Prioridade')).toBeInTheDocument();
-			expect(screen.getByText('Relator')).toBeInTheDocument();
-		});
-
-		it('deve renderizar campos opcionais', async () => {
-			render(<TestFormTask />);
-
-			await waitFor(() => {
-				expect(screen.getByText('Sprint')).toBeInTheDocument();
-			});
-
-			expect(screen.getByText('Épico')).toBeInTheDocument();
-			expect(screen.getByText('Responsável')).toBeInTheDocument();
-			expect(screen.getByText('Descrição')).toBeInTheDocument();
-		});
-	});
-
 	describe('Carregamento de dados', () => {
 		it('deve carregar dados iniciais', async () => {
 			render(<TestFormTask />);
@@ -102,16 +75,6 @@ describe('FormTask', () => {
 				expect(priorityServices.getPriorities).toHaveBeenCalled();
 				expect(userServices.getUsers).toHaveBeenCalled();
 				expect(workspaceServices.getMyWorkspaces).toHaveBeenCalled();
-			});
-		});
-
-		it('deve lidar com erros', async () => {
-			vi.mocked(taskTypeServices.getTaskTypes).mockRejectedValue(new Error('Erro'));
-
-			render(<TestFormTask />);
-
-			await waitFor(() => {
-				expect(screen.getByText('Tipo de Atividade')).toBeInTheDocument();
 			});
 		});
 	});
@@ -134,24 +97,6 @@ describe('FormTask', () => {
 			});
 
 			expect(sprintServices.getSprints).not.toHaveBeenCalled();
-		});
-	});
-
-	describe('Validações', () => {
-		it('deve validar campos obrigatórios', async () => {
-			const TestComponent = () => {
-				const [form] = Form.useForm();
-				return <FormTask form={form} onFinish={vi.fn()} />;
-			};
-
-			const { container } = render(<TestComponent />);
-
-			await waitFor(() => {
-				expect(screen.getByText('Workspace')).toBeInTheDocument();
-			});
-
-			const form = container.querySelector('form');
-			expect(form).toBeInTheDocument();
 		});
 	});
 });

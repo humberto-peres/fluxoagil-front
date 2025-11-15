@@ -187,10 +187,12 @@ describe('Task', () => {
 			);
 
 			await waitFor(() => {
-				expect(screen.getByText('1')).toBeInTheDocument();
-			});
+				const avatarOnes = screen.getAllByText('1');
+				expect(avatarOnes.length).toBeGreaterThanOrEqual(1);
 
-			expect(screen.getByText('2')).toBeInTheDocument();
+				const avatarTwos = screen.getAllByText('2');
+				expect(avatarTwos.length).toBeGreaterThanOrEqual(1);
+			});
 		});
 	});
 });

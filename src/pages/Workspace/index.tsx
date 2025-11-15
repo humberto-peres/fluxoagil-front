@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Form, Popover, Tag, Modal, Tooltip, Popconfirm, Button, App } from 'antd';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Table, Form, Popover, Tag, Modal, Tooltip, Popconfirm, Button, App, Grid } from 'antd';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
-import DefaultLayout from '@/components/Layout/DefaultLayout'
+import DefaultLayout from '@/components/Layout/DefaultLayout';
 import FormWorkspace from './FormWorkspace';
 import {
 	getWorkspaces,
@@ -20,32 +20,53 @@ type WorkspaceType = {
 	teamId: number;
 	steps?: { stepId: number; name: string }[];
 	members?: string[];
-}
+};
+
+const { useBreakpoint } = Grid;
 
 const Workspace: React.FC = () => {
 	const { message } = App.useApp();
-	const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([]);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [form] = Form.useForm();
-	const [editingId, setEditingId] = useState<number | null>(null);
+	const screens = useBreakpoint();
+	const isCompact = !screens.lg;
 
-	const fetchWorkspaces = async () => {
-		const data = await getWorkspaces();
-		setWorkspaces(data);
-	};
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [editingId, setEditingId] = useState<number | null>(null);
+	const [form] = Form.useForm();
+	const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
+	const [deletingId, setDeletingId] = useState<number | null>(null);
+
+	const fetchWorkspaces = useCallback(async () => {
+		setLoading(true);
+		try {
+			const data = await getWorkspaces();
+			setWorkspaces(data);
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao carregar workspaces. Tente novamente.');
+		} finally {
+			setLoading(false);
+		}
+	}, [message]);
 
 	useEffect(() => {
 		fetchWorkspaces();
-	}, []);
+	}, [fetchWorkspaces]);
 
-	const openModal = () => setIsModalOpen(true);
+	const openModal = () => {
+		setEditingId(null);
+		form.resetFields();
+		setIsModalOpen(true);
+	};
+
 	const closeModal = () => {
 		setIsModalOpen(false);
-		form.resetFields();
 		setEditingId(null);
+		form.resetFields();
 	};
 
 	const handleFormSubmit = async (values: any) => {
+		setSubmitting(true);
 		try {
 			const payload = {
 				name: values.name,
@@ -65,11 +86,12 @@ const Workspace: React.FC = () => {
 				await createWorkspace(payload);
 				message.success('Workspace criado com sucesso!');
 			}
-
-			closeModal();
 			fetchWorkspaces();
-		} catch {
-			message.error('Erro ao salvar workspace');
+			closeModal();
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao salvar workspace. Tente novamente.');
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
@@ -86,19 +108,38 @@ const Workspace: React.FC = () => {
 	};
 
 	const handleDeleteRecord = async (id: number) => {
+		setDeletingId(id);
 		try {
 			await deleteWorkspaces([id]);
 			message.success('Workspace excluído com sucesso!');
 			fetchWorkspaces();
-		} catch {
-			message.error('Erro ao excluir workspace');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao excluir workspace. Tente novamente.');
+		} finally {
+			setDeletingId(null);
 		}
 	};
 
 	const columns: TableColumnsType<WorkspaceType> = [
-		{ title: 'Nome', dataIndex: 'name', width: 280, ellipsis: true },
-		{ title: 'Código', dataIndex: 'key', width: 120, responsive: ['sm'] },
-		{ title: 'Metodologia', dataIndex: 'methodology', width: 160, responsive: ['md'] },
+		{
+			title: 'Nome',
+			dataIndex: 'name',
+			width: 280,
+			ellipsis: true,
+			sorter: (a, b) => a.name.localeCompare(b.name),
+		},
+		{
+			title: 'Código',
+			dataIndex: 'key',
+			width: 120,
+			responsive: ['sm']
+		},
+		{
+			title: 'Metodologia',
+			dataIndex: 'methodology',
+			width: 160,
+			responsive: ['md']
+		},
 		{
 			title: 'Equipe',
 			dataIndex: 'teamName',
@@ -116,7 +157,12 @@ const Workspace: React.FC = () => {
 				);
 				return (
 					<Popover content={content} title="Membros da equipe" trigger="hover">
-						<button type="button" className="bg-transparent border-0 p-0 text-inherit underline cursor-pointer">{record.teamName}</button>
+						<button
+							type="button"
+							className="bg-transparent border-0 p-0 text-inherit underline cursor-pointer"
+						>
+							{record.teamName}
+						</button>
 					</Popover>
 				);
 			}
@@ -126,34 +172,44 @@ const Workspace: React.FC = () => {
 			key: 'actions',
 			width: 110,
 			fixed: 'right',
-			render: (_: unknown, record: WorkspaceType) => (
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
-					<Tooltip title="Editar">
-						<Button
-							type="text"
-							aria-label={`Editar ${record.name}`}
-							onClick={() => handleEditRecord(record)}
-							icon={<FiEdit2 size={18} />}
-						/>
-					</Tooltip>
-					<Tooltip title="Excluir">
-						<Popconfirm
-							title="Excluir workspace?"
-							description="Esta ação não pode ser desfeita."
-							okText="Excluir"
-							okButtonProps={{ danger: true }}
-							cancelText="Cancelar"
-							onConfirm={() => handleDeleteRecord(record.id)}
-						>
+			align: 'center',
+			render: (_: unknown, record: WorkspaceType) => {
+				const isDeleting = deletingId === record.id;
+				const isDisabled = deletingId !== null;
+
+				return (
+					<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+						<Tooltip title="Editar">
 							<Button
 								type="text"
-								aria-label={`Excluir ${record.name}`}
-								icon={<FiTrash2 size={18} />}
+								aria-label={`Editar ${record.name}`}
+								onClick={() => handleEditRecord(record)}
+								icon={<FiEdit2 size={18} />}
+								disabled={isDisabled}
 							/>
-						</Popconfirm>
-					</Tooltip>
-				</div>
-			),
+						</Tooltip>
+						<Tooltip title="Excluir">
+							<Popconfirm
+								title="Excluir workspace?"
+								description="Esta ação não pode ser desfeita."
+								okText="Excluir"
+								okButtonProps={{ danger: true, loading: isDeleting }}
+								cancelText="Cancelar"
+								onConfirm={() => handleDeleteRecord(record.id)}
+								disabled={isDisabled}
+							>
+								<Button
+									type="text"
+									aria-label={`Excluir ${record.name}`}
+									icon={<FiTrash2 size={18} />}
+									loading={isDeleting}
+									disabled={isDisabled && !isDeleting}
+								/>
+							</Popconfirm>
+						</Tooltip>
+					</div>
+				);
+			},
 		},
 	];
 
@@ -172,23 +228,39 @@ const Workspace: React.FC = () => {
 				columns={columns}
 				dataSource={workspaces}
 				rowKey="id"
+				loading={loading}
 				size="middle"
-				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
-				scroll={{ x: 720 }}
+				pagination={{
+					pageSize: 10,
+					responsive: true,
+					showTotal: (total) => `Total: ${total} ${total === 1 ? 'workspace' : 'workspaces'}`
+				}}
+				scroll={isCompact ? { x: 'max-content' } : { x: 720 }}
+				tableLayout="auto"
+				locale={{ emptyText: 'Nenhum workspace cadastrado' }}
 			/>
 
 			<Modal
 				open={isModalOpen}
 				title={editingId ? 'Editar Workspace' : 'Criar Workspace'}
+				onCancel={closeModal}
 				onOk={() => form.submit()}
-				okText="Salvar"
+				okText={submitting ? 'Salvando...' : 'Salvar'}
 				okButtonProps={{ disabled: disableOk }}
 				cancelText="Cancelar"
-				onCancel={closeModal}
+				confirmLoading={submitting}
+				destroyOnHidden
 				rootClassName="responsive-modal"
 				width={700}
+				maskClosable={!submitting}
+				keyboard={!submitting}
 			>
-				<FormWorkspace form={form} onFinish={handleFormSubmit} isEditing={!!editingId} />
+				<FormWorkspace
+					form={form}
+					onFinish={handleFormSubmit}
+					isEditing={!!editingId}
+					loading={submitting}
+				/>
 			</Modal>
 		</DefaultLayout>
 	);

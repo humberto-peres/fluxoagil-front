@@ -7,9 +7,10 @@ type FieldType = { name?: string; label?: string };
 interface FormPriorityProps {
 	form: FormInstance;
 	onFinish: (values: FieldType) => void;
+	loading?: boolean;
 }
 
-const FormPriority: React.FC<FormPriorityProps> = ({ form, onFinish }) => (
+const FormPriority: React.FC<FormPriorityProps> = ({ form, onFinish, loading = false }) => (
 	<Form
 		form={form}
 		name="priority-form"
@@ -24,7 +25,7 @@ const FormPriority: React.FC<FormPriorityProps> = ({ form, onFinish }) => (
 					name="label"
 					rules={[{ required: true, message: 'Escolha uma cor!' }]}
 				>
-					<ColorPicker format="hex" size="large" showText />
+					<ColorPicker format="hex" size="large" showText disabled={loading} />
 				</Form.Item>
 			</Col>
 
@@ -34,7 +35,14 @@ const FormPriority: React.FC<FormPriorityProps> = ({ form, onFinish }) => (
 					name="name"
 					rules={[{ required: true, message: 'Nome não preenchido!' }]}
 				>
-					<Input size="large" placeholder="Ex.: Alta, Média, Baixa..." />
+					<Input
+						size="large"
+						placeholder="Ex.: Alta, Média, Baixa..."
+						autoFocus
+						disabled={loading}
+						maxLength={50}
+						showCount
+					/>
 				</Form.Item>
 			</Col>
 		</Row>

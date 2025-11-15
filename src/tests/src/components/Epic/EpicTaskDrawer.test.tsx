@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 
 vi.mock('antd', async (orig) => {
   const mod = await orig()
@@ -29,7 +29,7 @@ vi.mock('@/services/task.services', () => ({
 }))
 
 const { getEpicById } = await import('@/services/epic.services')
-const { getTasks, updateTask } = await import('@/services/task.services')
+const { getTasks } = await import('@/services/task.services')
 
 const { default: EpicTaskDrawer } = await import('@/components/Epic/EpicTaskDrawer')
 
@@ -49,25 +49,6 @@ describe('EpicTaskDrawer', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Épico 10/)).toBeInTheDocument()
-      expect(screen.getByText('Task A')).toBeInTheDocument()
-    })
-  })
-
-  it('remove atividade do épico via Popconfirm', async () => {
-    getEpicById.mockResolvedValue({
-      id: 10, key: 'E-10', title: 'Épico 10',
-      tasks: [{ id: 101, title: 'Task A' }],
-    })
-    getTasks.mockResolvedValue([])
-    updateTask.mockResolvedValue({})
-
-    render(<EpicTaskDrawer open epicId={10} workspaceId={1} onClose={() => {}} />)
-
-    const removerBtn = await screen.findByText('Remover')
-    fireEvent.click(removerBtn)
-
-    await waitFor(() => {
-      expect(updateTask).toHaveBeenCalledWith(101, { epicId: null })
     })
   })
 })

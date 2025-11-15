@@ -28,19 +28,21 @@ const Priority: React.FC = () => {
 	const screens = useBreakpoint();
 	const isCompact = !screens.lg;
 
-	const [priorities, setPriorities] = useState<PriorityType[]>([]);
-	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
+	const [priorities, setPriorities] = useState<PriorityType[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
+	const [deletingId, setDeletingId] = useState<number | null>(null);
 
 	const fetchPriorities = useCallback(async () => {
+		setLoading(true);
 		try {
-			setLoading(true);
 			const data = await getPriorities();
 			setPriorities(data);
-		} catch {
-			message.error('Erro ao buscar prioridades');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao carregar prioridades. Tente novamente.');
 		} finally {
 			setLoading(false);
 		}
@@ -50,15 +52,20 @@ const Priority: React.FC = () => {
 		fetchPriorities();
 	}, [fetchPriorities]);
 
-	const openModal = () => setIsModalOpen(true);
+	const openModal = () => {
+		setEditingId(null);
+		form.resetFields();
+		setIsModalOpen(true);
+	};
 
 	const closeModal = () => {
 		setIsModalOpen(false);
-		form.resetFields();
 		setEditingId(null);
+		form.resetFields();
 	};
 
 	const handleFormSubmit = async (values: any) => {
+		setSubmitting(true);
 		try {
 			const payload = {
 				name: values.name,
@@ -72,11 +79,12 @@ const Priority: React.FC = () => {
 				await createPriority(payload);
 				message.success('Prioridade criada com sucesso!');
 			}
-
-			closeModal();
 			fetchPriorities();
-		} catch {
-			message.error('Erro ao salvar prioridade');
+			closeModal();
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao salvar prioridade. Tente novamente.');
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
@@ -87,12 +95,15 @@ const Priority: React.FC = () => {
 	};
 
 	const handleDeleteRecord = async (id: number) => {
+		setDeletingId(id);
 		try {
 			await deletePriorities([id]);
 			message.success('Prioridade excluída com sucesso!');
 			fetchPriorities();
-		} catch {
-			message.error('Erro ao excluir prioridades');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao excluir prioridade. Tente novamente.');
+		} finally {
+			setDeletingId(null);
 		}
 	};
 
@@ -110,41 +121,55 @@ const Priority: React.FC = () => {
 				</Tag>
 			),
 		},
-		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
+		{
+			title: 'Nome',
+			dataIndex: 'name',
+			ellipsis: true,
+			sorter: (a, b) => a.name.localeCompare(b.name),
+		},
 		{
 			title: 'Ações',
 			key: 'actions',
 			width: 110,
 			align: 'center',
-			render: (_: unknown, record: PriorityType) => (
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-					<Tooltip title="Editar">
-						<Button
-							type="text"
-							aria-label={`Editar ${record.name}`}
-							onClick={() => handleEditRecord(record)}
-							icon={<FiEdit2 size={18} />}
-						/>
-					</Tooltip>
+			render: (_: unknown, record: PriorityType) => {
+				const isDeleting = deletingId === record.id;
+				const isDisabled = deletingId !== null;
 
-					<Tooltip title="Excluir">
-						<Popconfirm
-							title="Excluir prioridade?"
-							description="Esta ação não pode ser desfeita."
-							okText="Excluir"
-							okButtonProps={{ danger: true }}
-							cancelText="Cancelar"
-							onConfirm={() => handleDeleteRecord(record.id)}
-						>
+				return (
+					<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+						<Tooltip title="Editar">
 							<Button
 								type="text"
-								aria-label={`Excluir ${record.name}`}
-								icon={<FiTrash2 size={18} />}
+								aria-label={`Editar ${record.name}`}
+								onClick={() => handleEditRecord(record)}
+								icon={<FiEdit2 size={18} />}
+								disabled={isDisabled}
 							/>
-						</Popconfirm>
-					</Tooltip>
-				</div>
-			),
+						</Tooltip>
+
+						<Tooltip title="Excluir">
+							<Popconfirm
+								title="Excluir prioridade?"
+								description="Esta ação não pode ser desfeita."
+								okText="Excluir"
+								okButtonProps={{ danger: true, loading: isDeleting }}
+								cancelText="Cancelar"
+								onConfirm={() => handleDeleteRecord(record.id)}
+								disabled={isDisabled}
+							>
+								<Button
+									type="text"
+									aria-label={`Excluir ${record.name}`}
+									icon={<FiTrash2 size={18} />}
+									loading={isDeleting}
+									disabled={isDisabled && !isDeleting}
+								/>
+							</Popconfirm>
+						</Tooltip>
+					</div>
+				);
+			},
 		},
 	];
 
@@ -161,23 +186,31 @@ const Priority: React.FC = () => {
 				rowKey="id"
 				loading={loading}
 				size="middle"
-				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				pagination={{
+					pageSize: 10,
+					responsive: true,
+					showTotal: (total) => `Total: ${total} ${total === 1 ? 'prioridade' : 'prioridades'}`
+				}}
 				scroll={isCompact ? { x: 'max-content' } : undefined}
 				tableLayout="auto"
+				locale={{ emptyText: 'Nenhuma prioridade cadastrada' }}
 			/>
 
 			<Modal
 				open={isModalOpen}
 				title={editingId ? 'Editar Prioridade' : 'Criar Prioridade'}
-				onOk={() => form.submit()}
-				okText="Salvar"
-				cancelText="Cancelar"
 				onCancel={closeModal}
+				onOk={() => form.submit()}
+				okText={submitting ? 'Salvando...' : 'Salvar'}
+				cancelText="Cancelar"
+				confirmLoading={submitting}
 				destroyOnHidden
 				rootClassName="responsive-modal"
 				width={560}
+				maskClosable={!submitting}
+				keyboard={!submitting}
 			>
-				<FormPriority form={form} onFinish={handleFormSubmit} />
+				<FormPriority form={form} onFinish={handleFormSubmit} loading={submitting} />
 			</Modal>
 		</DefaultLayout>
 	);

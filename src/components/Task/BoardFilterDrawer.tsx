@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Drawer, Form, Button, Select, Switch, App, Grid } from 'antd';
+import { Drawer, Form, Button, Select, Switch, App, Grid, Spin } from 'antd';
 import { getMyWorkspaces, canAccessWorkspace } from '@/services/workspace.services';
 
 type BaseValues = {
@@ -40,8 +40,9 @@ const BoardFilterDrawer: React.FC<Props> = ({
 	const isMobile = !screens.md;
 
 	const [form] = Form.useForm<BaseValues>();
-	const [loading, setLoading] = useState(false);
 	const [workspaces, setWorkspaces] = useState<Array<{ id: number; name: string }>>([]);
+	const [loading, setLoading] = useState(false);
+	const [applying, setApplying] = useState(false);
 
 	const validatedRef = useRef<number | null | undefined>(undefined);
 
@@ -60,7 +61,11 @@ const BoardFilterDrawer: React.FC<Props> = ({
 					onClear();
 					message.info('Você não faz parte da equipe desse workspace. Filtro limpo.');
 				}
-			} catch { /* noop */ }
+			} catch (error: any) {
+				if (alive) {
+					console.error('Erro ao validar workspace:', error);
+				}
+			}
 		})();
 		return () => {
 			alive = false;
@@ -75,8 +80,11 @@ const BoardFilterDrawer: React.FC<Props> = ({
 				const list = await getMyWorkspaces();
 				if (!alive) return;
 				setWorkspaces(list.map((w: any) => ({ id: Number(w.id), name: String(w.name) })));
-			} catch {
-				/* noop */
+			} catch (error: any) {
+				if (alive) {
+					message.error(error?.message || 'Erro ao carregar workspaces. Tente novamente.');
+					console.error('Erro ao carregar workspaces:', error);
+				}
 			} finally {
 				if (alive) setLoading(false);
 			}
@@ -84,7 +92,7 @@ const BoardFilterDrawer: React.FC<Props> = ({
 		return () => {
 			alive = false;
 		};
-	}, []);
+	}, [message]);
 
 	useEffect(() => {
 		if (!open) return;
@@ -101,12 +109,19 @@ const BoardFilterDrawer: React.FC<Props> = ({
 	);
 
 	const handleApply = async () => {
-		const values = await form.validateFields();
-		onApply({
-			workspaceId: values.workspaceId,
-			sprintId: showSprintSelector ? values.sprintId ?? null : undefined,
-			showClosed: showClosedToggle ? Boolean(values.showClosed) : undefined,
-		});
+		setApplying(true);
+		try {
+			const values = await form.validateFields();
+			onApply({
+				workspaceId: values.workspaceId,
+				sprintId: showSprintSelector ? values.sprintId ?? null : undefined,
+				showClosed: showClosedToggle ? Boolean(values.showClosed) : undefined,
+			});
+		} catch (error: any) {
+			console.error('Erro ao validar filtros:', error);
+		} finally {
+			setApplying(false);
+		}
 	};
 
 	const handleClear = () => {
@@ -123,58 +138,71 @@ const BoardFilterDrawer: React.FC<Props> = ({
 			height={isMobile ? '70vh' : undefined}
 			width={isMobile ? '100%' : 420}
 			destroyOnHidden
+			maskClosable={!applying}
+			keyboard={!applying}
 			footer={
 				<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-					<Button onClick={handleClear}>Limpar</Button>
+					<Button onClick={handleClear} disabled={applying}>
+						Limpar
+					</Button>
 					<div style={{ display: 'flex', gap: 8 }}>
-						<Button onClick={onClose}>Cancelar</Button>
-						<Button type="primary" onClick={handleApply} loading={loading}>
-							Aplicar
+						<Button onClick={onClose} disabled={applying}>
+							Cancelar
+						</Button>
+						<Button type="primary" onClick={handleApply} loading={applying}>
+							{applying ? 'Aplicando...' : 'Aplicar'}
 						</Button>
 					</div>
 				</div>
 			}
 		>
-			<Form form={form} layout="vertical">
-				<Form.Item label="Workspace" name="workspaceId">
-					<Select
-						size="large"
-						placeholder="Selecione um Workspace"
-						allowClear
-						options={workspaceOptions}
-						showSearch
-						optionFilterProp="label"
-						loading={loading}
-					/>
-				</Form.Item>
-
-				{showSprintSelector && sprintOptions.length > 0 && (
-					<Form.Item
-						label="Sprint ativa"
-						name="sprintId"
-						tooltip="Se o workspace mudar, a sprint selecionada pode ser ignorada."
-					>
+			{loading ? (
+				<div style={{ textAlign: 'center', padding: '40px 0' }}>
+					<Spin size="large" tip="Carregando workspaces..." />
+				</div>
+			) : (
+				<Form form={form} layout="vertical">
+					<Form.Item label="Workspace" name="workspaceId">
 						<Select
 							size="large"
+							placeholder="Selecione um Workspace"
 							allowClear
-							placeholder="Escolha a sprint ativa"
-							options={sprintOptions}
+							options={workspaceOptions}
 							showSearch
 							optionFilterProp="label"
+							disabled={applying}
 						/>
 					</Form.Item>
-				)}
 
-				{showClosedToggle && (
-					<Form.Item
-						label="Mostrar sprints encerradas"
-						name="showClosed"
-						valuePropName="checked"
-					>
-						<Switch />
-					</Form.Item>
-				)}
-			</Form>
+					{showSprintSelector && sprintOptions.length > 0 && (
+						<Form.Item
+							label="Sprint ativa"
+							name="sprintId"
+							tooltip="Se o workspace mudar, a sprint selecionada pode ser ignorada."
+						>
+							<Select
+								size="large"
+								allowClear
+								placeholder="Escolha a sprint ativa"
+								options={sprintOptions}
+								showSearch
+								optionFilterProp="label"
+								disabled={applying}
+							/>
+						</Form.Item>
+					)}
+
+					{showClosedToggle && (
+						<Form.Item
+							label="Mostrar sprints encerradas"
+							name="showClosed"
+							valuePropName="checked"
+						>
+							<Switch disabled={applying} />
+						</Form.Item>
+					)}
+				</Form>
+			)}
 		</Drawer>
 	);
 };

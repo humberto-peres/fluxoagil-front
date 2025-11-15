@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Modal, Form, Result, FloatButton, App } from "antd";
 import { FilterOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
@@ -35,12 +35,13 @@ const EpicPage: React.FC = () => {
 	const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
 	const [filterOpen, setFilterOpen] = useState(false);
 
-	const [epics, setEpics] = useState<EpicDTO[]>([]);
-	const [loading, setLoading] = useState(false);
-
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [form] = Form.useForm();
+	const [epics, setEpics] = useState<EpicDTO[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
+	const [deletingId, setDeletingId] = useState<number | null>(null);
 
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [drawerEpicId, setDrawerEpicId] = useState<number | null>(null);
@@ -65,26 +66,26 @@ const EpicPage: React.FC = () => {
 		return () => clearTimeout(t);
 	}, [location.state]);
 
-	const loadEpics = async (): Promise<void> => {
+	const loadEpics = useCallback(async (): Promise<void> => {
 		if (!selectedWorkspaceId) {
 			setEpics([]);
 			return;
 		}
+		setLoading(true);
 		try {
-			setLoading(true);
 			const list = (await getEpics({ workspaceId: selectedWorkspaceId })) as EpicDTO[];
 			setEpics(list);
-		} catch {
-			message.error('Erro ao carregar épicos');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao carregar épicos. Tente novamente.');
+			console.error('Erro ao carregar épicos:', error);
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [selectedWorkspaceId, message]);
 
 	useEffect(() => {
 		loadEpics();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedWorkspaceId]);
+	}, [loadEpics]);
 
 	const openCreateModal = (): void => {
 		if (!selectedWorkspaceId) {
@@ -115,6 +116,7 @@ const EpicPage: React.FC = () => {
 	};
 
 	const handleSubmit = async (values: any): Promise<void> => {
+		setSubmitting(true);
 		try {
 			if (!selectedWorkspaceId) {
 				message.error('Selecione um workspace');
@@ -131,16 +133,19 @@ const EpicPage: React.FC = () => {
 
 			if (editingId) {
 				await updateEpic(editingId, payload);
-				message.success('Épico atualizado');
+				message.success('Épico atualizado com sucesso!');
 			} else {
 				await createEpic(payload);
-				message.success('Épico criado');
+				message.success('Épico criado com sucesso!');
 			}
 
+			loadEpics();
 			closeModal();
-			await loadEpics();
-		} catch (e: any) {
-			message.error(e?.message || 'Erro ao salvar épico');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao salvar épico. Tente novamente.');
+			console.error('Erro ao salvar épico:', error);
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
@@ -150,12 +155,16 @@ const EpicPage: React.FC = () => {
 	};
 
 	const confirmDelete = async (epic: EpicDTO) => {
+		setDeletingId(epic.id);
 		try {
 			await deleteEpics([epic.id]);
-			message.success('Épico excluído');
-			await loadEpics();
-		} catch (e: any) {
-			message.error(e?.message || 'Não foi possível excluir. Verifique se há atividades associadas.');
+			message.success('Épico excluído com sucesso!');
+			loadEpics();
+		} catch (error: any) {
+			message.error(error?.message || 'Não foi possível excluir. Verifique se há atividades associadas.');
+			console.error('Erro ao excluir épico:', error);
+		} finally {
+			setDeletingId(null);
 		}
 	};
 
@@ -188,6 +197,7 @@ const EpicPage: React.FC = () => {
 					onEdit={openEditModal}
 					onDelete={confirmDelete}
 					openDrawer={openDrawer}
+					deletingId={deletingId}
 				/>
 			)}
 
@@ -213,15 +223,18 @@ const EpicPage: React.FC = () => {
 			<Modal
 				open={isModalOpen}
 				title={editingId ? 'Editar Épico' : 'Criar Épico'}
-				onOk={() => form.submit()}
-				okText="Salvar"
-				cancelText="Cancelar"
 				onCancel={closeModal}
+				onOk={() => form.submit()}
+				okText={submitting ? 'Salvando...' : 'Salvar'}
+				cancelText="Cancelar"
+				confirmLoading={submitting}
 				destroyOnHidden
 				rootClassName="responsive-modal"
 				width={640}
+				maskClosable={!submitting}
+				keyboard={!submitting}
 			>
-				<FormEpic form={form} onFinish={handleSubmit} />
+				<FormEpic form={form} onFinish={handleSubmit} loading={submitting} />
 			</Modal>
 
 			<EpicTaskDrawer

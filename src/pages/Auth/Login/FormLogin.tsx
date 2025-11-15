@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Flex, Form, Input, App, Typography } from 'antd';
+import { Button, Flex, Form, Input, App, Typography, Spin } from 'antd';
 import { FaLock, FaUserAlt } from "react-icons/fa";
 import { useAuth } from '@/context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -25,19 +25,41 @@ const FormLogin: React.FC = () => {
             return;
         }
 
+        setSubmitting(true);
         try {
-            setSubmitting(true);
             await signIn(values);
             message.success(`Bem-vindo, ${values.username}!`);
             navigate('/dashboard', { replace: true });
-        } catch {
-            message.error('Usuário/senha inválidos');
+        } catch (error: any) {
+            const errorMessage = error?.message || 'Usuário ou senha inválidos. Tente novamente.';
+            message.error(errorMessage);
+
+            // Limpa apenas a senha em caso de erro
+            form.setFieldsValue({ password: '' });
         } finally {
             setSubmitting(false);
         }
     };
 
     const isBusy = authLoading || submitting || !!user;
+
+    if (authLoading) {
+        return (
+            <div className="py-12 flex justify-center items-center">
+                <Spin size="large" tip="Verificando autenticação..." />
+            </div>
+        );
+    }
+
+    if (user) {
+        return (
+            <div className="py-12 text-center">
+                <Typography.Text className="text-lg opacity-90">
+                    Redirecionando para o dashboard...
+                </Typography.Text>
+            </div>
+        );
+    }
 
     return (
         <Form<FieldType>
@@ -49,11 +71,14 @@ const FormLogin: React.FC = () => {
             <Form.Item<FieldType>
                 name="username"
                 label="Usuário"
-                rules={[{ required: true, message: 'Username não preenchido!' }]}
+                rules={[
+                    { required: true, message: 'Por favor, insira seu usuário' },
+                    { min: 3, message: 'Usuário deve ter pelo menos 3 caracteres' }
+                ]}
             >
                 <Input
                     size="large"
-                    placeholder="Username"
+                    placeholder="Digite seu usuário"
                     prefix={<FaUserAlt className="opacity-70 mr-1.5" />}
                     autoFocus
                     disabled={isBusy}
@@ -63,11 +88,14 @@ const FormLogin: React.FC = () => {
             <Form.Item<FieldType>
                 name="password"
                 label="Senha"
-                rules={[{ required: true, message: 'Senha não preenchida!' }]}
+                rules={[
+                    { required: true, message: 'Por favor, insira sua senha' },
+                    { min: 6, message: 'Senha deve ter pelo menos 6 caracteres' }
+                ]}
             >
                 <Input.Password
                     size="large"
-                    placeholder="Senha"
+                    placeholder="Digite sua senha"
                     prefix={<FaLock className="opacity-70 mr-1.5" />}
                     disabled={isBusy}
                 />
@@ -80,10 +108,10 @@ const FormLogin: React.FC = () => {
                         size="large"
                         htmlType="submit"
                         block
-                        loading={authLoading || submitting}
-                        disabled={!!user}
+                        loading={submitting}
+                        disabled={isBusy}
                     >
-                        Entrar
+                        {submitting ? 'Entrando...' : 'Entrar'}
                     </Button>
 
                     <Typography.Text className="text-center opacity-90">
@@ -91,6 +119,11 @@ const FormLogin: React.FC = () => {
                         <Link
                             to="/signup"
                             className="font-medium hover:opacity-100 transition-opacity"
+                            onClick={(e) => {
+                                if (isBusy) {
+                                    e.preventDefault();
+                                }
+                            }}
                         >
                             Criar conta
                         </Link>

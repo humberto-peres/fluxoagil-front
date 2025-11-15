@@ -47,6 +47,7 @@ describe('EpicList', () => {
         onEdit={onEdit}
         onDelete={onDelete}
         openDrawer={openDrawer}
+        deletingId={null}
       />
     )
 
@@ -54,8 +55,9 @@ describe('EpicList', () => {
     expect(screen.getByText('Primeiro épico')).toBeInTheDocument()
     expect(screen.getByText('E-2')).toBeInTheDocument()
 
+    // Clica no primeiro botão de editar (índice 0) que corresponde ao épico com id: 1
     const editButtons = screen.getAllByLabelText('Editar épico')
-    fireEvent.click(editButtons[1])
+    fireEvent.click(editButtons[0])
     expect(onEdit).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }))
 
     const vinculosBtns = screen.getAllByLabelText('Vínculos do épico')
@@ -71,6 +73,7 @@ describe('EpicList', () => {
         onEdit={vi.fn()}
         onDelete={vi.fn()}
         openDrawer={vi.fn()}
+        deletingId={null}
       />
     )
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Button, Card, Tag, Tooltip, Alert, Typography } from 'antd';
+import { Form, Input, Select, Button, Card, Tag, Tooltip, Alert, Typography, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { MdDeleteOutline } from "react-icons/md";
 import { GoMoveToTop, GoMoveToBottom } from "react-icons/go";
@@ -14,6 +14,7 @@ type Props = {
 	form: any;
 	onFinish: (values: any) => void;
 	isEditing?: boolean;
+	loading?: boolean;
 };
 
 type StepType = { id: number; name: string };
@@ -21,22 +22,52 @@ type TeamType = { id: number; name: string };
 
 const CODE_ONLY_LETTERS = /^[A-Za-z]*$/;
 
-const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
+const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing, loading = false }) => {
 	const [steps, setSteps] = useState<StepType[]>([]);
 	const [teams, setTeams] = useState<TeamType[]>([]);
+	const [loadingData, setLoadingData] = useState(true);
 
 	useEffect(() => {
 		(async () => {
-			setSteps(await getSteps());
-			setTeams(await getTeams());
+			setLoadingData(true);
+			try {
+				const [stepsData, teamsData] = await Promise.all([
+					getSteps(),
+					getTeams()
+				]);
+				setSteps(stepsData);
+				setTeams(teamsData);
+			} catch (error) {
+				console.error('Erro ao carregar dados:', error);
+			} finally {
+				setLoadingData(false);
+			}
 		})();
 	}, []);
+
+	if (loadingData) {
+		return (
+			<div style={{ textAlign: 'center', padding: '40px 0' }}>
+				<Spin size="large" tip="Carregando dados..." />
+			</div>
+		);
+	}
 
 	return (
 		<Form form={form} layout="vertical" onFinish={onFinish}>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<Form.Item label="Nome do Workspace" name="name" rules={[{ required: true }]}>
-					<Input size="large" placeholder="Digite o nome do workspace" />
+				<Form.Item
+					label="Nome do Workspace"
+					name="name"
+					rules={[{ required: true, message: 'Nome é obrigatório' }]}
+				>
+					<Input
+						size="large"
+						placeholder="Digite o nome do workspace"
+						disabled={loading}
+						maxLength={100}
+						showCount
+					/>
 				</Form.Item>
 
 				<Form.Item
@@ -57,6 +88,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 						size="large"
 						maxLength={5}
 						placeholder="Ex.: WOR"
+						disabled={loading || isEditing}
 						onChange={(e) => {
 							const onlyLetters = e.target.value.replace(/[^A-Za-z]/g, '');
 							form.setFieldsValue({ key: onlyLetters.toUpperCase() });
@@ -64,15 +96,35 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 					/>
 				</Form.Item>
 
-				<Form.Item className="md:col-span-1" label="Metodologia" name="methodology" rules={[{ required: true }]}>
-					<Select size="large" placeholder="Selecione a metodologia">
+				<Form.Item
+					className="md:col-span-1"
+					label="Metodologia"
+					name="methodology"
+					rules={[{ required: true, message: 'Selecione a metodologia' }]}
+				>
+					<Select
+						size="large"
+						placeholder="Selecione a metodologia"
+						disabled={loading}
+					>
 						<Option value="Scrum">Scrum</Option>
 						<Option value="Kanban">Kanban</Option>
 					</Select>
 				</Form.Item>
 
-				<Form.Item className="md:col-span-1" label="Equipe Responsável" name="teamId" rules={[{ required: true }]}>
-					<Select placeholder="Selecione uma equipe" size="large" showSearch optionFilterProp="children">
+				<Form.Item
+					className="md:col-span-1"
+					label="Equipe Responsável"
+					name="teamId"
+					rules={[{ required: true, message: 'Selecione uma equipe' }]}
+				>
+					<Select
+						placeholder="Selecione uma equipe"
+						size="large"
+						showSearch
+						optionFilterProp="children"
+						disabled={loading}
+					>
 						{teams.map((team) => (
 							<Option key={team.id} value={team.id}>
 								{team.name}
@@ -90,23 +142,25 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 				description={
 					<div>
 						<div>• <Text strong>A primeira etapa</Text> é o início do fluxo do board.</div>
-						<div>• <Text strong>A última etapa</Text> é considerada <Text strong>“Concluída”</Text>. Ao encerrar uma sprint,
+						<div>• <Text strong>A última etapa</Text> é considerada <Text strong>"Concluída"</Text>. Ao encerrar uma sprint,
 							todas as atividades que estiverem nessa última etapa permanecem na sprint; as demais serão movidas de acordo com a sua escolha.</div>
 						<div>• É recomendado ter pelo menos 3 etapas para um fluxo saudável (ex.: <em>Backlog → Em andamento → Concluído</em>).</div>
 					</div>
 				}
 			/>
 
-			<Form.List
-				name="steps"
-				
-			>
+			<Form.List name="steps">
 				{(fields, { add, remove, move }, { errors }) => (
 					<Card
 						title="Ordem das Etapas"
 						extra={
 							!isEditing && (
-								<Button type="primary" onClick={() => add()} icon={<PlusOutlined />}>
+								<Button
+									type="primary"
+									onClick={() => add()}
+									icon={<PlusOutlined />}
+									disabled={loading}
+								>
 									Adicionar
 								</Button>
 							)
@@ -161,6 +215,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 													popupMatchSelectWidth={false}
 													showSearch
 													optionFilterProp="children"
+													disabled={loading}
 												>
 													{steps
 														.filter(
@@ -183,7 +238,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 													type="primary"
 													icon={<GoMoveToTop color='white' />}
 													onClick={() => move(index, index - 1)}
-													disabled={index === 0 || isEditing}
+													disabled={index === 0 || isEditing || loading}
 												/>
 											</Tooltip>
 											<Tooltip title="Mover para baixo">
@@ -191,7 +246,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 													type="primary"
 													icon={<GoMoveToBottom color='white' />}
 													onClick={() => move(index, index + 1)}
-													disabled={index === fields.length - 1 || isEditing}
+													disabled={index === fields.length - 1 || isEditing || loading}
 												/>
 											</Tooltip>
 											<Tooltip title="Remover">
@@ -199,7 +254,7 @@ const FormWorkspace: React.FC<Props> = ({ form, onFinish, isEditing }) => {
 													danger
 													icon={<MdDeleteOutline />}
 													onClick={() => remove(field.name)}
-													disabled={isEditing}
+													disabled={isEditing || loading}
 												/>
 											</Tooltip>
 										</div>

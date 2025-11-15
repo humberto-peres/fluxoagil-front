@@ -30,14 +30,17 @@ const Step: React.FC = () => {
 	const [form] = Form.useForm();
 	const [data, setData] = useState<StepType[]>([]);
 	const [loading, setLoading] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
+	const [loadingStep, setLoadingStep] = useState(false);
+	const [deletingId, setDeletingId] = useState<number | null>(null);
 
 	const fetchSteps = useCallback(async () => {
+		setLoading(true);
 		try {
-			setLoading(true);
 			const response = await getSteps();
 			setData(response);
-		} catch {
-			message.error('Erro ao carregar etapas');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao carregar etapas. Tente novamente.');
 		} finally {
 			setLoading(false);
 		}
@@ -60,6 +63,7 @@ const Step: React.FC = () => {
 	};
 
 	const handleSubmit = async (values: any) => {
+		setSubmitting(true);
 		try {
 			if (editingId) {
 				await updateStep(editingId, values);
@@ -70,68 +74,91 @@ const Step: React.FC = () => {
 			}
 			fetchSteps();
 			closeModal();
-		} catch {
-			message.error('Erro ao salvar etapa');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao salvar etapa. Tente novamente.');
+		} finally {
+			setSubmitting(false);
 		}
 	};
 
 	const handleEditRecord = async (record: StepType) => {
+		setLoadingStep(true);
 		try {
 			const step = await getStepById(record.id);
 			form.setFieldsValue(step);
 			setEditingId(record.id);
 			setIsModalOpen(true);
-		} catch {
-			message.error('Não foi possível carregar a etapa para edição.');
+		} catch (error: any) {
+			message.error(error?.message || 'Não foi possível carregar a etapa para edição.');
+		} finally {
+			setLoadingStep(false);
 		}
 	};
 
 	const handleDeleteRecord = async (id: number) => {
+		setDeletingId(id);
 		try {
 			await deleteSteps([id]);
 			message.success('Etapa excluída com sucesso!');
 			fetchSteps();
-		} catch {
-			message.error('Erro ao excluir etapa');
+		} catch (error: any) {
+			message.error(error?.message || 'Erro ao excluir etapa. Tente novamente.');
+		} finally {
+			setDeletingId(null);
 		}
 	};
 
 	const columns: TableColumnsType<StepType> = [
-		{ title: 'Nome', dataIndex: 'name', ellipsis: true },
+		{
+			title: 'Nome',
+			dataIndex: 'name',
+			ellipsis: true,
+			sorter: (a, b) => a.name.localeCompare(b.name),
+		},
 		{
 			title: 'Ações',
 			key: 'actions',
 			width: 110,
 			align: 'center',
-			render: (_: unknown, record: StepType) => (
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-					<Tooltip title="Editar">
-						<Button
-							type="text"
-							aria-label={`Editar ${record.name}`}
-							onClick={() => handleEditRecord(record)}
-							icon={<FiEdit2 size={18} />}
-						/>
-					</Tooltip>
+			render: (_: unknown, record: StepType) => {
+				const isDeleting = deletingId === record.id;
+				const isDisabled = deletingId !== null || loadingStep;
 
-					<Tooltip title="Excluir">
-						<Popconfirm
-							title="Excluir etapa?"
-							description="Esta ação não pode ser desfeita."
-							okText="Excluir"
-							okButtonProps={{ danger: true }}
-							cancelText="Cancelar"
-							onConfirm={() => handleDeleteRecord(record.id)}
-						>
+				return (
+					<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+						<Tooltip title="Editar">
 							<Button
 								type="text"
-								aria-label={`Excluir ${record.name}`}
-								icon={<FiTrash2 size={18} />}
+								aria-label={`Editar ${record.name}`}
+								onClick={() => handleEditRecord(record)}
+								icon={<FiEdit2 size={18} />}
+								loading={loadingStep}
+								disabled={isDisabled && !loadingStep}
 							/>
-						</Popconfirm>
-					</Tooltip>
-				</div>
-			),
+						</Tooltip>
+
+						<Tooltip title="Excluir">
+							<Popconfirm
+								title="Excluir etapa?"
+								description="Esta ação não pode ser desfeita."
+								okText="Excluir"
+								okButtonProps={{ danger: true, loading: isDeleting }}
+								cancelText="Cancelar"
+								onConfirm={() => handleDeleteRecord(record.id)}
+								disabled={isDisabled}
+							>
+								<Button
+									type="text"
+									aria-label={`Excluir ${record.name}`}
+									icon={<FiTrash2 size={18} />}
+									loading={isDeleting}
+									disabled={isDisabled && !isDeleting}
+								/>
+							</Popconfirm>
+						</Tooltip>
+					</div>
+				);
+			},
 		},
 	];
 
@@ -148,9 +175,14 @@ const Step: React.FC = () => {
 				rowKey="id"
 				loading={loading}
 				size="middle"
-				pagination={{ pageSize: 10, responsive: true, showSizeChanger: true }}
+				pagination={{
+					pageSize: 10,
+					responsive: true,
+					showTotal: (total) => `Total: ${total} ${total === 1 ? 'etapa' : 'etapas'}`
+				}}
 				scroll={isCompact ? { x: 'max-content' } : undefined}
 				tableLayout="auto"
+				locale={{ emptyText: 'Nenhuma etapa cadastrada' }}
 			/>
 
 			<Modal
@@ -158,13 +190,16 @@ const Step: React.FC = () => {
 				title={editingId ? 'Editar Etapa' : 'Criar Etapa'}
 				onCancel={closeModal}
 				onOk={() => form.submit()}
-				okText="Salvar"
+				okText={submitting ? 'Salvando...' : 'Salvar'}
 				cancelText="Cancelar"
+				confirmLoading={submitting}
 				destroyOnHidden
 				rootClassName="responsive-modal"
 				width={560}
+				maskClosable={!submitting}
+				keyboard={!submitting}
 			>
-				<FormStep form={form} onFinish={handleSubmit} />
+				<FormStep form={form} onFinish={handleSubmit} loading={submitting} />
 			</Modal>
 		</DefaultLayout>
 	);

@@ -79,7 +79,7 @@ describe('DrawerTeamMembers', () => {
 				expect(screen.getByText('Adicionar membros')).toBeInTheDocument();
 			});
 
-			expect(screen.getByText('Membros da equipe')).toBeInTheDocument();
+			expect(screen.getByText(/^Membros da equipe/)).toBeInTheDocument();
 		});
 	});
 
@@ -213,7 +213,7 @@ describe('DrawerTeamMembers', () => {
 			);
 
 			await waitFor(() => {
-				expect(screen.getByText('Sem membros nesta equipe')).toBeInTheDocument();
+				expect(screen.getByText('Nenhum membro nesta equipe')).toBeInTheDocument();
 			});
 		});
 	});

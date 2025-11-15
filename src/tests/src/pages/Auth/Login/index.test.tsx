@@ -51,8 +51,8 @@ describe('Login Page', () => {
   it('deve renderizar formulário de login', () => {
     renderLogin();
 
-    expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Senha')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Digite seu usuário')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Digite sua senha')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe('Login Page', () => {
     const user = userEvent.setup();
     renderLogin();
 
-    const logoContainer = screen.getByText('Fluxo Ágil').closest('div');
+    const logoContainer = screen.getByText('Fluxo Ágil').closest('button');
     await user.click(logoContainer!);
 
     expect(mockNavigate).toHaveBeenCalledWith('/');

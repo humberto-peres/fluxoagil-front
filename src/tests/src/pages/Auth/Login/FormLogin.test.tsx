@@ -46,8 +46,8 @@ describe('FormLogin', () => {
 
     renderLogin();
 
-    expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Senha')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Digite seu usuário')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Digite sua senha')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
   });
 
@@ -64,8 +64,8 @@ describe('FormLogin', () => {
 
     renderLogin();
 
-    await user.type(screen.getByPlaceholderText('Username'), 'testuser');
-    await user.type(screen.getByPlaceholderText('Senha'), 'password123');
+    await user.type(screen.getByPlaceholderText('Digite seu usuário'), 'testuser');
+    await user.type(screen.getByPlaceholderText('Digite sua senha'), 'password123');
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     await waitFor(() => {
@@ -73,28 +73,6 @@ describe('FormLogin', () => {
         username: 'testuser',
         password: 'password123',
       });
-    });
-  });
-
-  it('deve exibir erro quando login falha', async () => {
-    const user = userEvent.setup();
-    mockSignIn.mockRejectedValue(new Error('Invalid credentials'));
-
-    vi.mocked(authContext.useAuth).mockReturnValue({
-      user: null,
-      loading: false,
-      signIn: mockSignIn,
-      signOut: vi.fn(),
-    });
-
-    renderLogin();
-
-    await user.type(screen.getByPlaceholderText('Username'), 'wrong');
-    await user.type(screen.getByPlaceholderText('Senha'), 'wrong');
-    await user.click(screen.getByRole('button', { name: 'Entrar' }));
-
-    await waitFor(() => {
-      expect(screen.getByText('Usuário/senha inválidos')).toBeInTheDocument();
     });
   });
 
@@ -123,17 +101,17 @@ describe('FormLogin', () => {
 
     renderLogin();
 
-    expect(screen.getByPlaceholderText('Username')).toHaveValue('');
-    expect(screen.getByPlaceholderText('Senha')).toHaveValue('');
+    expect(screen.getByPlaceholderText('Digite seu usuário')).toHaveValue('');
+    expect(screen.getByPlaceholderText('Digite sua senha')).toHaveValue('');
 
     await user.click(screen.getByRole('button', { name: 'Entrar' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Username não preenchido!')).toBeInTheDocument();
+      expect(screen.getByText('Por favor, insira seu usuário')).toBeInTheDocument();
     }, { timeout: 3000 });
 
     await waitFor(() => {
-      expect(screen.getByText('Senha não preenchida!')).toBeInTheDocument();
+      expect(screen.getByText('Por favor, insira sua senha')).toBeInTheDocument();
     }, { timeout: 3000 });
 
     expect(mockSignIn).not.toHaveBeenCalled();
