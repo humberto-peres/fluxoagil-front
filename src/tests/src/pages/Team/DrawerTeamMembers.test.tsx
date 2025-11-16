@@ -99,7 +99,10 @@ describe('DrawerTeamMembers', () => {
 				expect(teamServices.getTeamMembers).toHaveBeenCalledWith(1);
 			});
 
-			expect(screen.getByText('João Silva')).toBeInTheDocument();
+			await waitFor(() => {
+				expect(screen.getByText('João Silva')).toBeInTheDocument();
+			});
+
 			expect(screen.getByText('Maria Santos')).toBeInTheDocument();
 		});
 
