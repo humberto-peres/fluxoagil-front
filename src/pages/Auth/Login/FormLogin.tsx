@@ -72,8 +72,7 @@ const FormLogin: React.FC = () => {
                 name="username"
                 label="Usuário"
                 rules={[
-                    { required: true, message: 'Por favor, insira seu usuário' },
-                    { min: 3, message: 'Usuário deve ter pelo menos 3 caracteres' }
+                    { required: true, message: 'Por favor, insira seu usuário' }
                 ]}
             >
                 <Input

@@ -27,7 +27,10 @@ describe('taskType.services', () => {
 
 			const result = await getTaskTypes();
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/task-types/`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/task-types/`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockTaskTypes);
 		});
 
@@ -49,7 +52,10 @@ describe('taskType.services', () => {
 
 			const result = await getTaskTypeById(1);
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/task-types/1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/task-types/1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockTaskTypes[0]);
 		});
 
@@ -77,7 +83,9 @@ describe('taskType.services', () => {
 				`${BASE_URL}/task-types/`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newType),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ id: 4, ...newType });
@@ -107,7 +115,9 @@ describe('taskType.services', () => {
 				`${BASE_URL}/task-types/1`,
 				expect.objectContaining({
 					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(updates),
+					credentials: 'include',
 				})
 			);
 			expect(result.name).toBe('Bug Crítico');
@@ -135,7 +145,9 @@ describe('taskType.services', () => {
 				`${BASE_URL}/task-types/`,
 				expect.objectContaining({
 					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ ids: [1, 2] }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });

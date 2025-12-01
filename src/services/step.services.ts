@@ -18,13 +18,17 @@ export const getSteps = async (params?: GetStepsParams): Promise<Step[]> => {
         url += `?workspaceId=${params.workspaceId}`;
     }
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        credentials: 'include'
+    });
     if (!response.ok) throw new Error('Erro ao buscar etapas');
     return response.json();
 };
 
 export const getStepById = async (id: number) => {
-    const response = await fetch(`${BASE_URL}/steps/${id}`);
+    const response = await fetch(`${BASE_URL}/steps/${id}`, {
+        credentials: 'include'
+    });
     if (!response.ok) throw new Error('Erro ao buscar etapa');
     return response.json();
 };
@@ -34,6 +38,7 @@ export const createStep = async (data: any) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include'
     });
     if (!response.ok) throw new Error('Erro ao criar etapa');
     return response.json();
@@ -44,6 +49,7 @@ export const updateStep = async (id: number, data: any) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include'
     });
     if (!response.ok) throw new Error('Erro ao atualizar etapa');
     return response.json();
@@ -53,7 +59,8 @@ export const deleteSteps = async (ids: number[]) => {
     const response = await fetch(`${BASE_URL}/steps/`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids })
+        body: JSON.stringify({ ids }),
+        credentials: 'include'
     });
     if (!response.ok) throw new Error('Erro ao excluir etapas');
     return response.json();

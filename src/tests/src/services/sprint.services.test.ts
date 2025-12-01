@@ -32,7 +32,10 @@ describe('sprint.services', () => {
 
 			const result = await getSprints({ workspaceId: 1 });
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/sprints/?workspaceId=1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/sprints/?workspaceId=1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual([mockSprint]);
 		});
 
@@ -44,7 +47,10 @@ describe('sprint.services', () => {
 
 			await getSprints({ workspaceId: 1, state: 'active' });
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/sprints/?workspaceId=1&state=active`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/sprints/?workspaceId=1&state=active`,
+				{ credentials: 'include' }
+			);
 		});
 
 		it('deve lançar erro em caso de falha', async () => {
@@ -74,7 +80,9 @@ describe('sprint.services', () => {
 				`${BASE_URL}/sprints/`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newSprint),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ id: 2, ...newSprint });
@@ -104,7 +112,9 @@ describe('sprint.services', () => {
 				`${BASE_URL}/sprints/1`,
 				expect.objectContaining({
 					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(updates),
+					credentials: 'include',
 				})
 			);
 			expect(result.name).toBe('Sprint Atualizada');
@@ -132,6 +142,7 @@ describe('sprint.services', () => {
 				`${BASE_URL}/sprints/1/activate`,
 				expect.objectContaining({
 					method: 'POST',
+					credentials: 'include',
 				})
 			);
 			expect(result.isActive).toBe(true);
@@ -159,7 +170,9 @@ describe('sprint.services', () => {
 				`${BASE_URL}/sprints/1/close`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ move: undefined }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });
@@ -176,7 +189,10 @@ describe('sprint.services', () => {
 			expect(fetch).toHaveBeenCalledWith(
 				`${BASE_URL}/sprints/1/close`,
 				expect.objectContaining({
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ move: { to: 'backlog' } }),
+					credentials: 'include',
 				})
 			);
 		});
@@ -192,7 +208,10 @@ describe('sprint.services', () => {
 			expect(fetch).toHaveBeenCalledWith(
 				`${BASE_URL}/sprints/1/close`,
 				expect.objectContaining({
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ move: { to: 'sprint', sprintId: 2 } }),
+					credentials: 'include',
 				})
 			);
 		});

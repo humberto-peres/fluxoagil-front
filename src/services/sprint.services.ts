@@ -17,14 +17,19 @@ export const getSprints = async (params: { workspaceId: number; state?: SprintSt
 	const qs = new URLSearchParams();
 	qs.set('workspaceId', String(params.workspaceId));
 	if (params.state) qs.set('state', params.state);
-	const res = await fetch(`${BASE_URL}/sprints/?${qs.toString()}`);
+	const res = await fetch(`${BASE_URL}/sprints/?${qs.toString()}`, {
+		credentials: 'include'
+	});
 	if (!res.ok) throw new Error('Erro ao buscar sprints');
 	return res.json() as Promise<SprintDTO[]>;
 };
 
 export const createSprint = async (data: any) => {
 	const res = await fetch(`${BASE_URL}/sprints/`, {
-		method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(data),
+		credentials: 'include'
 	});
 	if (!res.ok) throw new Error('Erro ao criar sprint');
 	return res.json();
@@ -32,14 +37,20 @@ export const createSprint = async (data: any) => {
 
 export const updateSprint = async (id: number, data: any) => {
 	const res = await fetch(`${BASE_URL}/sprints/${id}`, {
-		method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(data),
+		credentials: 'include'
 	});
 	if (!res.ok) throw new Error('Erro ao atualizar sprint');
 	return res.json();
 };
 
 export const activateSprint = async (id: number) => {
-	const res = await fetch(`${BASE_URL}/sprints/${id}/activate`, { method: 'POST' });
+	const res = await fetch(`${BASE_URL}/sprints/${id}/activate`, { 
+		method: 'POST',
+		credentials: 'include' 
+	});
 	if (!res.ok) throw new Error('Erro ao ativar sprint');
 	return res.json();
 };
@@ -52,6 +63,7 @@ export const closeSprint = async (
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ move }),
+		credentials: 'include'
 	});
 	if (!res.ok) throw new Error('Erro ao encerrar sprint');
 	return res.json();

@@ -41,7 +41,10 @@ describe('team.services', () => {
 
 			const result = await getTeams();
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/teams/`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/teams/`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockTeams);
 		});
 
@@ -63,7 +66,10 @@ describe('team.services', () => {
 
 			const result = await getTeamById(1);
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/teams/1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/teams/1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockTeams[0]);
 		});
 
@@ -91,7 +97,9 @@ describe('team.services', () => {
 				`${BASE_URL}/teams/`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newTeam),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ id: 3, ...newTeam });
@@ -121,7 +129,9 @@ describe('team.services', () => {
 				`${BASE_URL}/teams/1`,
 				expect.objectContaining({
 					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(updates),
+					credentials: 'include',
 				})
 			);
 			expect(result.name).toBe('Backend Atualizado');
@@ -149,7 +159,9 @@ describe('team.services', () => {
 				`${BASE_URL}/teams/`,
 				expect.objectContaining({
 					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ ids: [1, 2] }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });
@@ -173,7 +185,10 @@ describe('team.services', () => {
 
 			const result = await getTeamMembers(1);
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/team-members/1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/team-members/1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockMembers);
 		});
 
@@ -199,7 +214,10 @@ describe('team.services', () => {
 
 			const result = await getAvailableUsers(1);
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/team-members/available/1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/team-members/available/1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(availableUsers);
 		});
 
@@ -225,7 +243,9 @@ describe('team.services', () => {
 				`${BASE_URL}/team-members/1`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ userIds: [3, 4] }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });
@@ -253,6 +273,7 @@ describe('team.services', () => {
 				`${BASE_URL}/team-members/1/2`,
 				expect.objectContaining({
 					method: 'DELETE',
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });

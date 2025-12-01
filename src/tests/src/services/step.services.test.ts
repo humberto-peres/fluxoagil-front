@@ -27,8 +27,25 @@ describe('step.services', () => {
 
 			const result = await getSteps();
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/steps/`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/steps/`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockSteps);
+		});
+
+		it('deve listar etapas com workspaceId', async () => {
+			vi.mocked(fetch).mockResolvedValue({
+				ok: true,
+				json: async () => mockSteps,
+			} as Response);
+
+			await getSteps({ workspaceId: 1 });
+
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/steps/?workspaceId=1`,
+				{ credentials: 'include' }
+			);
 		});
 
 		it('deve lançar erro em caso de falha', async () => {
@@ -49,7 +66,10 @@ describe('step.services', () => {
 
 			const result = await getStepById(1);
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/steps/1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/steps/1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockSteps[0]);
 		});
 
@@ -77,7 +97,9 @@ describe('step.services', () => {
 				`${BASE_URL}/steps/`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newStep),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ id: 4, ...newStep });
@@ -107,7 +129,9 @@ describe('step.services', () => {
 				`${BASE_URL}/steps/1`,
 				expect.objectContaining({
 					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(updates),
+					credentials: 'include',
 				})
 			);
 			expect(result.name).toBe('Backlog Atualizado');
@@ -135,7 +159,9 @@ describe('step.services', () => {
 				`${BASE_URL}/steps/`,
 				expect.objectContaining({
 					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ ids: [1, 2] }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });

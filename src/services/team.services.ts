@@ -1,13 +1,17 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const getTeams = async () => {
-	const response = await fetch(`${BASE_URL}/teams/`);
+	const response = await fetch(`${BASE_URL}/teams/`, {
+		credentials: 'include'
+	});
 	if (!response.ok) throw new Error('Erro ao buscar equipes');
 	return response.json();
 };
 
 export const getTeamById = async (id: number) => {
-	const response = await fetch(`${BASE_URL}/teams/${id}`);
+	const response = await fetch(`${BASE_URL}/teams/${id}`, {
+		credentials: 'include'
+	});
 	if (!response.ok) throw new Error('Erro ao buscar equipe');
 	return response.json();
 };
@@ -17,6 +21,7 @@ export const createTeam = async (data: { name: string }) => {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(data),
+		credentials: 'include'
 	});
 	if (!response.ok) throw new Error('Erro ao criar equipe');
 	return response.json();
@@ -27,6 +32,7 @@ export const updateTeam = async (id: number, data: { name: string }) => {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(data),
+		credentials: 'include'
 	});
 	if (!response.ok) throw new Error('Erro ao atualizar equipe');
 	return response.json();
@@ -37,6 +43,7 @@ export const deleteTeams = async (ids: number[]) => {
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ ids }),
+		credentials: 'include'
 	});
 	if (!response.ok) throw new Error('Erro ao excluir equipes');
 	return response.json();
@@ -45,13 +52,17 @@ export const deleteTeams = async (ids: number[]) => {
 // === TEAM MEMBERS ===
 
 export const getTeamMembers = async (teamId: number) => {
-	const response = await fetch(`${BASE_URL}/team-members/${teamId}`);
+	const response = await fetch(`${BASE_URL}/team-members/${teamId}`, {
+		credentials: 'include'
+	});
 	if (!response.ok) throw new Error('Erro ao buscar membros da equipe');
 	return response.json();
 };
 
 export const getAvailableUsers = async (teamId: number) => {
-	const response = await fetch(`${BASE_URL}/team-members/available/${teamId}`);
+	const response = await fetch(`${BASE_URL}/team-members/available/${teamId}`, {
+		credentials: 'include'
+	});
 	if (!response.ok) throw new Error('Erro ao buscar membros da equipe');
 	return response.json();
 };
@@ -61,6 +72,7 @@ export const addTeamMembers = async (teamId: number, userIds: number[]) => {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ userIds }),
+		credentials: 'include'
 	});
 	if (!response.ok) throw new Error('Erro ao adicionar membros');
 	return response.json();
@@ -69,6 +81,7 @@ export const addTeamMembers = async (teamId: number, userIds: number[]) => {
 export const removeTeamMember = async (teamId: number, userId: number) => {
 	const response = await fetch(`${BASE_URL}/team-members/${teamId}/${userId}`, {
 		method: 'DELETE',
+		credentials: 'include'
 	});
 	if (!response.ok) throw new Error('Erro ao remover membro');
 	return response.json();

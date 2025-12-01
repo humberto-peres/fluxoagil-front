@@ -27,7 +27,10 @@ describe('priority.services', () => {
 
 			const result = await getPriorities();
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/priorities/`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/priorities/`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockPriorities);
 		});
 
@@ -55,7 +58,9 @@ describe('priority.services', () => {
 				`${BASE_URL}/priorities/`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newPriority),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ id: 4, ...newPriority });
@@ -85,7 +90,9 @@ describe('priority.services', () => {
 				`${BASE_URL}/priorities/1`,
 				expect.objectContaining({
 					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(updates),
+					credentials: 'include',
 				})
 			);
 			expect(result.name).toBe('Baixa Atualizada');
@@ -113,7 +120,9 @@ describe('priority.services', () => {
 				`${BASE_URL}/priorities/`,
 				expect.objectContaining({
 					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ ids: [1, 2] }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });

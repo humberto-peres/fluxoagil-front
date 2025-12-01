@@ -40,13 +40,17 @@ export const getEpics = async (params?: { workspaceId?: number; status?: string 
   const qs = new URLSearchParams();
   if (params?.workspaceId) qs.set('workspaceId', String(params.workspaceId));
   if (params?.status) qs.set('status', params.status);
-  const res = await fetch(`${BASE_URL}/epics/?${qs.toString()}`);
+  const res = await fetch(`${BASE_URL}/epics/?${qs.toString()}`, {
+    credentials: 'include'
+  });
   if (!res.ok) throw new Error('Erro ao listar épicos');
   return res.json() as Promise<EpicDTO[]>;
 };
 
 export const getEpicById = async (id: number) => {
-  const res = await fetch(`${BASE_URL}/epics/${id}`);
+  const res = await fetch(`${BASE_URL}/epics/${id}`, {
+    credentials: 'include'
+  });
   if (!res.ok) throw new Error('Erro ao buscar épico');
   return res.json() as Promise<EpicWithTasksDTO>;
 };
@@ -56,6 +60,7 @@ export const createEpic = async (data: any) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Erro ao criar épico');
   return res.json() as Promise<EpicDTO>;
@@ -66,6 +71,7 @@ export const updateEpic = async (id: number, data: any) => {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Erro ao atualizar épico');
   return res.json() as Promise<EpicDTO>;
@@ -76,6 +82,7 @@ export const deleteEpics = async (ids: number[]) => {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids }),
+    credentials: 'include'
   });
   if (!res.ok) throw new Error('Erro ao excluir épicos');
   return res.json();

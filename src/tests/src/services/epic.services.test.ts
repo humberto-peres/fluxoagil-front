@@ -60,7 +60,10 @@ describe('epic.services', () => {
 
 			const result = await getEpics();
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/epics/?`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/epics/?`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual([mockEpic]);
 		});
 
@@ -72,7 +75,10 @@ describe('epic.services', () => {
 
 			await getEpics({ workspaceId: 1 });
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/epics/?workspaceId=1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/epics/?workspaceId=1`,
+				{ credentials: 'include' }
+			);
 		});
 
 		it('deve listar épicos com status', async () => {
@@ -83,7 +89,10 @@ describe('epic.services', () => {
 
 			await getEpics({ status: 'active' });
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/epics/?status=active`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/epics/?status=active`,
+				{ credentials: 'include' }
+			);
 		});
 
 		it('deve listar épicos com múltiplos filtros', async () => {
@@ -94,7 +103,10 @@ describe('epic.services', () => {
 
 			await getEpics({ workspaceId: 1, status: 'active' });
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/epics/?workspaceId=1&status=active`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/epics/?workspaceId=1&status=active`,
+				{ credentials: 'include' }
+			);
 		});
 
 		it('deve lançar erro em caso de falha', async () => {
@@ -115,7 +127,10 @@ describe('epic.services', () => {
 
 			const result = await getEpicById(1);
 
-			expect(fetch).toHaveBeenCalledWith(`${BASE_URL}/epics/1`);
+			expect(fetch).toHaveBeenCalledWith(
+				`${BASE_URL}/epics/1`,
+				{ credentials: 'include' }
+			);
 			expect(result).toEqual(mockEpicWithTasks);
 		});
 
@@ -146,7 +161,9 @@ describe('epic.services', () => {
 				`${BASE_URL}/epics/`,
 				expect.objectContaining({
 					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(newEpic),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ id: 2, ...newEpic });
@@ -176,7 +193,9 @@ describe('epic.services', () => {
 				`${BASE_URL}/epics/1`,
 				expect.objectContaining({
 					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(updates),
+					credentials: 'include',
 				})
 			);
 			expect(result.title).toBe('Título Atualizado');
@@ -204,7 +223,9 @@ describe('epic.services', () => {
 				`${BASE_URL}/epics/`,
 				expect.objectContaining({
 					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ ids: [1, 2] }),
+					credentials: 'include',
 				})
 			);
 			expect(result).toEqual({ success: true });
